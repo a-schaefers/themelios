@@ -24,22 +24,22 @@ EOF
 
 ## What does it do
 From any NixOS live disk, Themelios will do the following in approximate order:
-    - Automatically installs zfs and git to the livedisk if needed.
-    - Clones your git repo, optionally using a non-master branch.
-    - Finds your configuration.sh file automatically.
-    - Configures a zfs-on-root system to your configuration.sh file specification including the following options:
-        * Use sgdisk and/or wipefs, or dd to clear your disks.
-        * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
-        * Configure a zfs-on-root dataset scheme by default
-        * Bootstrap your top level .nix configuration and install the rest of your operating system
-    - Aims to fail gracefully with continue and retry options, and helpful debug parameters.
-    - A simple script, easy to hack on.
+- Automatically installs zfs and git to the livedisk if needed.
+- Clones your git repo, optionally using a non-master branch.
+- Finds your configuration.sh file automatically.
+- Configures a zfs-on-root system to your configuration.sh file specification including the following options:
+  * Use sgdisk and/or wipefs, or dd to clear your disks.
+  * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
+  * Configure a zfs-on-root dataset scheme by default
+  * Bootstrap your top level .nix configuration and install the rest of your operating system
+- Aims to fail gracefully with continue and retry options, and helpful debug parameters.
+- A simple script, easy to hack on.
 
 ## What does it not do
-    - Currently uefi is unsupported, mainly because I'm lazy to implement it and I feel that legacy is more robust.
-    - Configure than one pool.
+- Currently uefi is unsupported, mainly because I'm lazy to implement it and I feel that legacy is more robust.
+- Configure than one pool.
 
-    (PR's accepeted!)
+(PR's accepeted!)
 
 ## Configuration.sh Variables:
 ```bash
