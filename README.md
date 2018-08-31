@@ -3,7 +3,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command
 
 ![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
 
-## What it does
+## What Themelios does
 From any NixOS live disk, Themelios will do the following in approximate order:
 - Automatically installs zfs and git to the livedisk if needed.
 - Clones your git repo, optionally using a non-master branch.
@@ -22,7 +22,9 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Write zeros to more than one disk concurrently.
 - Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
 
-(PR's accepeted!)
+## What it will never do
+- Mess with any of your .nix files in your repo. This means you still need to enable ZFS in you nix files. I recommend something like the following:
+https://github.com/a-schaefers/nix-config/blob/master/modules/nixos/nixos-zfs.nix
 
 ## Configuration.sh Variables:
 ```bash
