@@ -1,3 +1,5 @@
+![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/screenshot.png)
+
 # themelios
 Bootstrap a zfs-on-root NixOS configuration in one command
 
