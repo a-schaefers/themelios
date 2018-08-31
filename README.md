@@ -1,4 +1,4 @@
-# themelios
+# Themelios
 Bootstrap a zfs-on-root NixOS configuration in one command
 
 ![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
@@ -16,14 +16,14 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
 
-## What it doesn't do (yet)
+## What Themelios does not do (yet)
 - Currently uefi is unsupported. (imho legacy bios with zfs BE's is more robust.)
 - Configure more than one pool.
 - Write zeros to more than one disk concurrently.
 - Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
 
-## What it will never do
-- Mess with any of your .nix files in your repo. This means you still need to enable ZFS in you nix files. I recommend something like the following:
+## What Themelios will never do
+- Mess with any of your .nix files in your repo. This means you still need to turn on some basic ZFS settings in you nix files. I recommend something like the following:
 https://github.com/a-schaefers/nix-config/blob/master/modules/nixos/nixos-zfs.nix
 
 ## Configuration.sh Variables:
