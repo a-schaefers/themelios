@@ -16,7 +16,7 @@ Github users may also use a shorthand:
 
        themelios configuration.sh a-schaefers/nix-config
 
-Use -h or --help for more instructions.
+Use -h or --help for more information.
 EOF
     exit
 }
