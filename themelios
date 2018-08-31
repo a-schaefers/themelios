@@ -6,15 +6,14 @@
 
 usage() {
     cat << EOF
-Usage: themelios <configuration.sh> <git remote> <branch (optional)>
+Usage:
+        themelios configuration.sh git-remote [branch]
 
-One example:
-
-       themelios configuration.sh https://github.com/a-schaefers/nix-config.git master
+Example:
+        themelios configuration.sh https://github.com/a-schaefers/nix-config.git master
 
 Github users may also use a shorthand:
-
-       themelios configuration.sh a-schaefers/nix-config
+        themelios configuration.sh a-schaefers/nix-config
 
 Use -h or --help for more information.
 EOF
@@ -25,14 +24,13 @@ help() {
     cat <<EOF
 Themelios - Bootstrap a zfs-on-root NixOS in one command.
 
-Usage: themelios <configuration.sh> <git remote> <branch (optional)>
+Usage:
+       themelios configuration.sh git-remote [branch]
 
 One example:
-
        themelios configuration.sh https://github.com/a-schaefers/nix-config.git master
 
 Github users may also use a shorthand:
-
        themelios configuration.sh a-schaefers/nix-config
 
 Store all machine-specific settings in bash variables in a separate <configuration.sh> script in your <git repo>.
