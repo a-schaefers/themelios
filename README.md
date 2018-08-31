@@ -12,6 +12,8 @@ From any NixOS live disk, Themelios will do the following in approximate order:
   * Uses sgdisk and/or wipefs, or dd to clear your disks.
   * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
   * Configures a zfs-on-root dataset scheme by default
+  * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo.
+  * Also [optionally] Generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
   * Bootstraps your top level .nix configuration and install the rest of your operating system
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
@@ -22,11 +24,15 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Write zeros to more than one disk concurrently.
 - Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
 
-## What Themelios will never do
-- Mess with any of your .nix files in your repo. This means you still need to turn on some basic ZFS settings in your nix files. I recommend something like the following:
-https://github.com/a-schaefers/nix-config/blob/master/modules/nixos/nixos-zfs.nix
+## Try it in it a VM right now!
+- Fire up a virtual machine and test it for yourself using example configurations from this repo!
 
-## Configuration.sh Variables:
+Build a virtual machine based on the vm-config.sh file which will be found in hosts/vm-example:
+```bash
+$ [root@nixos:~]# ./themelios vm-config.sh a-schaefers/themelios
+```
+
+## configuration.sh
 ```bash
 # Themelios configuration.sh example
 POOL_NAME="zroot"
@@ -46,7 +52,9 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
-# Your top-level configuration.nix file relative path from the project_root.
+THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
+
+# Your top-level configuration.nix file (relative path from the project_root.)
 # e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
 TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
 
@@ -56,4 +64,29 @@ NIXCFG_DIR="nix-config"
 # Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
 # OTOH, if you garbage collect often, this should not be much of an issue. (Recommended false.)
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
+```
+
+## themelios-generated.nix
+If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will ceate /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
+```nix
+{ ... }:
+{ imports = [];
+# Required by zfs.
+boot.supportedFilesystems = [ "zfs" ];
+networking.hostId = "${POOL_HOSTID}";
+
+# Some zfs-on-root sensible settings.
+
+# Noop elevator recommended.
+# shell_on_fail allows to force import manually in the case of zfs import failure.
+boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
+
+# Grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths.
+# Just copy the kernels to /boot/grub and avoid the issue.
+boot.loader.grub.copyKernels = true;
+
+# Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
+boot.zfs.forceImportAll = false;
+boot.zfs.forceImportRoot = false;
+}
 ```

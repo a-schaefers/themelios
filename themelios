@@ -66,6 +66,8 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
+THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
+
 # Your top-level configuration.nix file relative path from the project_root.
 # e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
 TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
@@ -345,19 +347,51 @@ __bootstrap_nixcfg() {
     TOP_LEVEL_NIXFILE=$(echo "${TOP_LEVEL_NIXFILE}" | sed 's|^./||')
 
     # setup user's future /etc/nixos/configuration.nix file to import their custom TOP_LEVEL_NIXFILE.
+    if [[ ${THEMELIOS_ZFS} == "true" ]]
+    then
+        THEMELIOS_OPTIONAL_GENERATED="./themelios-generated.nix"
+    else
+        ZFS_REQUIRED_HOSTID="networking.hostId = \"${POOL_HOSTID}\";"
+    fi
     cat <<EOF > /mnt/etc/nixos/configuration.nix
 { ... }:
 { imports = [
+../../${NIXCFG_DIR}/${TOP_LEVEL_NIXFILE}
 ./hardware-configuration.nix
+${THEMELIOS_OPTIONAL_GENERATED}
 ];
-networking.hostId = "${POOL_HOSTID}";
+${ZFS_REQUIRED_HOSTID}
 }
 EOF
-    sed -i "/imports/a ../../${NIXCFG_DIR}/${TOP_LEVEL_NIXFILE}" \
-        /mnt/etc/nixos/configuration.nix
+
+    if [[ ${THEMELIOS_ZFS} == "true" ]]
+    then
+        cat <<EOF > /mnt/etc/nixos/themelios-generated.nix
+{ ... }:
+{ imports = [];
+# required by zfs
+boot.supportedFilesystems = [ "zfs" ];
+networking.hostId = "${POOL_HOSTID}";
+
+# some zfs-on-root sensible settings
+
+# noop elevator recommended.
+# shell_on_fail allows to force import manually in the case of zfs import failure.
+boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
+
+# grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
+# Just copy the kernels to /boot/grub and avoid the issue.
+boot.loader.grub.copyKernels = true;
+
+# Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
+boot.zfs.forceImportAll = false;
+boot.zfs.forceImportRoot = false;
+}
+EOF
+    fi
 
     # nixos-install section
-    __nixos-install-show-trace-termbin() {
+    __nixos-install-show-trace() {
         nixos-install --root /mnt --show-trace || __nixos-install_fail_retry
     }
     __nixos-install_fail_retry() {
@@ -366,7 +400,7 @@ EOF
         read -p "nixos-install --root /mnt failed, retry? will add --show-trace (Y or N) " -n 1 -r
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            __nixos-install-show-trace-termbin
+            __nixos-install-show-trace
         else
             exit
         fi

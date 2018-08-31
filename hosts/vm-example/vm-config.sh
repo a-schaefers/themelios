@@ -1,11 +1,9 @@
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
+POOL_TYPE=""    # May also be set to "mirror". Leave empty "" for single.
 
 # use one disk per line here!
-POOL_DISKS="/dev/sda
-/dev/sdb
-/dev/sdc"
+POOL_DISKS="/dev/sda"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # wipefs --all
@@ -19,8 +17,8 @@ ZSWAP_SIZE="4G"
 THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
 
 # Your top-level configuration.nix file (relative path from the project_root.)
-# e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
-TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
+# e.g. for the file project_root/hosts/vm-example/default.nix use the following:
+TOP_LEVEL_NIXFILE="hosts/vm-example"
 
 # Directory name of <git-remote> in "/" (root). Do not use slashes.
 NIXCFG_DIR="nix-config"
