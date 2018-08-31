@@ -19,7 +19,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - A simple script, easy to hack on.
 
 ## What Themelios does not do (yet)
-- Currently uefi is unsupported. (imho legacy bios with zfs BE's is more robust.)
+- Currently uefi is unsupported. (imho using legacy bios with zfs boot environments is more robust.)
 - Configure more than one pool.
 - Write zeros to more than one disk concurrently.
 - Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
@@ -66,7 +66,7 @@ NIXCFG_DIR="nix-config"
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 ```
 
-## themelios-generated.nix
+## themelios-zfs.nix
 If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will ceate /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
 ```nix
 { ... }:
