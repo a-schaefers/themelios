@@ -43,40 +43,34 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 
 ## Configuration.sh Variables:
 ```bash
-Available variables to be set:
+# Themelios configuration.sh example
+POOL_NAME="zroot"
+POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
 
-TOP_LEVEL_NIXFILE  => Your top-level configuration.nix file relative path from the project_root.
-                      e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
-                      TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
-
-    NOTE: This variable is used as an import in /etc/nixos/configuration.nix.
-
-NIXCFG_DIR         => Directory name of <git-remote> in "/" (root). Do not use slashes.
-
-POOL_NAME          => e.g. POOL_NAME="zroot" or POOL_NAME="rpool"
-
-POOL_TYPE          => may be "" for single disk, or mirror/raidz1/raidz2/raidz3
-
-POOL_DISKS         => Separate each disk with line breaks,  e.g.
+# use one disk per line here!
 POOL_DISKS="/dev/sda
 /dev/sdb
 /dev/sdc"
 
-WIPEFS_ALL         => use "true" or "false" (Runs wipefs --all)
+SGDISK_CLEAR="true"   # Use sgdisk --clear
+WIPEFS_ALL="true"     # wipefs --all
+ZERO_DISKS="false"
+ATIME="off"           # recommended "off" for SSD disks.
+SNAPSHOT_ROOT="true"  # Sets the value of com.sun:auto-snapshot
+SNAPSHOT_HOME="true"
+USE_ZSWAP="false"     # Creates a swap zvol
+ZSWAP_SIZE=4G
 
-SGDISK_CLEAR       => use "true" or "false" (Runs sgdisk --clear)
+# Your top-level configuration.nix file relative path from the project_root.
+# e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
+# TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
+TOP_LEVEL_NIXFILE="hosts/vm.nix"
 
-ZERO_DISKS         => use "true" or "false" (Runs dd if=/dev/zero ...)
+# Directory name of <git-remote> in "/" (root). Do not use slashes.
+NIXCFG_DIR="nix-config"
 
-ATIME              => Set to "on" or "off" (Setting to "off" is recommended for SSD)
-
-SNAPSHOT_ROOT      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot for /)
-
-SNAPSHOT_HOME      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot for /home)
-
-USE_ZSWAP          => use "true" / "false" (Creates a swap zvol)
-
-ZSWAP_SIZE         => e.g. ZSWAP_SIZE="4G"
-
-NIXDIR_NOROOT      => use "true" / "false" (Mounts /nix outside of the ROOT dataset, not recommended.)
 ```
+
+Debug options:
+
+          See the end of the script for details.
