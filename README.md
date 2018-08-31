@@ -1,28 +1,7 @@
-![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/screenshot.png)
-
 # themelios
 Bootstrap a zfs-on-root NixOS configuration in one command
 
-```bash
-usage() {
-    cat << EOF
-Usage: themelios <configuration.sh> <git remote> <branch (optional)>
-
-The "configuration.sh" file may be named anything and located anywhere in the project_root.
-
-One example:
-
-       themelios configuration.sh https://github.com/a-schaefers/nix-config.git master
-
-Github users may also use a shorthand:
-
-       themelios configuration.sh a-schaefers/nix-config
-
-Use -h or --help for more instructions.
-EOF
-    exit
-}
-```
+![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/screenshot.png)
 
 ## What does it do
 From any NixOS live disk, Themelios will do the following in approximate order:
