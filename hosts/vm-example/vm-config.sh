@@ -1,6 +1,6 @@
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE=""    # May also be set to "mirror". Leave empty "" for single.
+POOL_TYPE=""    # Use "" or mirror/raidz1/raidz2/raidz3 ...
 
 # use one disk per line here! e.g.
 # POOL_DISKS="/dev/sda
