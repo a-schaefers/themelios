@@ -27,7 +27,7 @@ Themelios - Bootstrap a zfs-on-root NixOS in one command.
 Usage:
        themelios configuration.sh git-remote [branch]
 
-One example:
+Example:
        themelios configuration.sh https://github.com/a-schaefers/nix-config.git master
 
 Github users may also use a shorthand:
