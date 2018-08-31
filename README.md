@@ -57,6 +57,3 @@ NIXCFG_DIR="nix-config"
 # OTOH, if you garbage collect often, this should not be much of an issue. (Recommended false.)
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 ```
-
-## Debug options:
-See the end of the script for details.
