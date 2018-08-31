@@ -4,6 +4,7 @@
 # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+THEMELIOS=$()
 usage() {
     cat << EOF
 Usage: themelios <configuration.sh> <git remote> <branch (optional)>
@@ -56,28 +57,32 @@ Available variables to be set:
 
           POOL_TYPE          => may be "" for single disk, or mirror/raidz1/raidz2/raidz3
 
-          POOL_DISKS         => Separate each disk with line breaks, and I recommend using /dev/disk/by-id,
-                             e.g. POOL_DISKS="/dev/sda
+          POOL_DISKS         => Separate each disk with line breaks,  e.g.
+                             POOL_DISKS="/dev/sda
                              /dev/sdb
                              /dev/sdc"
 
-          POOL_HOSTID        => Use 8-digit hexadecimal or simply POOL_HOSTID="random"
+          WIPEFS_ALL         => use "true" or "false" (Runs wipefs --all)
 
-          WIPEFS_ALL         => use "true" or "false"
+          SGDISK_CLEAR       => use "true" or "false" (Runs sgdisk --clear)
 
-          SGDISK_CLEAR       => use "true" or "false"
-
-          ZERO_DISKS         => use "true" or "false"
+          ZERO_DISKS         => use "true" or "false" (Runs dd if=/dev/zero ...)
 
           ATIME              => Set to "on" or "off" (Setting to "off" is recommended for SSD)
 
-          SNAPSHOT_ROOT      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot)
+          SNAPSHOT_ROOT      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot for /)
 
-          SNAPSHOT_HOME      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot)
+          SNAPSHOT_HOME      => use "true" / "false" or "" (Sets the value of com.sun:auto-snapshot for /home)
 
           USE_ZSWAP          => use "true" / "false" (Creates a swap zvol)
 
           ZSWAP_SIZE         => e.g. ZSWAP_SIZE="4G"
+
+          NIXDIR_NOROOT      => use "true" / "false" (Mounts /nix outside of the ROOT dataset, not recommended.)
+
+Debug options:
+
+          See debug section at the end of this script.
 EOF
     exit
 }
@@ -335,6 +340,7 @@ __bootstrap_nixcfg() {
     echo "Executing nixos-generate-config --root /mnt"
     nixos-generate-config --root /mnt || __fail_warning
 
+    [[ ! ${POOL_HOSTID} ]] && POOL_HOSTID="random"
     if [[ ${POOL_HOSTID} == "random" ]]
     then
         echo "Generating random hostid..."
