@@ -2,7 +2,11 @@
 POOL_NAME="zroot"
 POOL_TYPE=""    # May also be set to "mirror". Leave empty "" for single.
 
-# use one disk per line here!
+# use one disk per line here! e.g.
+# POOL_DISKS="/dev/sda
+# /dev/sdb
+# /dev/sdc"
+
 POOL_DISKS="/dev/sda"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
