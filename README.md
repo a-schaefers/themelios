@@ -37,7 +37,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 
 ## What does it not do
 - Currently uefi is unsupported, mainly because I'm lazy to implement it and I feel that legacy is more robust when using ZFS boot environments.
-- Configure than one pool.
+- Configure more than one pool.
 
 (PR's accepeted!)
 
