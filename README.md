@@ -50,6 +50,10 @@ TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
 
 # Directory name of <git-remote> in "/" (root). Do not use slashes.
 NIXCFG_DIR="nix-config"
+
+# Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
+# OTOH, if you garbage collect often, this should not be much of an issue. (Recommended false.)
+NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 ```
 
 ## Debug options:
