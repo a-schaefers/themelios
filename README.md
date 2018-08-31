@@ -1,7 +1,7 @@
 # themelios
 Bootstrap a zfs-on-root NixOS configuration in one command
 
-![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/screenshot.png)
+![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
 
 ## What it does
 From any NixOS live disk, Themelios will do the following in approximate order:
