@@ -23,7 +23,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
 
 ## What Themelios will never do
-- Mess with any of your .nix files in your repo. This means you still need to turn on some basic ZFS settings in you nix files. I recommend something like the following:
+- Mess with any of your .nix files in your repo. This means you still need to turn on some basic ZFS settings in your nix files. I recommend something like the following:
 https://github.com/a-schaefers/nix-config/blob/master/modules/nixos/nixos-zfs.nix
 
 ## Configuration.sh Variables:
