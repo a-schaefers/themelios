@@ -375,10 +375,8 @@ EOF
         echo "executing nixos-install --root /mnt"
         nixos-install --root /mnt || __nixos-install_fail_retry
     }
-    if [[ ! ${NOINSTALL} ]]
-    then
-        __nixos-install
-    fi
+
+    __nixos-install
 }
 
 __thank_you() {
@@ -401,7 +399,7 @@ N::::::N        N::::::NI::::::::IX:::::X       X:::::X
 NNNNNNNN         NNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
 EOF
 
-    __umount_mnt() {
+    __umount_export() {
         if [[ ${USE_ZSWAP} == "true" ]]
         then
             swapoff /dev/zvol/${POOL_NAME}/SWAP/swap0
@@ -410,9 +408,9 @@ EOF
         umount /mnt/home
         umount /mnt/tmp
         umount /mnt
+        zpool export ${POOL_NAME}
     }
-    [[ ! ${NOUMOUNT} ]] && __umount_mnt
-    [[ ! ${NOINSTALL} ]] && zpool export ${POOL_NAME}
+    [[ ! ${NOUMOUNT} ]] && __umount_export
 
     read -p "Finished. Reboot now? (Y or N) " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]
@@ -425,8 +423,7 @@ EOF
 
 # debug section
 
-# Pass NOUMOUNT=1 to not unmount /mnt automatically
-# Pass NOINSTALL=1 to skip nixos-install command
+# Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
 # run "STARTOVER=1 POOL=poolname ./themelios foo bar" to rerun the script with a fresh start.
 __start_over() {
     umount /mnt/home
