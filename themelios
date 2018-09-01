@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
+# MIT License
+
 # Copyright 2018 Adam Schaefers sch@efers.org
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 usage() {
     cat << EOF
@@ -293,45 +310,45 @@ __datasets_create() {
     fi
 }
 
-__zfs_auto_snapshot() {
-    if [[ ${SNAPSHOT_HOME} == "true" ]]
-    then
-        echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
-        zfs set com.sun:auto-snapshot=true ${POOL_NAME}/HOME
-    elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-    then
-        echo "Setting com.sun:auto-snapshot=false for HOME datasets..."
-        zfs set com.sun:auto-snapshot=false ${POOL_NAME}/HOME
-    fi
+ __zfs_auto_snapshot() {
+     if [[ ${SNAPSHOT_HOME} == "true" ]]
+     then
+         echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
+         zfs set com.sun:auto-snapshot=true ${POOL_NAME}/HOME
+     elif [[ ${SNAPSHOT_ROOT} == "false" ]]
+     then
+         echo "Setting com.sun:auto-snapshot=false for HOME datasets..."
+         zfs set com.sun:auto-snapshot=false ${POOL_NAME}/HOME
+     fi
 
-    if [[ ${SNAPSHOT_ROOT} == "true" ]]
-    then
-        echo "Setting com.sun:auto-snapshot=true for ROOT datasets..."
-        zfs set com.sun:auto-snapshot=true ${POOL_NAME}/ROOT
-    elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-    then
-        echo "Setting com.sun:auto-snapshot=false for ROOT datasets..."
-        zfs set com.sun:auto-snapshot=false ${POOL_NAME}/ROOT
-    fi
-}
+     if [[ ${SNAPSHOT_ROOT} == "true" ]]
+     then
+         echo "Setting com.sun:auto-snapshot=true for ROOT datasets..."
+         zfs set com.sun:auto-snapshot=true ${POOL_NAME}/ROOT
+     elif [[ ${SNAPSHOT_ROOT} == "false" ]]
+     then
+         echo "Setting com.sun:auto-snapshot=false for ROOT datasets..."
+         zfs set com.sun:auto-snapshot=false ${POOL_NAME}/ROOT
+     fi
+ }
 
-__bootstrap_nixcfg() {
-    echo "Moving repo from /tmp to /mnt..."
-    cp -rp /tmp/NIXCFG_REPO /mnt/${NIXCFG_DIR}
+ __bootstrap_nixcfg() {
+     echo "Moving repo from /tmp to /mnt..."
+     cp -rp /tmp/NIXCFG_REPO /mnt/${NIXCFG_DIR}
 
-    echo "Executing nixos-generate-config --root /mnt"
-    nixos-generate-config --root /mnt || __fail_warning
+     echo "Executing nixos-generate-config --root /mnt"
+     nixos-generate-config --root /mnt || __fail_warning
 
-    [[ ! ${POOL_HOSTID} ]] && POOL_HOSTID="random"
-    if [[ ${POOL_HOSTID} == "random" ]]
-    then
-        echo "Generating random hostid..."
-        POOL_HOSTID="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
-        echo "${POOL_HOSTID}"
-    fi
+     [[ ! ${POOL_HOSTID} ]] && POOL_HOSTID="random"
+     if [[ ${POOL_HOSTID} == "random" ]]
+     then
+         echo "Generating random hostid..."
+         POOL_HOSTID="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
+         echo "${POOL_HOSTID}"
+     fi
 
-    #sanitize TLN for import heredoc
-    TOP_LEVEL_NIXFILE=$(echo "${TOP_LEVEL_NIXFILE}" | sed 's|^./||')
+     #sanitize TLN for import heredoc
+     TOP_LEVEL_NIXFILE=$(echo "${TOP_LEVEL_NIXFILE}" | sed 's|^./||')
 
     # setup user's future /etc/nixos/configuration.nix file to import their custom TOP_LEVEL_NIXFILE.
     if [[ ${THEMELIOS_ZFS} == "true" ]]
