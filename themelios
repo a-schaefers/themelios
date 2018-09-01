@@ -33,7 +33,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
   - Uses sgdisk and/or wipefs, or dd to clear your disks.
   - Creates a single/mirror/raidz1/raidz2/raidz3 zpool
   - Configures a zfs-on-root dataset scheme by default
-  - Bootstraps your top level .nix configuration and install the rest of your operating system
+  - Bootstraps your top level .nix configuration and installs the rest of your operating system
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
 
