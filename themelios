@@ -367,7 +367,7 @@ networking.hostId = "${POOL_HOSTID}";
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
 # grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
-# Just copy the kernels to /boot/grub and avoid the issue.
+# Just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
 # Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
