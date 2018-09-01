@@ -83,13 +83,11 @@ networking.hostId = "${POOL_HOSTID}";
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
-
 boot.loader.grub.devices = [
 $(IFS=$'\n'
 for DISK_ID in ${POOL_DISKS}
 do
-    NIXCFG_DISKS="$(echo "\"${DISK_ID}\"")"
-    echo "${NIXCFG_DISKS}"
+echo $(echo "\"${DISK_ID}\"")
 done)
 ];
 
