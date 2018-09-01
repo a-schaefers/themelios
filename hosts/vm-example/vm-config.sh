@@ -29,7 +29,7 @@ NIXCFG_DIR="nix-config"
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 
 # Creates /etc/nixos/themelios-zfs.nix with sensible settings
-THEMELIOS_ZFS="true"
+THEMELIOS_ZFS="false"
 
 # Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
 THEMELIOS_ZFS_CARE="false"
