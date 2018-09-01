@@ -29,7 +29,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM, download the themelios script and execute:
 ```bash
-$ [root@nixos:~]# ./themelios vm-config.sh a-schaefers/themelios
+[root@nixos:~]# ./themelios vm-config.sh a-schaefers/themelios
 ```
 This command will download the a-schaefers/themelios repo from github, then search the project for a file by the name of "vm-config.sh" and begin the bootstrap process with no-questions-asked.
 
@@ -105,4 +105,31 @@ boot.loader.grub.copyKernels = true;
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
 }
+```
+
+## Additional configuration.sh settings - Zfs care
+If THEMELIOS_ZFS_CARE="true", Themelios will configure and append the following additional settings and services to themelios-zfs.nix
+```bash
+####################
+# ZFS_CARE Options #
+####################
+
+# Auto Scrubs
+care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
+
+# Auto Snapshots
+care_autoSnapshot_enabled="true"
+care_autoSnapshot_frequent="8" # Take a snapshot every 15 minutes and keep 8 in rotation
+care_autoSnapshot_hourly="0"
+care_autoSnapshot_daily="7" # Take a daily snapshot and keep 7 in rotation
+care_autoSnapshot_weekly="0"
+care_autoSnapshot_monthly="0"
+
+# Auto Garbage Collection
+care_gc_automatic="true"
+care_gc_dates="daily"
+care_gc_options="--delete-older-than 7d"
+
+# Auto /tmp clean
+care_cleanTmpDir="true"
 ```

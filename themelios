@@ -52,6 +52,7 @@ configuration.sh files, provided they are uniquely named.
 In summary, feed Themelios a git repository url and the name of any file which
 [only] contains the following configuration variables:
 
+# Themelios configuration.sh example
 POOL_NAME="zroot"
 POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
 
@@ -69,8 +70,6 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
-THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
-
 # Your top-level configuration.nix file-- (use the relative path from the project_root.)
 # For example, to bootstrap the file project_root/hosts/vm-example/default.nix use the following:
 TOP_LEVEL_NIXFILE="hosts/vm-example"
@@ -82,6 +81,35 @@ NIXCFG_DIR="nix-config"
 # Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
 # If you use nix.gc.automatic, then this should not be much of an issue. Recommended "false".
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
+
+# Creates /etc/nixos/themelios-zfs.nix with sensible settings
+THEMELIOS_ZFS="true"
+
+# "zfs.care" section - If enabled, will append additional settings and services to themelios-zfs.nix
+THEMELIOS_ZFS_CARE="false"
+
+####################
+# ZFS_CARE Options #
+####################
+
+# Auto Scrubs
+care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
+
+# Auto Snapshots
+care_autoSnapshot_enabled="true"
+care_autoSnapshot_frequent="8" # Take a snapshot every 15 minutes and keep 8 in rotation
+care_autoSnapshot_hourly="0"
+care_autoSnapshot_daily="7" # Take a daily snapshot and keep 7 in rotation
+care_autoSnapshot_weekly="0"
+care_autoSnapshot_monthly="0"
+
+# Auto Garbage Collection
+care_gc_automatic="true"
+care_gc_dates="daily"
+care_gc_options="--delete-older-than 7d"
+
+# Auto /tmp clean
+care_cleanTmpDir="true"
 EOF
     exit
 }
@@ -405,23 +433,23 @@ boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
 
 $([[ ${THEMELIOS_ZFS_CARE} ]] && cat <<-CARE
-services.zfs.autoScrub.enable = true;
+services.zfs.autoScrub.enable = ${care_autoScrub};
 services.zfs.autoSnapshot = {
-enable = true;
-frequent = 8;
-hourly = 0;
-daily = 7;
-weekly = 0;
-monthly = 0;
+enable = ${care_autoSnapshot_enabled};
+frequent = ${care_autoSnapshot_frequent};
+hourly = ${care_autoSnapshot_hourly};
+daily = ${care_autoSnapshot_daily};
+weekly = ${care_autoSnapshot_weekly};
+monthly = ${care_autoSnapshot_monthly};
 };
 
 # Use gc.automatic with zfs-auto-snapshot to keep disk space under control.
-nix.gc.automatic = true;
-nix.gc.dates = "daily";
-nix.gc.options = "--delete-older-than 7d";
+nix.gc.automatic = ${care_gc_automatic};
+nix.gc.dates = "${care_gc_dates}";
+nix.gc.options = "${care_gc_options}";
 
 # clean /tmp automatically on boot
-boot.cleanTmpDir = true;
+boot.cleanTmpDir = ${care_cleanTmpDir};
 CARE
 )
 }
