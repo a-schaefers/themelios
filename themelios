@@ -370,14 +370,33 @@ EOF
 
     if [[ ${THEMELIOS_ZFS} == "true" ]]
     then
+        IFS=$'\n'
+        for DISK_ID in ${POOL_DISKS}
+        do
+
+            NIXCFG_BOOT_LOADER_DISKS="$(NIXCFG_BOOT_LOADER_DISKS="\"${DISK_ID}\"")"
+        done
+
         cat <<EOF > /mnt/etc/nixos/themelios-zfs.nix
 { ... }:
 { imports = [];
 # required by zfs
-boot.supportedFilesystems = [ "zfs" ];
 networking.hostId = "${POOL_HOSTID}";
 
 # some zfs-on-root sensible settings
+
+# configure grub using /dev/disk/by-d and zfs-support
+boot.supportedFilesystems = [ "zfs" ];
+boot.loader.grub.enable = true;
+boot.loader.grub.version = 2;
+boot.loader.grub.devices = [
+$(IFS=$'\n'
+for DISK_ID in ${POOL_DISKS}
+do
+    NIXCFG_DISKS="$(echo "\"${DISK_ID}\"")"
+    echo "${NIXCFG_DISKS}"
+done)
+];
 
 # noop elevator recommended.
 # shell_on_fail allows to force import manually in the case of zfs import failure.

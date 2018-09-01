@@ -2,14 +2,8 @@
 # zfs test vm settings
 {
   imports = [];
-
-  boot.loader.grub.devices = [ "/dev/sda" ];
-
   boot.kernelModules = [ "microcode" ];
   boot.kernelParams = [ "" ];
-
-  boot.loader.grub.enable = true;
-  boot.loader.grub.version = 2;
 
   i18n = {
     consoleFont = "Lat2-Terminus16";
