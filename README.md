@@ -69,7 +69,7 @@ NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 ```
 
 ## themelios-zfs.nix
-If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will ceate /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
+If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
 ```nix
 { ... }:
 { imports = [];
