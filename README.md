@@ -71,7 +71,7 @@ NIXDIR_NOROOT="false"
 
 ## themelios-zfs.nix
 If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
-```nix
+```bash
 { ... }:
 { imports = [];
 # required by zfs
@@ -83,7 +83,7 @@ networking.hostId = "${POOL_HOSTID}";
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
-```bash
+
 boot.loader.grub.devices = [
 $(IFS=$'\n'
 for DISK_ID in ${POOL_DISKS}
@@ -92,7 +92,6 @@ do
     echo "${NIXCFG_DISKS}"
 done)
 ];
-```
 
 # noop elevator recommended.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
