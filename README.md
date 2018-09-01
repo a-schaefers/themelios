@@ -46,7 +46,7 @@ POOL_DISKS="/dev/sda
 /dev/sdc"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
-WIPEFS_ALL="true"     # wipefs --all
+WIPEFS_ALL="true"     # Use wipefs --all
 ZERO_DISKS="false"    # uses dd if=/dev/zero ...
 ATIME="off"           # recommended "off" for SSD disks.
 SNAPSHOT_ROOT="true"  # Sets the value of com.sun:auto-snapshot
