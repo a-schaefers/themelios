@@ -9,12 +9,6 @@ usage() {
 Usage:
         themelios configuration.sh git-remote [branch]
 
-Example:
-        themelios configuration.sh https://github.com/a-schaefers/themelios.git master
-
-Github users may also use a shorthand:
-        themelios configuration.sh a-schaefers/themelios
-
 Use -h or --help for more information.
 EOF
     exit
