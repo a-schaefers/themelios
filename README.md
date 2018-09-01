@@ -31,7 +31,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 ```bash
 $ [root@nixos:~]# ./themelios vm-config.sh a-schaefers/themelios
 ```
-This builds a virtual machine based on the vm-config.sh file which will be found in hosts/vm-example of this repo.
+This command will download the a-schaefers/themelios repo from github, then search the project for a file by the name of "vm-config.sh" and begin the bootstrap process with no-questions-asked.
 
 ## configuration.sh
 Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will find it automatically. This allows for using multiple, per-machine configuration.sh files, provided they are uniquely named.
