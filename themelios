@@ -336,7 +336,7 @@ __bootstrap_nixcfg() {
     # setup user's future /etc/nixos/configuration.nix file to import their custom TOP_LEVEL_NIXFILE.
     if [[ ${THEMELIOS_ZFS} == "true" ]]
     then
-        THEMELIOS_OPTIONAL_GENERATED="./themelios-generated.nix"
+        THEMELIOS_OPTIONAL_GENERATED="./themelios-zfs.nix"
     else
         ZFS_REQUIRED_HOSTID="networking.hostId = \"${POOL_HOSTID}\";"
     fi
@@ -353,7 +353,7 @@ EOF
 
     if [[ ${THEMELIOS_ZFS} == "true" ]]
     then
-        cat <<EOF > /mnt/etc/nixos/themelios-generated.nix
+        cat <<EOF > /mnt/etc/nixos/themelios-zfs.nix
 { ... }:
 { imports = [];
 # required by zfs
