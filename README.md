@@ -54,8 +54,6 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
-THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
-
 # Your top-level configuration.nix file-- (use the relative path from the project_root.)
 # For example, to bootstrap the file project_root/hosts/vm-example/default.nix use the following:
 TOP_LEVEL_NIXFILE="hosts/vm-example"
@@ -66,7 +64,13 @@ NIXCFG_DIR="nix-config"
 # If true, mount /nix outside of the / (root) dataset.
 # Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
 # If you use nix.gc.automatic, then this should not be much of an issue. Recommended "false".
-NIXDIR_NOROOT="false"
+NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
+
+# Creates /etc/nixos/themelios-zfs.nix with sensible settings
+THEMELIOS_ZFS="true"
+
+# "Zfs Care" section - If enabled, will append additional settings and services to themelios-zfs.nix
+THEMELIOS_ZFS_CARE="false"
 ```
 
 ## themelios-zfs.nix
@@ -113,6 +117,8 @@ If THEMELIOS_ZFS_CARE="true", Themelios will configure and append the following 
 ####################
 # ZFS_CARE Options #
 ####################
+
+# The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true"
 
 # Auto Scrubs
 care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
