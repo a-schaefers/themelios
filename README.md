@@ -83,6 +83,7 @@ networking.hostId = "${POOL_HOSTID}";
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
+```bash
 boot.loader.grub.devices = [
 $(IFS=$'\n'
 for DISK_ID in ${POOL_DISKS}
@@ -91,6 +92,7 @@ do
     echo "${NIXCFG_DISKS}"
 done)
 ];
+```
 
 # noop elevator recommended.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
