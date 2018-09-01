@@ -216,14 +216,20 @@ __get_custom_nixcfg() {
         [[ ${NIXCFG_BRANCH} ]] && __checkout_branch
     fi
 
-    # find NIXCFG_HOST ($1) and source the variables
-    echo "Extracting configuration variables..."
-    # TODO , make || -type d option and default to configuration.sh of the directory.
-    NIXCFG_HOST=$(cd /tmp/NIXCFG_REPO && find -type f -name "${NIXCFG_HOST}")
-    source "${NIXCFG_HOST}" || __fail_warning
-    cat <<EOF
-${NIXCFG_HOST}
-EOF
+    __get_configuration_sh() {
+        # Find the themelios configuration.sh file.
+        # If given a unique filename, use the filename to source the config variables.
+        # If given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
+        cd /tmp/NIXCFG_REPO
+        find -type f -name "${NIXCFG_HOST}" | grep "." && \
+            NIXCFG_HOST=$(find -type f -name "${NIXCFG_HOST}")
+        find -type d -name "${NIXCFG_HOST}" | grep "." && \
+            NIXCFG_HOST=$(echo $(find -type d -name "${NIXCFG_HOST}")/configuration.sh)
+
+        echo "Extracting configuration variables..."
+        source "${NIXCFG_HOST}" || __fail_warning
+    }
+    __get_configuration_sh
 }
 
 __disk_prep() {
