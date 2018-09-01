@@ -13,7 +13,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
   * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
   * Configures a zfs-on-root dataset scheme by default
   * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo.
-  * Also [optionally] Generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
+  * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
   * Bootstraps your top level .nix configuration and installs the rest of your operating system
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
