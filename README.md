@@ -119,7 +119,7 @@ The following options are only applicable if both THEMELIOS_ZFS="true" and THEME
 THEMELIOS_ZFS_CARE="false"
 
 # Auto Scrubs
-care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
+care_autoScrub="true"
 
 # Auto Snapshots
 care_autoSnapshot_enabled="true"

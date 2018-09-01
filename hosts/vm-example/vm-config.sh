@@ -31,15 +31,15 @@ NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 # Creates /etc/nixos/themelios-zfs.nix with sensible settings
 THEMELIOS_ZFS="true"
 
-# "zfs.care" section - If enabled, will append additional settings and services to themelios-zfs.nix
-THEMELIOS_ZFS_CARE="false"
-
 ####################
 # ZFS_CARE Options #
 ####################
 
+# Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
+THEMELIOS_ZFS_CARE="false"
+
 # Auto Scrubs
-care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
+care_autoScrub="true"
 
 # Auto Snapshots
 care_autoSnapshot_enabled="true"
