@@ -370,7 +370,7 @@ EOF
 
     if [[ ${THEMELIOS_ZFS} == "true" ]]
     then
-        cat <<EOF > /mnt/etc/nixos/themelios-zfs.nix
+        cat << EOF > /mnt/etc/nixos/themelios-zfs.nix
 { ... }:
 { imports = [];
 
@@ -403,6 +403,27 @@ boot.loader.grub.copyKernels = true;
 # Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
+
+$([[ ${THEMELIOS_ZFS_CARE} ]] && cat <<-CARE
+services.zfs.autoScrub.enable = true;
+services.zfs.autoSnapshot = {
+enable = true;
+frequent = 8;
+hourly = 0;
+daily = 7;
+weekly = 0;
+monthly = 0;
+};
+
+# Use gc.automatic with zfs-auto-snapshot to keep disk space under control.
+nix.gc.automatic = true;
+nix.gc.dates = "daily";
+nix.gc.options = "--delete-older-than 7d";
+
+# clean /tmp automatically on boot
+boot.cleanTmpDir = true;
+CARE
+)
 }
 EOF
     fi
@@ -428,7 +449,7 @@ EOF
     }
 
     __nixos-install
-}
+ }
 
 __thank_you() {
     cat <<EOF
