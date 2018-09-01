@@ -68,13 +68,10 @@ NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 
 # Creates /etc/nixos/themelios-zfs.nix with sensible settings
 THEMELIOS_ZFS="true"
-
-# "Zfs Care" section - If enabled, will append additional settings and services to themelios-zfs.nix
-THEMELIOS_ZFS_CARE="false"
 ```
 
 ## themelios-zfs.nix
-If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with sensible zfs-on-root settings:
+If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with the following sensible zfs-on-root settings:
 ```bash
 { ... }:
 { imports = [];
@@ -112,13 +109,14 @@ boot.zfs.forceImportRoot = false;
 ```
 
 ## Additional configuration.sh settings - Zfs care
-If THEMELIOS_ZFS_CARE="true", Themelios will configure and append the following additional settings and services to themelios-zfs.nix
+The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true" in configuration.sh
 ```bash
 ####################
 # ZFS_CARE Options #
 ####################
 
-# The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true"
+# Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
+THEMELIOS_ZFS_CARE="false"
 
 # Auto Scrubs
 care_autoScrub="true" # Set services.zfs.autoScrub.enable = true;
