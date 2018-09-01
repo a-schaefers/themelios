@@ -1,11 +1,12 @@
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
+POOL_TYPE=""    # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
 
 # use one disk per line here!
-POOL_DISKS="/dev/sda
-/dev/sdb
-/dev/sdc"
+# POOL_DISKS="/dev/sda
+# /dev/sdb
+# /dev/sdc"
+POOL_DISKS="/dev/sda"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # Use wipefs --all
@@ -29,7 +30,7 @@ NIXCFG_DIR="nix-config"
 NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 
 # Creates /etc/nixos/themelios-zfs.nix with sensible settings
-THEMELIOS_ZFS="false"
+THEMELIOS_ZFS="true"
 
 # Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
 THEMELIOS_ZFS_CARE="false"
