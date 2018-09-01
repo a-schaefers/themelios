@@ -74,17 +74,29 @@ If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/n
 ```nix
 { ... }:
 { imports = [];
-# Required by zfs.
-boot.supportedFilesystems = [ "zfs" ];
+# required by zfs
 networking.hostId = "${POOL_HOSTID}";
 
-# Some zfs-on-root sensible settings.
+# some zfs-on-root sensible settings
 
-# Noop elevator recommended.
+# configure grub using /dev/disk/by-d and zfs-support
+boot.supportedFilesystems = [ "zfs" ];
+boot.loader.grub.enable = true;
+boot.loader.grub.version = 2;
+boot.loader.grub.devices = [
+$(IFS=$'\n'
+for DISK_ID in ${POOL_DISKS}
+do
+    NIXCFG_DISKS="$(echo "\"${DISK_ID}\"")"
+    echo "${NIXCFG_DISKS}"
+done)
+];
+
+# noop elevator recommended.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# Grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths.
+# grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
 # Just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
