@@ -74,8 +74,6 @@ If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/n
 ```bash
 { ... }:
 { imports = [];
-# required by zfs
-networking.hostId = "${POOL_HOSTID}";
 
 # some zfs-on-root sensible settings
 
@@ -90,6 +88,10 @@ do
 echo $(echo "\"${DISK_ID}\"")
 done)
 ];
+
+# The 32-bit host ID of the machine, formatted as 8 hexadecimal characters.
+# You should try to make this ID unique among your machines.
+networking.hostId = "${POOL_HOSTID}";
 
 # noop elevator recommended.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
