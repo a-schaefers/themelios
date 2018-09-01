@@ -396,9 +396,7 @@ ${ZFS_REQUIRED_HOSTID}
 }
 EOF
 
-    if [[ ${THEMELIOS_ZFS} == "true" ]]
-    then
-        cat << EOF > /mnt/etc/nixos/themelios-zfs.nix
+    [[ ${THEMELIOS_ZFS} == "true" ]] && cat << EOF > /mnt/etc/nixos/themelios-zfs.nix
 { ... }:
 { imports = [];
 
@@ -454,7 +452,6 @@ CARE
 )
 }
 EOF
-    fi
 
     # nixos-install section
     __nixos-install-show-trace() {
