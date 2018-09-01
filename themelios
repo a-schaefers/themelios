@@ -68,9 +68,9 @@ ZSWAP_SIZE="4G"
 
 THEMELIOS_ZFS="true"  # Creates /etc/nixos/themelios-zfs.nix with sensible settings
 
-# Your top-level configuration.nix file relative path from the project_root.
-# e.g. for the file project_root/hosts/hpZ620/default.nix use the following:
-TOP_LEVEL_NIXFILE="hosts/hpZ620/default.nix"
+# Your top-level configuration.nix file-- (use the relative path from the project_root.)
+# For example, to bootstrap the file project_root/hosts/vm-example/default.nix use the following:
+TOP_LEVEL_NIXFILE="hosts/vm-example"
 
 # Directory name of <git-remote> in "/" (root). Do not use slashes.
 NIXCFG_DIR="nix-config"
