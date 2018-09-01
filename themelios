@@ -218,7 +218,8 @@ __get_custom_nixcfg() {
 
     # find NIXCFG_HOST ($1) and source the variables
     echo "Extracting configuration variables..."
-    NIXCFG_HOST=$(cd /tmp/NIXCFG_REPO && find -name "${NIXCFG_HOST}")
+    # TODO , make || -type d option and default to configuration.sh of the directory.
+    NIXCFG_HOST=$(cd /tmp/NIXCFG_REPO && find -type f -name "${NIXCFG_HOST}")
     source "${NIXCFG_HOST}" || __fail_warning
     cat <<EOF
 ${NIXCFG_HOST}
