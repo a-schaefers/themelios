@@ -111,12 +111,12 @@ boot.zfs.forceImportRoot = false;
 ## Additional configuration.sh settings - Zfs care
 The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true" in configuration.sh
 ```bash
+# Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
+THEMELIOS_ZFS_CARE="false"
+
 ####################
 # ZFS_CARE Options #
 ####################
-
-# Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
-THEMELIOS_ZFS_CARE="false"
 
 # Auto Scrubs
 care_autoScrub="true"
