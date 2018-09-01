@@ -22,16 +22,21 @@ EOF
 
 help() {
     cat <<EOF
-"configuration.sh" may actually be named anything you want and located anywhere
-in your project. Themelios will find it automatically. This allows for using
-multiple, per-machine configuration.sh files, provided they are uniquely named.
-
 Example command:
-         themelios vm-config.sh a-schaefers/themelios
+         themelios configuration.sh https://github.com/a-schaefers/themelios.git master
 
-This command will download the a-schaefers/themelios repo from github,
-then search the project for a file by the name of "vm-config.sh",
-and begin the bootstrap process with no-questions-asked.
+This command will download the a-schaefers/themelios repo from github, then
+check out the master branch, then search the project for a file by the name of "configuration.sh",
+and then finally begin the bootstrap process with no-questions-asked beyond "are you sure?"
+
+Github users may also use a shorthand:
+        themelios configuration.sh a-schaefers/themelios
+
+Specificying the [branch] is optional in all cases.
+
+"configuration.sh" may actually be named anything and located anywhere in the project.
+Themelios will find it automatically. This allows for using multiple, per-machine
+configuration.sh files, provided they are uniquely named.
 
 In summary, feed Themelios a git repository url and the name of any file which
 [only] contains the following configuration variables:
