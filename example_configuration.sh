@@ -43,9 +43,9 @@ care_autoScrub="true"
 
 # Auto Snapshots
 care_autoSnapshot_enabled="true"
-care_autoSnapshot_frequent="8" # Take a snapshot every 15 minutes and keep 8 in rotation
+care_autoSnapshot_frequent="8"   # Take a snapshot every 15 minutes and keep 8 in rotation
 care_autoSnapshot_hourly="0"
-care_autoSnapshot_daily="7" # Take a daily snapshot and keep 7 in rotation
+care_autoSnapshot_daily="7"      # Take a daily snapshot and keep 7 in rotation
 care_autoSnapshot_weekly="0"
 care_autoSnapshot_monthly="0"
 
@@ -56,3 +56,12 @@ care_gc_options="--delete-older-than 7d"
 
 # Auto /tmp clean
 care_cleanTmpDir="true"
+
+####################
+# Overlay Section #
+####################
+
+# If you set these variables, Themelios will source them
+# [only if they are located alongside your configuration.sh]
+POOL_OVERLAY_FILE=""     # Override __zpool_create()
+DATASETS_OVERLAY_FILE="" # Override __datasets_create()

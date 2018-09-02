@@ -137,9 +137,9 @@ care_autoScrub="true"
 
 # Auto Snapshots
 care_autoSnapshot_enabled="true"
-care_autoSnapshot_frequent="8" # Take a snapshot every 15 minutes and keep 8 in rotation
+care_autoSnapshot_frequent="8"   # Take a snapshot every 15 minutes and keep 8 in rotation
 care_autoSnapshot_hourly="0"
-care_autoSnapshot_daily="7" # Take a daily snapshot and keep 7 in rotation
+care_autoSnapshot_daily="7"      # Take a daily snapshot and keep 7 in rotation
 care_autoSnapshot_weekly="0"
 care_autoSnapshot_monthly="0"
 
@@ -159,8 +159,9 @@ If you want to override the default Themelios __zpool_create() or __datasets_cre
 # Overlay Section #
 ####################
 
-# If you set these variables, Themelios source them if they are located alongside your configuration.sh
-POOL_OVERLAY_FILE="" # Override __zpool_create()
+# If you set these variables, Themelios will source them
+# [only if they are located alongside your configuration.sh]
+POOL_OVERLAY_FILE=""     # Override __zpool_create()
 DATASETS_OVERLAY_FILE="" # Override __datasets_create()
 ```
 And then create the files and place them alongside your configuration.sh :)

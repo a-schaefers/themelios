@@ -57,3 +57,12 @@ care_gc_options="--delete-older-than 7d"
 
 # Auto /tmp clean
 care_cleanTmpDir="true"
+
+####################
+# Overlay Section #
+####################
+
+# If you set these variables, Themelios will source them
+# [only if they are located alongside your configuration.sh]
+POOL_OVERLAY_FILE=""     # Override __zpool_create()
+DATASETS_OVERLAY_FILE="" # Override __datasets_create()
