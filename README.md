@@ -29,7 +29,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM, download the themelios script and execute:
 ```bash
-[root@nixos:~]# themelios vm-example a-schaefers/themelios
+[root@nixos:~] themelios vm-example a-schaefers/themelios
 ```
 This command will download the a-schaefers/themelios repo from github, find the "vm-example" directory with a configuration.sh file and begin the bootstrap process with no-questions-asked.
 
@@ -40,12 +40,12 @@ If the filename isn't found, then Themelios will search for directories by the s
 The example "Try it init a VM right now!" command of this repository uses this method:
 ```bash
 # vm-example is not a file inside this repo, so this finds the dir hosts/vm-example/ and loads configuration.sh
-[root@nixos:~]# themelios vm-example a-schaefers/themelios
+[root@nixos:~] themelios vm-example a-schaefers/themelios
 ```
 
 If none of this works for you, just tell themelios where the file is relative to project root:
 ```bash
-[root@nixos:~]# themelios ./hosts/vm-example/configuration.sh a-schaefers/themelios
+[root@nixos:~] themelios ./hosts/vm-example/configuration.sh a-schaefers/themelios
 ```
 
 So basically, feed Themelios a file which [only] contains the following configuration variables:
@@ -165,7 +165,7 @@ If you have special [post nixos-install] needs and do not want the script to aut
 ## Debugging
 If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
 ```bash
-[root@nixos:~]# STARTOVER=1 POOL=zroot themelios foo bar
+[root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
 ```
 
 ## Hacking the script
