@@ -159,7 +159,7 @@ If you want to override the Themelios __zpool_create() or __datasets_create() fu
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
 ```bash
-[root@nixos:~]# NOUMOUNT=1 themelios foo bar ...
+[root@nixos:~] NOUMOUNT=1 themelios foo bar ...
 ```
 
 ## Debugging
