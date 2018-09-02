@@ -100,6 +100,14 @@ care_gc_options="--delete-older-than 7d"
 
 # Auto /tmp clean
 care_cleanTmpDir="true"
+
+####################
+# Overlay Section #
+####################
+
+# If you set these variables, Themelios source them if they are located alongside your configuration.sh
+POOL_OVERLAY_FILE="" # Override __zpool_create()
+DATASETS_OVERLAY_FILE="" # Override __datasets_create()
 EOF
     exit
 }
@@ -226,6 +234,10 @@ __get_custom_nixcfg() {
     echo ${NIXCFG_HOST} | grep "/" || __find_configuration_sh
 
     source "${NIXCFG_HOST}" || die "configuration.sh file not found."
+
+    # Also setup the optional overlay file locations at this time.
+    THEMELIOS_POOL_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${POOL_OVERLAY_FILE})
+    THEMELIOS_DATASET_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${DATASETS_OVERLAY_FILE})
 }
 
 __disk_prep() {
@@ -546,10 +558,10 @@ __get_custom_nixcfg    # download the machine configuration from git
 __disk_prep            # use sgdisk wipefs or dd to cleanup old disks
 
 # Create zpool and maybe-use optional user overlay ~/themelios-pool
-if [[ -e ~/mypool ]] ; then source ~/themelios-pool ; else __zpool_create ; fi
+if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __zpool_create ; fi
 
 # Create datasets and maybe-use optional user overlay ~/themelios-datasets
-if [[ -e ~/mypool ]] ; then source ~/themelios-datasets ; else __datasets_create ; fi
+if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __datasets_create ; fi
 
 __bootstrap_nixcfg     # bootstrap the users custom nix configurations
 __thank_you            # may you have a Happy Hacking. :)

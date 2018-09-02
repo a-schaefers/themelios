@@ -153,8 +153,17 @@ care_cleanTmpDir="true"
 ```
 
 ## Optional overlays
-##### This is about to change, will use the git repo to store the overlays shortly.
-If you want to override the Themelios __zpool_create() or __datasets_create() functions with custom pool creation settings or a custom dataset layout just place the optional **/root/themelios-pool** or **/root/themelios-datasets** files on to the live disk and populate their contents with your custom code.
+If you want to override the default Themelios __zpool_create() or __datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
+```bash
+####################
+# Overlay Section #
+####################
+
+# If you set these variables, Themelios source them if they are located alongside your configuration.sh
+POOL_OVERLAY_FILE="" # Override __zpool_create()
+DATASETS_OVERLAY_FILE="" # Override __datasets_create()
+```
+And then create the files and place them alongside your configuration.sh :)
 
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
