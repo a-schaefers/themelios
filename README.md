@@ -153,6 +153,7 @@ care_cleanTmpDir="true"
 ```
 
 ## Optional overlays
+##### This is about to change, will use the git repo to store the overlays shortly.
 If you want to override the Themelios __zpool_create() or __datasets_create() functions with custom pool creation settings or a custom dataset layout just place the optional **/root/themelios-pool** or **/root/themelios-datasets** files on to the live disk and populate their contents with your custom code.
 
 ## Last things
