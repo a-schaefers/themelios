@@ -144,6 +144,9 @@ care_gc_options="--delete-older-than 7d"
 care_cleanTmpDir="true"
 ```
 
+## Optional overlays
+If you want to override the Themelios __zpool_create() or __datasets_create() function with custom pool creation settings or a custom dataset layout just put a ~/themelios-pool and / or a ~/themelios-datasets on the live disk and populate their contents with your own custom code.
+
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
 ```bash
