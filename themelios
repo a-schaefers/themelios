@@ -236,9 +236,9 @@ __get_custom_nixcfg() {
 
     source "${NIXCFG_HOST}" || die "configuration.sh file not found."
 
-    # Also setup the optional overlay file locations at this time.
-    THEMELIOS_POOL_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${POOL_OVERLAY_FILE})
-    THEMELIOS_DATASETS_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${DATASETS_OVERLAY_FILE})
+    # find optional overlay locations based on where the users configuration.sh is.
+    OVERLAY_POOL=${NIXCFG_HOST%/*}/${POOL_OVERLAY_FILE}
+    OVERLAY_DATASETS=${NIXCFG_HOST%/*}/${POOL_OVERLAY_FILE}
 }
 
 __disk_prep() {
@@ -558,11 +558,13 @@ __switch_if_needed     # reconfigure nix livedisk if needed
 __get_custom_nixcfg    # download the machine configuration from git
 __disk_prep            # use sgdisk wipefs or dd to cleanup old disks
 
+# TODO needs more testing
 # Create default zpool or maybe-use optional user overlay instead
-if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __zpool_create ; fi
-
+# if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else __zpool_create ; fi
+__zpool_create
 # Create default datasets or maybe-use optional user overlay instead
-if [[ -e ${THEMELIOS_DATASETS_OVERLAY} ]] ; then source ${THEMELIOS_DATASETS_OVERLAY} ; else __datasets_create ; fi
+# if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else __datasets_create ; fi
+__datasets_create
 
 __bootstrap_nixcfg     # bootstrap the users custom nix configurations
 __thank_you            # may you have a Happy Hacking. :)
