@@ -35,7 +35,7 @@ This command will download the a-schaefers/themelios repo from github, find the 
 
 The following command does the exact same thing, but is just harder to remember ;-)
 ```bash
-[root@nixos:~] themelios ./hosts/vm-example/configuration.sh vm-example https://github.com/a-schaefers/themelios.git master
+[root@nixos:~] themelios ./hosts/vm-example/configuration.sh https://github.com/a-schaefers/themelios.git master
 ```
 
 ## configuration.sh
