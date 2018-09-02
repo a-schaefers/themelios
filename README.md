@@ -48,7 +48,7 @@ If none of this works for you, just tell themelios where the file is relative to
 [root@nixos:~] themelios ./hosts/vm-example/configuration.sh https://github.com/a-schaefers/themelios.git master
 ```
 
-So basically, feed Themelios a file which [only] contains the following configuration variables:
+Essentially, feed Themelios a git repository url that contains a file which has the following configuration variables:
 ```bash
 # Themelios configuration.sh example
 POOL_NAME="zroot"
