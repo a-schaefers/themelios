@@ -14,6 +14,8 @@ From any NixOS live disk, Themelios will do the following in approximate order:
   * Configures a zfs-on-root dataset scheme by default
   * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo.
   * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
+  * Optional "zfs-care" enables further zfs-support options in NixOS.
+  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
   * Bootstraps your top level .nix configuration and installs the rest of your operating system
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
