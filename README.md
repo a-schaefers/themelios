@@ -36,9 +36,11 @@ This command will download the a-schaefers/themelios repo from github, then sear
 ## configuration.sh
 Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will find it automatically. This allows for using multiple, per-machine configuration.sh files, provided they are uniquely named.
 
-If you prefer using a standard naming convention, use a unique directory name instead and make sure the directory contains a "configuration.sh" file.
+If you prefer using a standard naming convention, use a unique directory name instead and make sure the directory contains a literal "configuration.sh" file.
 
 If none of this works for you, just use the path/to/configuration.sh.
+
+So basically, feed Themelios a file which [only] contains the following configuration variables:
 ```bash
 # Themelios configuration.sh example
 POOL_NAME="zroot"
