@@ -1,5 +1,5 @@
 # this dataset overlay is only active if set in configuration.sh AND file exists.
-echo "Creating and mounting datasets in /mnt using ${THEMELIOS_DATASETS_OVERLAY}..."
+echo "Creating and mounting datasets in /mnt using ${OVERLAY_DATASETS}..."
 
 # / (root) datasets
 zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/ROOT
