@@ -145,7 +145,7 @@ care_cleanTmpDir="true"
 ```
 
 ## Optional overlays
-If you want to override the Themelios __zpool_create() or __datasets_create() function with custom pool creation settings or a custom dataset layout just place the optional **~/themelios-pool** or **~/themelios-datasets** files on to the live disk and populate their contents with your custom code.
+If you want to override the Themelios __zpool_create() or __datasets_create() functions with custom pool creation settings or a custom dataset layout just place the optional **~/themelios-pool** or **~/themelios-datasets** files on to the live disk and populate their contents with your custom code.
 
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
