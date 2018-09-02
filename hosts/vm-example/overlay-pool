@@ -1,6 +1,8 @@
 # this pool overlay is only active if set in configuration.sh AND file exists.
 echo "Creating zpool using ${OVERLAY_POOL}..."
 
+sleep 5
+
 zpool create -f \
 -o ashift=12 \
 -O compression=lz4 \
