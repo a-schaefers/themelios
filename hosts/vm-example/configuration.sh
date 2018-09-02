@@ -64,5 +64,5 @@ care_cleanTmpDir="true"
 
 # If you set these variables, Themelios will source them
 # [only if they are located alongside your configuration.sh]
-POOL_OVERLAY_FILE="overlay-pool"     # Override __zpool_create()
-DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
+POOL_OVERLAY_FILE=""     # Override __zpool_create()
+DATASETS_OVERLAY_FILE="" # Override __datasets_create()
