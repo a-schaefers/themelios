@@ -34,7 +34,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 This command will download the a-schaefers/themelios repo from github, find the "vm-example" directory with a configuration.sh file and begin the bootstrap process with no-questions-asked.
 
 ## configuration.sh
-Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically.
+Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically, provided it is a uniquely named file.
 
 If the filename isn't found, then Themelios will search for directories by the same name. So if you prefer using a standard naming convention, put a literal "configuration.sh" file inside of a uniquely named directory and feed Themelios the unique directory name.
 The example "Try it init a VM right now!" command of this repository uses this method:
