@@ -29,7 +29,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM, download the themelios script and execute:
 ```bash
-[root@nixos:~]# ./themelios vm-config.sh a-schaefers/themelios
+[root@nixos:~]# themelios vm-config.sh a-schaefers/themelios
 ```
 This command will download the a-schaefers/themelios repo from github, then search the project for a file by the name of "vm-config.sh" and begin the bootstrap process with no-questions-asked.
 
@@ -142,6 +142,12 @@ care_gc_options="--delete-older-than 7d"
 
 # Auto /tmp clean
 care_cleanTmpDir="true"
+```
+
+## Last things
+If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
+```bash
+[root@nixos:~]# NOUMOUNT=1 themelios foo bar ...
 ```
 
 ## Debugging
