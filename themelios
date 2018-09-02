@@ -126,6 +126,11 @@ NIXCFG_HOST=$1
 NIXCFG_REPO=$2
 NIXCFG_BRANCH=$3
 
+function die(){
+    echo "$1"
+    exit 1
+}
+
 __initial_warning() {
     echo "WARNING: The following script intends to replace all of your disk(s) \
 contents with a zfs-on-root NixOS installation and bootstrap your configuration.nix."
@@ -225,8 +230,7 @@ __get_custom_nixcfg() {
         cd /tmp/NIXCFG_REPO
         find -type f -name "${NIXCFG_HOST}" | grep "." && \
             NIXCFG_HOST=$(find -type f -name "${NIXCFG_HOST}") && \
-            [ ! -f "${NIXCFG_HOST}" ] && echo "no valid configuration.sh file found" && \
-            exit
+            [ ! -f "${NIXCFG_HOST}" ] && die "configuration.sh file not found."
 
         # If given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find -type d -name "${NIXCFG_HOST}" | grep "." && \
@@ -235,8 +239,7 @@ __get_custom_nixcfg() {
     # If not given a path with slashes to a configuration.sh file, then use find.
     echo ${NIXCFG_HOST} | grep "/" || __find_configuration_sh
 
-    source "${NIXCFG_HOST}" || echo "no valid configuration.sh file found" && \
-            exit
+    source "${NIXCFG_HOST}" || die "configuration.sh file not found."
 }
 
 __disk_prep() {
