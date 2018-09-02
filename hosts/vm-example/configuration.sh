@@ -1,6 +1,6 @@
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE=""    # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
+POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
 
 # use one disk per line here!
 # POOL_DISKS="/dev/sda
@@ -44,9 +44,9 @@ care_autoScrub="true"
 
 # Auto Snapshots
 care_autoSnapshot_enabled="true"
-care_autoSnapshot_frequent="8" # Take a snapshot every 15 minutes and keep 8 in rotation
+care_autoSnapshot_frequent="8"   # Take a snapshot every 15 minutes and keep 8 in rotation
 care_autoSnapshot_hourly="0"
-care_autoSnapshot_daily="7" # Take a daily snapshot and keep 7 in rotation
+care_autoSnapshot_daily="7"      # Take a daily snapshot and keep 7 in rotation
 care_autoSnapshot_weekly="0"
 care_autoSnapshot_monthly="0"
 
@@ -64,5 +64,5 @@ care_cleanTmpDir="true"
 
 # If you set these variables, Themelios will source them
 # [only if they are located alongside your configuration.sh]
-POOL_OVERLAY_FILE=""     # Override __zpool_create()
-DATASETS_OVERLAY_FILE="" # Override __datasets_create()
+POOL_OVERLAY_FILE="overlay-pool"         # Override __zpool_create()
+DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
