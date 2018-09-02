@@ -1,0 +1,22 @@
+# this pool overlay is only active if set in configuration.sh AND file exists.
+echo "Creating zpool using ${THEMELIOS_POOL_OVERLAY}..."
+zpool create -f \
+-o ashift=12 \
+-O compression=lz4 \
+-O atime=${ATIME:?"Please define atime."} \
+-O relatime=on \
+-O normalization=formD \
+-O xattr=sa \
+-m none \
+-R /mnt \
+${POOL_NAME} \
+${POOL_TYPE} \
+${POOL_DISKS} || __fail_warning
+
+IFS=$'\n'
+for DISK_ID in ${POOL_DISKS}
+do
+echo "Creating BIOS boot partition..."
+sgdisk -a1 -n2:48:2047 -t2:EF02 -c2:"BIOS boot partition" ${DISK_ID} || __fail_warning
+partx -u ${DISK_ID}
+done

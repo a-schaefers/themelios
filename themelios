@@ -238,7 +238,7 @@ __get_custom_nixcfg() {
 
     # Also setup the optional overlay file locations at this time.
     THEMELIOS_POOL_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${POOL_OVERLAY_FILE})
-    THEMELIOS_DATASET_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${DATASETS_OVERLAY_FILE})
+    THEMELIOS_DATASETS_OVERLAY=$(echo $(echo ${NIXCFG_HOST} | sed 's%/[^/]*$%/%')${DATASETS_OVERLAY_FILE})
 }
 
 __disk_prep() {
@@ -562,7 +562,7 @@ __disk_prep            # use sgdisk wipefs or dd to cleanup old disks
 if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __zpool_create ; fi
 
 # Create default datasets or maybe-use optional user overlay instead
-if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __datasets_create ; fi
+if [[ -e ${THEMELIOS_DATASETS_OVERLAY} ]] ; then source ${THEMELIOS_DATASETS_OVERLAY} ; else __datasets_create ; fi
 
 __bootstrap_nixcfg     # bootstrap the users custom nix configurations
 __thank_you            # may you have a Happy Hacking. :)

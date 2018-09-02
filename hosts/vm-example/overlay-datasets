@@ -1,0 +1,76 @@
+# this dataset overlay is only active if set in configuration.sh AND file exists.
+echo "Creating and mounting datasets in /mnt using ${THEMELIOS_DATASETS_OVERLAY}..."
+# / (root) datasets
+zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/ROOT
+zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/ROOT/root
+mount -t zfs ${POOL_NAME}/ROOT/nixos /mnt
+zpool set bootfs=${POOL_NAME}/ROOT/nixos ${POOL_NAME}
+
+__slash_nix_outside_root() {
+zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/NIX
+zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/NIX/nix
+mkdir /mnt/nix
+mount -t zfs ${POOL_NAME}/NIX/nix /mnt/nix
+}
+if [[ ${NIXDIR_NOROOT} == "true" ]]
+then
+__slash_nix_outside_root
+fi
+
+mkdir -p /mnt/{home,tmp}
+
+# /home datasets
+zfs create -o mountpoint=none -o canmount=off ${POOL_NAME}/HOME
+zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/HOME/home
+mount -t zfs ${POOL_NAME}/HOME/home /mnt/home
+
+# /tmp datasets
+zfs create -o mountpoint=none -o canmount=off ${POOL_NAME}/TMP
+zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled ${POOL_NAME}/TMP/tmp
+mount -t zfs ${POOL_NAME}/TMP/tmp /mnt/tmp
+
+# zswap option
+if [[ ${USE_ZSWAP} == "true" ]]
+then
+echo "Creation ZSWAP volume and turning on swap..."
+zfs create \
+-o primarycache=metadata \
+-o secondarycache=metadata \
+-o compression=zle \
+-o sync=always \
+-o logbias=throughput \
+-o com.sun:auto-snapshot=false \
+${POOL_NAME}/SWAP
+
+zfs create \
+-V ${ZSWAP_SIZE} \
+-b $(getconf PAGESIZE) \
+${POOL_NAME}/SWAP/swap0
+
+mkswap -f /dev/zvol/${POOL_NAME}/SWAP/swap0
+swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
+fi
+
+__zfs_auto_snapshot() {
+# set com.sun:auto-snapshot properties
+if [[ ${SNAPSHOT_HOME} == "true" ]]
+then
+echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
+zfs set com.sun:auto-snapshot=true ${POOL_NAME}/HOME
+elif [[ ${SNAPSHOT_ROOT} == "false" ]]
+then
+echo "Setting com.sun:auto-snapshot=false for HOME datasets..."
+zfs set com.sun:auto-snapshot=false ${POOL_NAME}/HOME
+fi
+
+if [[ ${SNAPSHOT_ROOT} == "true" ]]
+then
+echo "Setting com.sun:auto-snapshot=true for ROOT datasets..."
+zfs set com.sun:auto-snapshot=true ${POOL_NAME}/ROOT
+elif [[ ${SNAPSHOT_ROOT} == "false" ]]
+then
+echo "Setting com.sun:auto-snapshot=false for ROOT datasets..."
+zfs set com.sun:auto-snapshot=false ${POOL_NAME}/ROOT
+fi
+}
+__zfs_auto_snapshot
