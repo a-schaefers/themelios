@@ -238,7 +238,7 @@ __get_custom_nixcfg() {
 
     # find optional overlay locations based on where the users configuration.sh is.
     OVERLAY_POOL=${NIXCFG_HOST%/*}/${POOL_OVERLAY_FILE}
-    OVERLAY_DATASETS=${NIXCFG_HOST%/*}/${POOL_OVERLAY_FILE}
+    OVERLAY_DATASETS=${NIXCFG_HOST%/*}/${DATASETS_OVERLAY_FILE}
 }
 
 __disk_prep() {
@@ -560,11 +560,9 @@ __disk_prep            # use sgdisk wipefs or dd to cleanup old disks
 
 # TODO needs more testing
 # Create default zpool or maybe-use optional user overlay instead
-# if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else __zpool_create ; fi
-__zpool_create
+if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else __zpool_create ; fi
 # Create default datasets or maybe-use optional user overlay instead
-# if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else __datasets_create ; fi
-__datasets_create
+if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else __datasets_create ; fi
 
 __bootstrap_nixcfg     # bootstrap the users custom nix configurations
 __thank_you            # may you have a Happy Hacking. :)

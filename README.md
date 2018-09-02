@@ -156,7 +156,6 @@ care_cleanTmpDir="true"
 
 ## Optional overlays
 If you want to override the default Themelios __zpool_create() or __datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
-**Not finished yet, sorry.**
 ```bash
 ####################
 # Overlay Section #
