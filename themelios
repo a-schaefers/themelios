@@ -522,15 +522,17 @@ EOF
         umount /mnt/home
         umount /mnt/tmp
         umount /mnt
+
+        echo "Exporting ${POOL_NAME}"
         zpool export ${POOL_NAME}
+
+        read -p "Finished. Reboot now? (Y or N) " -n 1 -r
+        if [[ $REPLY =~ ^[Yy]$ ]]
+        then
+            reboot
+        fi
     }
     [[ ! ${NOUMOUNT} ]] && __umount_export
-
-    read -p "Finished. Reboot now? (Y or N) " -n 1 -r
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        reboot
-    fi
 
     exit
 }
