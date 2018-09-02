@@ -292,9 +292,6 @@ __datasets_create() {
     mount -t zfs ${POOL_NAME}/ROOT/nixos /mnt
     zpool set bootfs=${POOL_NAME}/ROOT/nixos ${POOL_NAME}
 
-    # TRADEOFF Disk space vs. Robustness. imo-- just garbage collect more often and don't use this option.
-    # /nix optional dataset outside of / dataset (I don't like this idea, but set this variable if you want.)
-    # Save some potential disk space at the cost of losing ZFS boot environments (less robust.)
     __slash_nix_outside_root() {
         zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/NIX
         zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/NIX/nix
