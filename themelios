@@ -36,21 +36,11 @@ help() {
 Usage:
         themelios configuration.sh git-remote [branch]
 
-https://github.com/a-schaefers/themelios
+For detailed examples and instructions please visit the github page:
 
-Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically, provided it is a uniquely named file.
+    https://github.com/a-schaefers/themelios
 
-If the filename isn't found, then Themelios will search for directories by the same name. So if you prefer using a standard naming convention, put a literal "configuration.sh" file inside of a uniquely named directory and feed Themelios the unique directory name. The example "Try it init a VM right now!" command of this repository uses this method:
-
-# vm-example is not a file inside this repo, so this finds the dir hosts/vm-example/ and loads configuration.sh
-
-   [root@nixos:~] themelios vm-example a-schaefers/themelios
-
-If none of this works for you, just tell themelios where the file is relative to project root:
-
-   [root@nixos:~] themelios ./hosts/vm-example/configuration.sh https://github.com/a-schaefers/themelios.git master
-
-So basically, feed Themelios a file which [only] contains the following configuration variables:
+Essentially, feed Themelios a git repository url that contains a file which has the following configuration variables:
 
 # Themelios configuration.sh example
 POOL_NAME="zroot"
