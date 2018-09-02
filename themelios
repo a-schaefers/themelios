@@ -558,10 +558,10 @@ __switch_if_needed     # reconfigure nix livedisk if needed
 __get_custom_nixcfg    # download the machine configuration from git
 __disk_prep            # use sgdisk wipefs or dd to cleanup old disks
 
-# Create zpool and maybe-use optional user overlay ~/themelios-pool
+# Create default zpool or maybe-use optional user overlay instead
 if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __zpool_create ; fi
 
-# Create datasets and maybe-use optional user overlay ~/themelios-datasets
+# Create default datasets or maybe-use optional user overlay instead
 if [[ -e ${THEMELIOS_POOL_OVERLAY} ]] ; then source ${THEMELIOS_POOL_OVERLAY} ; else __datasets_create ; fi
 
 __bootstrap_nixcfg     # bootstrap the users custom nix configurations
