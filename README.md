@@ -34,17 +34,18 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 This command will download the a-schaefers/themelios repo from github, find the "vm-example" directory with a configuration.sh file and begin the bootstrap process with no-questions-asked.
 
 ## configuration.sh
-Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will find it automatically. This allows for using multiple, per-machine configuration.sh files, provided they are uniquely named.
+Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically.
 
-If you prefer using a standard naming convention, put a literal "configuration.sh" file inside of a uniquely named directory and feed Themelios the directory name.
+If the filename isn't found, then Themelios will search for directories by the same name. So if you prefer using a standard naming convention, put a literal "configuration.sh" file inside of a uniquely named directory and feed Themelios the unique directory name.
 The example "Try it init a VM right now!" command of this repository uses this method:
 ```bash
-[root@nixos:~]# themelios vm-example a-schaefers/themelios # finds hosts/vm-example and loads configuration.sh
+# vm-example is not a file inside this repo, so this finds the dir hosts/vm-example/ and loads configuration.sh
+[root@nixos:~]# themelios vm-example a-schaefers/themelios
 ```
 
 If none of this works for you, just tell themelios where the file is relative to project root:
 ```bash
-"themelios ./hosts/vm-example/configuration.sh a-schaefers/themelios"
+[root@nixos:~]# themelios ./hosts/vm-example/configuration.sh a-schaefers/themelios
 ```
 
 So basically, feed Themelios a file which [only] contains the following configuration variables:
