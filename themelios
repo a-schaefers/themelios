@@ -230,6 +230,8 @@ __get_custom_nixcfg() {
     }
     # If not given a path with slashes to a configuration.sh file, then use find.
     echo ${NIXCFG_HOST} | grep "/" || __find_configuration_sh
+
+    source "${NIXCFG_HOST}" || __fail_warning
 }
 
 __disk_prep() {
