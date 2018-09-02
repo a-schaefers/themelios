@@ -33,7 +33,7 @@ NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 THEMELIOS_ZFS="true"
 
 # Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
-THEMELIOS_ZFS_CARE="false"
+THEMELIOS_ZFS_CARE="true"
 
 ####################
 # ZFS_CARE Options #
