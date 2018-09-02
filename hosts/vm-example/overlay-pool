@@ -1,8 +1,6 @@
 # this pool overlay is only active if set in configuration.sh AND file exists.
 echo "Creating zpool using ${OVERLAY_POOL}..."
 
-sleep 5
-
 zpool create -f \
 -o ashift=12 \
 -O compression=lz4 \
@@ -15,8 +13,6 @@ zpool create -f \
 ${POOL_NAME:?"Please define pool name."} \
 ${POOL_TYPE} \
 ${POOL_DISKS:?"Please define pool disks."} || __fail_warning
-
-sleep 2
 
 IFS=$'\n'
 for DISK_ID in ${POOL_DISKS}
