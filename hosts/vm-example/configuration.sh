@@ -8,14 +8,16 @@ POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave em
 # /dev/sdc"
 POOL_DISKS="/dev/sda"
 
+# Datasets to be set with com.sun:auto-snapshot=true (Separate with new lines.)
+AUTO_SNAPSHOT="${POOL_NAME}/HOME
+${POOL_NAME}/ROOT"
+
+ATIME="off"           # Set to "on" or "off" (recommended "off" for SSD.)
+USE_ZSWAP="false"     # Creates a swap zvol
+ZSWAP_SIZE="4G"
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # Use wipefs --all
 ZERO_DISKS="false"    # Use dd if=/dev/zero ...
-ATIME="off"           # Set to "on" or "off" (recommended "off" for SSD.)
-SNAPSHOT_ROOT="true"  # Set the value of com.sun:auto-snapshot
-SNAPSHOT_HOME="true"
-USE_ZSWAP="false"     # Creates a swap zvol
-ZSWAP_SIZE="4G"
 
 # Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
 # For example, to bootstrap project_root/hosts/vm-example/default.nix all of the following are equivalent:

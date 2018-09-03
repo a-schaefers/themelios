@@ -44,22 +44,22 @@ Essentially, feed Themelios a git repository url that contains a file which has 
 
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
+POOL_TYPE="mirror"    # E.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
 
-# use one disk per line here!
-# POOL_DISKS="/dev/sda
-# /dev/sdb
-# /dev/sdc"
-POOL_DISKS="/dev/sda"
+# Separate hard disks with new lines in this variable. (Using /dev/disk/by-id is also recommended.)
+POOL_DISKS="/dev/sda
+/dev/sdb"
 
+# Datasets to be set with com.sun:auto-snapshot=true (Separate with new lines.)
+AUTO_SNAPSHOT="${POOL_NAME}/HOME
+${POOL_NAME}/ROOT"
+
+ATIME="off"           # Set to "on" or "off" (recommended "off" for SSD.)
+USE_ZSWAP="false"     # Creates a swap zvol
+ZSWAP_SIZE="4G"
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # Use wipefs --all
 ZERO_DISKS="false"    # Use dd if=/dev/zero ...
-ATIME="off"           # Set to "on" or "off" (recommended "off" for SSD.)
-SNAPSHOT_ROOT="true"  # Set the value of com.sun:auto-snapshot
-SNAPSHOT_HOME="true"
-USE_ZSWAP="false"     # Creates a swap zvol
-ZSWAP_SIZE="4G"
 
 # Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
 # For example, to bootstrap project_root/hosts/vm-example/default.nix all of the following are equivalent:
@@ -347,28 +347,13 @@ __datasets_create() {
         swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
     fi
 
-    # TODO this is not good.
     __zfs_auto_snapshot() {
-        # Set com.sun:auto-snapshot properties
-        if [[ ${SNAPSHOT_HOME} == "true" ]]
-        then
-            echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
-            zfs set com.sun:auto-snapshot=true ${POOL_NAME}/HOME
-        elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-        then
-            echo "Setting com.sun:auto-snapshot=false for HOME datasets..."
-            zfs set com.sun:auto-snapshot=false ${POOL_NAME}/HOME
-        fi
-
-        if [[ ${SNAPSHOT_ROOT} == "true" ]]
-        then
-            echo "Setting com.sun:auto-snapshot=true for ROOT datasets..."
-            zfs set com.sun:auto-snapshot=true ${POOL_NAME}/ROOT
-        elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-        then
-            echo "Setting com.sun:auto-snapshot=false for ROOT datasets..."
-            zfs set com.sun:auto-snapshot=false ${POOL_NAME}/ROOT
-        fi
+        IFS=$'\n'
+        for DATASET in ${AUTO_SNAPSHOT}
+        do
+            echo "Setting property com.sun:auto-snapshot=true to ${DATASET}..."
+            zfs set com.sun:auto-snapshot=true ${DATASET}
+        done
     }
     __zfs_auto_snapshot
 }
