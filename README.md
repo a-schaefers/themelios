@@ -33,7 +33,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 ```bash
 [root@nixos:~] bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios) vm-example a-schaefers/themelios
 ```
-This command will download the a-schaefers/themelios repo from github, find the "vm-example" directory with a configuration.sh file and begin the bootstrap process with no-questions-asked.
+This command executes the script with curl and bash, which in turn downloads the a-schaefers/themelios repo from github, finds the "vm-example" directory with a configuration.sh file and begins the bootstrap process.
 
 ## configuration.sh
 Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically, provided it is a uniquely named file.
@@ -183,8 +183,6 @@ If something goes haywire and you just want to start the process all over withou
 [root@nixos:~] STARTOVER=1 POOL_NAME=zroot themelios foo bar
 ```
 ## Making contributions
-Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I sure would appreciate all the help I can get!
-
-Or [send me a buck](https://www.paypal.me/AdamSchaefers) ;)
+Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I appreciate all the help I can get!
 
 Thank you!
