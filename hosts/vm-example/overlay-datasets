@@ -52,26 +52,9 @@ mkswap -f /dev/zvol/${POOL_NAME}/SWAP/swap0
 swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
 fi
 
-__zfs_auto_snapshot() {
-# set com.sun:auto-snapshot properties
-if [[ ${SNAPSHOT_HOME} == "true" ]]
-then
-echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
-zfs set com.sun:auto-snapshot=true ${POOL_NAME}/HOME
-elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-then
-echo "Setting com.sun:auto-snapshot=false for HOME datasets..."
-zfs set com.sun:auto-snapshot=false ${POOL_NAME}/HOME
-fi
-
-if [[ ${SNAPSHOT_ROOT} == "true" ]]
-then
-echo "Setting com.sun:auto-snapshot=true for ROOT datasets..."
-zfs set com.sun:auto-snapshot=true ${POOL_NAME}/ROOT
-elif [[ ${SNAPSHOT_ROOT} == "false" ]]
-then
-echo "Setting com.sun:auto-snapshot=false for ROOT datasets..."
-zfs set com.sun:auto-snapshot=false ${POOL_NAME}/ROOT
-fi
-}
-__zfs_auto_snapshot
+IFS=$'\n'
+for DATASET in ${AUTO_SNAPSHOT}
+do
+echo "Setting property com.sun:auto-snapshot=true to ${DATASET}..."
+zfs set com.sun:auto-snapshot=true ${DATASET}
+done
