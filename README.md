@@ -22,9 +22,10 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 
 ## What Themelios does not do (yet)
 - Currently uefi is unsupported. (UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.)
+- Convert GPT to MBR partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
+- Full Disk encryption (Let's just wait for native zfsonlinux to reach full maturity in this area.)
 - Configure more than one pool.
 - Write zeros to more than one disk concurrently.
-- Full Disk encryption (kinda just waiting for zfsonlinux to hit maturity in this area...)
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [There are big plans ahead!](https://github.com/a-schaefers/grubbe-mkconfig)**
 - Posix. My bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
