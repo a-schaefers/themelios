@@ -116,50 +116,39 @@ EOF
     exit
 }
 
-[[ $1 == "-h" ]] && help
-[[ $1 == "--help" ]] && help
-[[ $# -lt 2 ]] && usage
-[[ $# -gt 3 ]] && usage
-NIXCFG_HOST=$1
-NIXCFG_REPO=$2
-NIXCFG_BRANCH=$3
-
-function die(){
+function die() {
     echo "$1"
     exit 1
+}
+
+__start_over() {
+    umount /mnt/home
+    umount /mnt/tmp
+    umount /mnt
+    rm -rf /tmp/NIXCFG_REPO
+    zpool destroy ${POOL}
 }
 
 __initial_warning() {
     echo "WARNING: The following script intends to replace all of your disk(s) \
 contents with a zfs-on-root NixOS installation and bootstrap your configuration.nix."
+
     read -p "Ready? (Y or N) " -n 1 -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]
-    then
-        die "Aborted."
-    fi
+    [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
 __fail_warning() {
     read -p "The previous command failed. Continue running script? (Y or N) " -n 1 -r
-    if [[ ! $REPLY =~ ^[Yy]$ ]]
-    then
-        die "Aborted."
-    fi
+    [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
 __uefi_or_legacy() {
     # TODO add uefi support.
-    if [ -d "/sys/firmware/efi/efivars" ]; then
-        die "Only legacy bios is supported with this script for now."
-    fi
+    [ -d "/sys/firmware/efi/efivars" ] && die "Only legacy bios is supported for now."
 }
 
 __switch_if_needed() {
-    if [[ ${NEEDS_SWITCH} == "true" ]]
-    then
-        nixos-rebuild switch || __fail_warning
-        NEEDS_SWITCH="false"
-    fi
+    nixos-rebuild switch || __fail_warning
 }
 
 __bootstrap_zfs() {
@@ -553,35 +542,46 @@ EOF
             reboot
         fi
     }
+    # Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
     [[ ! ${NOUMOUNT} ]] && __umount_export
 
     exit
 }
 
-# debug section
+# Start executing code !
 
-# Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
-# run "STARTOVER=1 POOL=poolname ./themelios foo bar" to rerun the script with a fresh start.
-__start_over() {
-    umount /mnt/home
-    umount /mnt/tmp
-    umount /mnt
-    rm -rf /tmp/NIXCFG_REPO
-    zpool destroy ${POOL}
-}
+# rerun script with "STARTOVER=1 POOL=poolname ./themelios foo bar" to attempt a fresh start.
 [[ ${STARTOVER} ]] && __start_over
 
-# add exits as necessary here
+[[ $1 == "-h" ]] && help
+[[ $1 == "--help" ]] && help
+[[ $# -lt 2 ]] && usage
+[[ $# -gt 3 ]] && usage
+NIXCFG_HOST=$1
+NIXCFG_REPO=$2
+NIXCFG_BRANCH=$3
 
-__uefi_or_legacy       # check for legacy or uefi bios
-__initial_warning      # warn user of potential doom
-__bootstrap_zfs        # install zfs if needed to the livedisk
-__bootstrap_git        # install git if needed to the livedisk
-__switch_if_needed     # reconfigure nix livedisk if needed
-__get_custom_nixcfg    # download the machine configuration from git
-__disk_prep            # use sgdisk wipefs or dd to cleanup old disks
+# check for legacy or uefi bios
+__uefi_or_legacy
 
-# TODO needs more testing
+# warn user of potential doom
+__initial_warning
+
+# install zfs if needed to the livedisk
+__bootstrap_zfs
+
+# install git if needed to the livedisk
+__bootstrap_git
+
+# reconfigure nix livedisk if needed
+[[ ${NEEDS_SWITCH} == "true" ]] && __switch_if_needed
+
+# download the machine configuration from git
+__get_custom_nixcfg
+
+# use sgdisk wipefs or dd to cleanup old disks
+__disk_prep
+
 # Create default zpool or maybe-use optional user overlay instead
 if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else __zpool_create ; fi
 
@@ -591,5 +591,8 @@ __create_bios_boot_partitions
 # Create default datasets or maybe-use optional user overlay instead
 if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else __datasets_create ; fi
 
-__bootstrap_nixcfg     # bootstrap the users custom nix configurations
-__thank_you            # may you have a Happy Hacking. :)
+# bootstrap the users custom nix configurations
+__bootstrap_nixcfg
+
+# may you have a Happy Hacking. :)
+__thank_you
