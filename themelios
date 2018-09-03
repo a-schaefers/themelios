@@ -492,7 +492,7 @@ EOF
         then
             __nixos-install-show-trace
         else
-            exit
+            die "The only steps remaining after nixos-install --root /mnt should be unmounting /mnt and exporting the pool :) Good luck."
         fi
     }
     __nixos-install() {
@@ -524,10 +524,8 @@ NNNNNNNN         NNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
 EOF
 
     __umount_export() {
-        if [[ ${USE_ZSWAP} == "true" ]]
-        then
-            swapoff /dev/zvol/${POOL_NAME}/SWAP/swap0
-        fi
+        [[ ${USE_ZSWAP} == "true" ]] && swapoff /dev/zvol/${POOL_NAME}/SWAP/swap0
+
         echo "Unmounting /mnt"
         umount /mnt/home
         umount /mnt/tmp
@@ -537,10 +535,8 @@ EOF
         zpool export ${POOL_NAME}
 
         read -p "Finished. Reboot now? (Y or N) " -n 1 -r
-        if [[ $REPLY =~ ^[Yy]$ ]]
-        then
-            reboot
-        fi
+        [[ $REPLY =~ ^[Yy]$ ]] && reboot
+
     }
     # Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
     [[ ! ${NOUMOUNT} ]] && __umount_export
