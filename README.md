@@ -29,9 +29,9 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Posix. My sh and bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
 ## Try it in it a VM right now!
-- From a NixOS LiveDisk VM, download the themelios script and execute:
+- From a NixOS LiveDisk VM,
 ```bash
-[root@nixos:~] themelios vm-example a-schaefers/themelios
+[root@nixos:~] bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios) vm-example a-schaefers/themelios
 ```
 This command will download the a-schaefers/themelios repo from github, find the "vm-example" directory with a configuration.sh file and begin the bootstrap process with no-questions-asked.
 
