@@ -145,7 +145,7 @@ __fail_warning() {
 
 __uefi_or_legacy() {
     # TODO add uefi support.
-    [ -d "/sys/firmware/efi/efivars" ] && die "Only legacy bios is supported for now."
+    [[ -d "/sys/firmware/efi/efivars" ]] && die "Only legacy bios is supported for now."
 }
 
 __switch_if_needed() {
@@ -331,7 +331,7 @@ __datasets_create() {
     zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled ${POOL_NAME}/TMP/tmp
     mount -t zfs ${POOL_NAME}/TMP/tmp /mnt/tmp
 
-    # zswap option
+    # swap option
     if [[ ${USE_ZSWAP} == "true" ]]
     then
         echo "Creating ZSWAP volume and turning on swap..."
@@ -355,7 +355,7 @@ __datasets_create() {
 
     # TODO this is not good.
     __zfs_auto_snapshot() {
-        # set com.sun:auto-snapshot properties
+        # Set com.sun:auto-snapshot properties
         if [[ ${SNAPSHOT_HOME} == "true" ]]
         then
             echo "Setting com.sun:auto-snapshot=true for HOME datasets..."
@@ -427,9 +427,9 @@ EOF
 { ... }:
 { imports = [];
 
-# some zfs-on-root sensible settings
+# Some zfs-on-root sensible settings.
 
-# configure grub using /dev/disk/by-d and zfs-support
+# Configure grub using /dev/disk/by-d and zfs-support.
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
@@ -445,11 +445,11 @@ done)
 # You should try to make this ID unique among your machines.
 networking.hostId = "${POOL_HOSTID}";
 
-# noop elevator recommended.
+# Noop, the recommended elevator with zfs.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
+# Grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
 # Just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
@@ -473,7 +473,7 @@ nix.gc.automatic = ${care_gc_automatic};
 nix.gc.dates = "${care_gc_dates}";
 nix.gc.options = "${care_gc_options}";
 
-# clean /tmp automatically on boot
+# Clean /tmp automatically on boot.
 boot.cleanTmpDir = ${care_cleanTmpDir};
 CARE
 )
