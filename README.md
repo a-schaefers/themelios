@@ -54,12 +54,13 @@ Essentially, feed Themelios a git repository url that contains a file which has 
 ```bash
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
+POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
 
 # use one disk per line here!
-POOL_DISKS="/dev/sda
-/dev/sdb
-/dev/sdc"
+# POOL_DISKS="/dev/sda
+# /dev/sdb
+# /dev/sdc"
+POOL_DISKS="/dev/sda"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # Use wipefs --all
@@ -70,11 +71,14 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
-# Your top-level configuration.nix file-- (use the relative path from the project_root.)
-# For example, to bootstrap the file project_root/hosts/vm-example/default.nix use the following:
+# Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
+# For example, to bootstrap project_root/hosts/vm-example/default.nix all of the following are equivalent:
+TOP_LEVEL_NIXFILE="./hosts/vm-example"
 TOP_LEVEL_NIXFILE="hosts/vm-example"
+TOP_LEVEL_NIXFILE="hosts/vm-example/default.nix"
 
-# Directory name of <git-remote> in "/" (root). Do not use slashes.
+# Directory name of to clone your git-remote in "/" (root). # May be anything, but do not use slashes.
+# This is intended to be the directory to operate the nix installation from.
 NIXCFG_DIR="nix-config"
 
 # If true, mount /nix outside of the / (root) dataset.
@@ -128,7 +132,7 @@ boot.zfs.forceImportRoot = false;
 The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true" in configuration.sh
 ```bash
 # Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
-THEMELIOS_ZFS_CARE="false"
+THEMELIOS_ZFS_CARE="true"
 
 ####################
 # ZFS_CARE Options #
@@ -161,12 +165,11 @@ If you want to override the default Themelios __zpool_create() or __datasets_cre
 # Overlay Section #
 ####################
 
-# If you set these variables, Themelios will source them
-# [only if they are located alongside your configuration.sh]
-POOL_OVERLAY_FILE=""     # Override __zpool_create()
-DATASETS_OVERLAY_FILE="" # Override __datasets_create()
+# If set, Themelios will source them if the files exist alongside configuration.sh
+POOL_OVERLAY_FILE="overlay-pool"         # Override __zpool_create()
+DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
 ```
-And then create the files and place them alongside your configuration.sh :)
+And then create the files and place them alongside wherever your configuration.sh is :)
 
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
