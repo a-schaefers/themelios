@@ -5,26 +5,26 @@ Bootstrap a zfs-on-root NixOS configuration in one command
 
 ## What Themelios does
 From any NixOS live disk, Themelios will do the following in approximate order:
-- Automatically installs zfs and git to the livedisk if needed.
-- Clones your git repo, optionally using a non-master branch.
-- Finds your configuration.sh file automatically.
+- Automatically installs zfs and git to the livedisk if needed
+- Clones your git repo, optionally using a non-master branch
+- Finds your configuration.sh file automatically
 - Configures a zfs-on-root system to your configuration.sh file specification including the following options:
-  * Uses sgdisk and/or wipefs, or dd to clear your disks.
+  * Uses sgdisk and/or wipefs, or dd to clear your disks
   * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
   * Configures a zfs-on-root dataset scheme by default
   * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
-  * Optional "zfs-care" enables further zfs-support options in NixOS.
-  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
-  * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo (and thereby nixos-install's the rest of your operating system.)
-- Aims to fail gracefully with continue and retry options.
-- A simple script, easy to hack on.
+  * Optional "zfs-care" enables further zfs-support options in NixOS
+  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly
+- Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo (and thereby nixos-install's the rest of your operating system)
+- Aims to fail gracefully with continue and retry options
+- Themelios aims to be a simple script that is easy to hack on.
 
 ## What Themelios does not do (yet)
 - Currently uefi is unsupported. (UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.)
 - Convert GPT to MS-DOS partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
 - Full Disk encryption (Wait for native zfsonlinux to reach full maturity in this area. Or this may be possible with an overlay, let me know, and provide one if you can do it!)
 - Configure more than one pool. (This should be possible using an overlay.)
-- Write zeros to more than one disk concurrently. (Good first issue for someone who knows bash better than me.)
+- Write zeros to more than one disk concurrently.
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig)**
 - Posix. My sh and bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
@@ -50,7 +50,7 @@ If none of this works for you, just tell themelios where the file is relative to
 [root@nixos:~] themelios ./hosts/vm-example/configuration.sh https://github.com/a-schaefers/themelios.git master
 ```
 
-Essentially, feed Themelios a git repository url that contains a file which has the following configuration variables:
+**TLDR; feed Themelios a git repository url that contains a file which has the following configuration variables:**
 ```bash
 # Themelios configuration.sh example
 POOL_NAME="zroot"
