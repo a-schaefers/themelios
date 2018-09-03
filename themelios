@@ -225,7 +225,7 @@ __get_custom_nixcfg() {
         cd /tmp/NIXCFG_REPO
         find -type f -name "${NIXCFG_HOST}" | grep "." && \
             NIXCFG_HOST=$(find -type f -name "${NIXCFG_HOST}") && \
-            [ ! -e "${NIXCFG_HOST}" ] && die "Error: Themelios cannot figure out which ${NIXCFG_HOST} to use. In this case, feed Themelios ./the/entire/path to the configuration.sh file you are trying to use with STARTOVER=1 and try again."
+            [ ! -e "${NIXCFG_HOST}" ] && die "Error: Themelios cannot figure out which ${NIXCFG_HOST} to use. In this case, feed Themelios ./the/entire/path to the configuration.sh file you are trying to use with STARTOVER=1 POOL_NAME=$(POOL_NAME) and try again."
 
         # If given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find -type d -name "${NIXCFG_HOST}" | grep "." && \
