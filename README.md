@@ -180,7 +180,7 @@ If you have special [post nixos-install] needs and do not want the script to aut
 ## Debugging
 If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
 ```bash
-[root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
+[root@nixos:~] STARTOVER=1 POOL_NAME=zroot themelios foo bar
 ```
 
 ## Hacking the script
