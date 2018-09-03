@@ -12,22 +12,21 @@ From any NixOS live disk, Themelios will do the following in approximate order:
   * Uses sgdisk and/or wipefs, or dd to clear your disks.
   * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
   * Configures a zfs-on-root dataset scheme by default
-  * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo.
   * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes essential settings for zfs-on-root.
   * Optional "zfs-care" enables further zfs-support options in NixOS.
   * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
-  * Bootstraps your top level .nix configuration and installs the rest of your operating system
+  * Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo (and thereby nixos-install's the rest of your operating system.)
 - Aims to fail gracefully with continue and retry options.
 - A simple script, easy to hack on.
 
 ## What Themelios does not do (yet)
 - Currently uefi is unsupported. (UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.)
 - Convert GPT to MS-DOS partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
-- Full Disk encryption (Let's just wait for native zfsonlinux to reach full maturity in this area.)
-- Configure more than one pool.
-- Write zeros to more than one disk concurrently.
-- **Include the beadm script and with full beadm and nix grub integration on the bootloader. [There are big plans ahead!](https://github.com/a-schaefers/grubbe-mkconfig)**
-- Posix. My bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
+- Full Disk encryption (Wait for native zfsonlinux to reach full maturity in this area. Or this may be possible with an overlay, let me know, and provide one if you can do it!)
+- Configure more than one pool. (This should be possible using an overlay.)
+- Write zeros to more than one disk concurrently. (Good first issue for someone who knows bash better than me.)
+- **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig)**
+- Posix. My sh and bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM, download the themelios script and execute:
