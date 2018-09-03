@@ -153,23 +153,17 @@ __switch_if_needed() {
 }
 
 __bootstrap_zfs() {
-    __install_zfs() {
-        sed -i '/imports/a \
+    sed -i '/imports/a \
 boot.supportedFilesystems = [ \"zfs\" ];' \
-            /etc/nixos/configuration.nix
-        NEEDS_SWITCH="true"
-    }
-    which zfs > /dev/null 2>&1 || __install_zfs
+        /etc/nixos/configuration.nix
+    NEEDS_SWITCH="1"
 }
 
 __bootstrap_git() {
-    __install_git() {
-        sed -i '/imports/a \
+    sed -i '/imports/a \
  environment.systemPackages = with pkgs; [ git ];' \
-            /etc/nixos/configuration.nix
-        NEEDS_SWITCH="true"
-    }
-    which git > /dev/null 2>&1 || __install_git
+        /etc/nixos/configuration.nix
+    NEEDS_SWITCH="1"
 }
 
 __get_custom_nixcfg() {
@@ -557,25 +551,25 @@ NIXCFG_HOST=$1
 NIXCFG_REPO=$2
 NIXCFG_BRANCH=$3
 
-# Check for legacy or uefi bios.
-__uefi_or_legacy
-
 # Warn user of potential doom.
 __initial_warning
 
+# Check for legacy or uefi bios.
+__uefi_or_legacy
+
 # Install zfs if needed to the livedisk.
-__bootstrap_zfs
+which zfs > /dev/null 2>&1 || __bootstrap_zfs
 
 # Install git if needed to the livedisk.
-__bootstrap_git
+which git > /dev/null 2>&1 || __bootstrap_git
 
 # Reconfigure nix livedisk if needed.
-[[ ${NEEDS_SWITCH} == "true" ]] && __switch_if_needed
+[[ ${NEEDS_SWITCH} ]] && __switch_if_needed
 
 # Clone the repo and get all of the configuration information.
 __get_custom_nixcfg
 
-# Use sgdisk wipefs or dd to cleanup old disks.
+# Use sgdisk wipefs and dd tools to cleanup old disks.
 __disk_prep
 
 # Create default zpool or maybe-use optional user overlay instead.
