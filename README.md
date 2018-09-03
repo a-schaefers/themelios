@@ -185,6 +185,6 @@ If something goes haywire and you just want to start the process all over withou
 ## Making contributions
 Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I sure would appreciate all the help I can get!
 
-Or send me a buck ;) https://www.paypal.me/AdamSchaefers
+Or [send me a buck](https://www.paypal.me/AdamSchaefers) ;)
 
 Thank you!
