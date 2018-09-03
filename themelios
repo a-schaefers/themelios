@@ -173,11 +173,10 @@ __bootstrap_git() {
 }
 
 __get_custom_nixcfg() {
-    # So accomodate everyone, but github has extra features.
-    # git clone the declared repo from NIXCFG_REPO ($2)
-    # github users https remote will be switched to ssh remote automatically after initial clone.
-    # github users also may use "shorthand" USERNAME/REPO-NAME
-    # optional NIXFG_BRANCH ($3) may be used additionally for all users who need to build from a non-master branch.
+    # Clone the declared repo from NIXCFG_REPO ($2)
+    # Optional NIXFG_BRANCH ($3) may be used additionally for all users who need to build from a non-master branch.
+    # Github users' https remote will be switched to ssh remote automatically after initial clone.
+    # Github users also may use the "shorthand" USERNAME/REPO-NAME
     # TODO point of failure for github shorthand is reliance on "cut", should github ever change their convention. This could be better.
     GH_SHORTHAND=$(echo ${NIXCFG_REPO} | grep -v ".git")
     GITHUB_URL=$(echo ${NIXCFG_REPO} | grep "github.com")
