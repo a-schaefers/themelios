@@ -17,13 +17,6 @@
   programs.bash.enableCompletion = true;
 
   networking.hostName = "nixvm";
-  networking.networkmanager.enable = true;
-  networking.firewall.allowPing = true;
-  networking.firewall.allowedTCPPorts = [ 22 ];
-  networking.firewall.allowedUDPPorts = [ 22 ];
-
-  services.openssh.enable = true;
-  powerManagement.enable = true;
 
   nix.allowedUsers = [ "root" "@wheel" ];
   nix.trustedUsers = [ "root" "@wheel" ];
