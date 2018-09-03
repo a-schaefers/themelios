@@ -22,7 +22,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 
 ## What Themelios does not do (yet)
 - Currently uefi is unsupported. (UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.)
-- Convert GPT to MBR partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
+- Convert GPT to MS-DOS partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
 - Full Disk encryption (Let's just wait for native zfsonlinux to reach full maturity in this area.)
 - Configure more than one pool.
 - Write zeros to more than one disk concurrently.
