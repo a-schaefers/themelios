@@ -308,10 +308,7 @@ __datasets_create() {
         mkdir /mnt/nix
         mount -t zfs ${POOL_NAME}/NIX/nix /mnt/nix
     }
-    if [[ ${NIXDIR_NOROOT} == "true" ]]
-    then
-        __slash_nix_outside_root
-    fi
+    [[ ${NIXDIR_NOROOT} == "true" ]] && __slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
@@ -326,8 +323,7 @@ __datasets_create() {
     mount -t zfs ${POOL_NAME}/TMP/tmp /mnt/tmp
 
     # swap option
-    if [[ ${USE_ZSWAP} == "true" ]]
-    then
+    __create_zswap() {
         echo "Creating ZSWAP volume and turning on swap..."
         zfs create \
             -o primarycache=metadata \
@@ -345,7 +341,8 @@ __datasets_create() {
 
         mkswap -f /dev/zvol/${POOL_NAME}/SWAP/swap0
         swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
-    fi
+    }
+    [[ ${USE_ZSWAP} == "true" ]] && __create_zswap
 
     __zfs_auto_snapshot() {
         IFS=$'\n'
