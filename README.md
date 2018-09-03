@@ -25,7 +25,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Full Disk encryption (Wait for native zfsonlinux to reach full maturity in this area. Or this may be possible with an overlay, please provide one if you can do it!)
 - Configure more than one pool-- (this can be done with an overlay.)
 - Write zeros to more than one disk concurrently.
-- **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig)**
+- **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
 - Posix. My sh and bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
 ## Try it in it a VM right now!
