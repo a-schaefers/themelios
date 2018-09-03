@@ -187,4 +187,4 @@ Check out the [What Themelios does not do](https://github.com/a-schaefers/themel
 
 Or send me a buck ;) https://www.paypal.me/AdamSchaefers
 
-Thank you! :)
+Thank you!
