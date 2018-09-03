@@ -182,10 +182,6 @@ If something goes haywire and you just want to start the process all over withou
 ```bash
 [root@nixos:~] STARTOVER=1 POOL_NAME=zroot themelios foo bar
 ```
-
-## Hacking the script
-If you want to help make Themelios better, try to put everything in a function and call the functions at the end of file. This makes commenting out blocks of code easier and adding early exits to test sections of the script. Try to use variable and function names that explain the code as it executes so that we don't need too many comments.
-
 ## Making contributions
 Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I sure would appreciate all the help I can get!
 
