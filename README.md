@@ -20,10 +20,10 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Themelios aims to be a simple script that is easy to hack on.
 
 ## What Themelios does not do (yet)
-- Currently uefi is unsupported. (UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.)
-- Convert GPT to MS-DOS partition tables. (The zfs create pool command uses GPT by default, and in 2018 should be sufficient for most.)
-- Full Disk encryption (Wait for native zfsonlinux to reach full maturity in this area. Or this may be possible with an overlay, let me know, and provide one if you can do it!)
-- Configure more than one pool. (This should be possible using an overlay.)
+- Currently uefi is unsupported because UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.
+- Convert GPT to MS-DOS partition tables (GPT is zfs default and in 2018 this should be sufficient for most.)
+- Full Disk encryption (Wait for native zfsonlinux to reach full maturity in this area. Or this may be possible with an overlay, please provide one if you can do it!)
+- Configure more than one pool-- (this can be done with an overlay.)
 - Write zeros to more than one disk concurrently.
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig)**
 - Posix. My sh and bash-fu is an ongoing work-in-progress. Anyone who can help in this area with pull-requests, I'd appreciate it!
@@ -184,5 +184,7 @@ If something goes haywire and you just want to start the process all over withou
 ```
 ## Making contributions
 Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I sure would appreciate all the help I can get!
+
+Or send me a buck ;) https://www.paypal.me/AdamSchaefers
 
 Thank you! :)
