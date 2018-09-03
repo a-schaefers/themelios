@@ -44,12 +44,13 @@ Essentially, feed Themelios a git repository url that contains a file which has 
 
 # Themelios configuration.sh example
 POOL_NAME="zroot"
-POOL_TYPE="raidz1"    # May also be set to "mirror". Leave empty "" for single.
+POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
 
 # use one disk per line here!
-POOL_DISKS="/dev/sda
-/dev/sdb
-/dev/sdc"
+# POOL_DISKS="/dev/sda
+# /dev/sdb
+# /dev/sdc"
+POOL_DISKS="/dev/sda"
 
 SGDISK_CLEAR="true"   # Use sgdisk --clear
 WIPEFS_ALL="true"     # Use wipefs --all
@@ -60,11 +61,14 @@ SNAPSHOT_HOME="true"
 USE_ZSWAP="false"     # Creates a swap zvol
 ZSWAP_SIZE="4G"
 
-# Your top-level configuration.nix file-- (use the relative path from the project_root.)
-# For example, to bootstrap the file project_root/hosts/vm-example/default.nix use the following:
+# Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
+# For example, to bootstrap project_root/hosts/vm-example/default.nix all of the following are equivalent:
+TOP_LEVEL_NIXFILE="./hosts/vm-example"
 TOP_LEVEL_NIXFILE="hosts/vm-example"
+TOP_LEVEL_NIXFILE="hosts/vm-example/default.nix"
 
-# Directory name of <git-remote> in "/" (root). Do not use slashes.
+# Directory name of to clone your git-remote in "/" (root). # May be anything, but do not use slashes.
+# This is intended to be the directory to operate the nix installation from.
 NIXCFG_DIR="nix-config"
 
 # If true, mount /nix outside of the / (root) dataset.
@@ -76,7 +80,7 @@ NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
 THEMELIOS_ZFS="true"
 
 # Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
-THEMELIOS_ZFS_CARE="false"
+THEMELIOS_ZFS_CARE="true"
 
 ####################
 # ZFS_CARE Options #
@@ -105,10 +109,9 @@ care_cleanTmpDir="true"
 # Overlay Section #
 ####################
 
-# If you set these variables, Themelios will source them
-# [only if they are located alongside your configuration.sh]
-POOL_OVERLAY_FILE=""     # Override __zpool_create()
-DATASETS_OVERLAY_FILE="" # Override __datasets_create()
+# If set, Themelios will source them if the files exist alongside configuration.sh
+POOL_OVERLAY_FILE="overlay-pool"         # Override __zpool_create()
+DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
 EOF
     exit
 }
@@ -132,7 +135,7 @@ contents with a zfs-on-root NixOS installation and bootstrap your configuration.
     read -p "Ready? (Y or N) " -n 1 -r
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
-        echo "Aborted." ; exit
+        die "Aborted."
     fi
 }
 
@@ -140,21 +143,21 @@ __fail_warning() {
     read -p "The previous command failed. Continue running script? (Y or N) " -n 1 -r
     if [[ ! $REPLY =~ ^[Yy]$ ]]
     then
-        echo "Aborted." ; exit
+        die "Aborted."
     fi
 }
 
 __uefi_or_legacy() {
     # TODO add uefi support.
     if [ -d "/sys/firmware/efi/efivars" ]; then
-        exit ; echo "Only legacy bios is supported with this script for now."
+        exit ; die "Only legacy bios is supported with this script for now."
     fi
 }
 
 __switch_if_needed() {
     if [[ ${NEEDS_SWITCH} == "true" ]]
     then
-        nixos-rebuild switch || echo "nixos-rebuild switch from switch_if_needed failed" ; __fail_warning
+        nixos-rebuild switch || __fail_warning
         NEEDS_SWITCH="false"
     fi
 }
@@ -180,10 +183,12 @@ __bootstrap_git() {
 }
 
 __get_custom_nixcfg() {
+    # So accomodate everyone, but github has extra features.
     # git clone the declared repo from NIXCFG_REPO ($2)
     # github users https remote will be switched to ssh remote automatically after initial clone.
     # github users also may use "shorthand" USERNAME/REPO-NAME
-    # optional NIXFG_BRANCH ($3) may be used additionally for users who need to build from a non-master branch.
+    # optional NIXFG_BRANCH ($3) may be used additionally for all users who need to build from a non-master branch.
+    # TODO point of failure for github shorthand is reliance on "cut", should github ever change their convention. This could be better.
     GH_SHORTHAND=$(echo ${NIXCFG_REPO} | grep -v ".git")
     GITHUB_URL=$(echo ${NIXCFG_REPO} | grep "github.com")
     __checkout_branch() {
@@ -220,12 +225,18 @@ __get_custom_nixcfg() {
         [[ ${NIXCFG_BRANCH} ]] && __checkout_branch
     fi
 
+    # To find the users configuration.sh file:
+    # First we simply use "./the/path/to/$1" if the user provides it.
+    # Second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
+    # Third we search again for a unique dirname, but only if the filename search turns up nothing,
+    # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
+    # Finally, in all cases no matter what we use, we also need to setup optional overlay files which will be next to wherever $1 may be.
     __find_configuration_sh() {
         # If given a unique filename, use the filename to source the config variables.
         cd /tmp/NIXCFG_REPO
         find -type f -name "${NIXCFG_HOST}" | grep "." && \
             NIXCFG_HOST=$(find -type f -name "${NIXCFG_HOST}") && \
-            [ ! -e "${NIXCFG_HOST}" ] && die "Error: Themelios cannot figure out which ${NIXCFG_HOST} to use. Feed Themelios ./the/entire/path to the configuration.sh file you are trying to use with STARTOVER=1 and try again."
+            [ ! -e "${NIXCFG_HOST}" ] && die "Error: Themelios cannot figure out which ${NIXCFG_HOST} to use. In this case, feed Themelios ./the/entire/path to the configuration.sh file you are trying to use with STARTOVER=1 and try again."
 
         # If given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find -type d -name "${NIXCFG_HOST}" | grep "." && \
@@ -234,43 +245,44 @@ __get_custom_nixcfg() {
     # If not given a path with slashes to a configuration.sh file, then use find.
     echo ${NIXCFG_HOST} | grep "/" || __find_configuration_sh
 
-    source "${NIXCFG_HOST}" || die "configuration.sh file not found."
+    source "${NIXCFG_HOST}" || die "${NIXCFG_HOST} file not found."
 
-    # find optional overlay locations based on where the users configuration.sh is.
+    # prepare optional overlay locations based on where the users configuration.sh is.
     OVERLAY_POOL=${NIXCFG_HOST%/*}/${POOL_OVERLAY_FILE}
     OVERLAY_DATASETS=${NIXCFG_HOST%/*}/${DATASETS_OVERLAY_FILE}
 }
 
 __disk_prep() {
-    if [[ ${SGDISK_CLEAR} == "true" ]]
-    then
+    __sgdisk() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
             echo "Clearing disk with sgdisk..."
             sgdisk --clear ${DISK_ID} || __fail_warning
         done
-    fi
+    }
+    [[ ${SGDISK_CLEAR} == "true" ]] && __sgdisk
 
-    if [[ ${WIPEFS_ALL} == "true" ]]
-    then
+    __wipefs() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
             echo "Wiping disk signatures with wipefs..."
             wipefs --all ${DISK_ID} || __fail_warning
         done
-    fi
+    }
+    [[ ${WIPEFS_ALL} == "true" ]] && __wipefs
 
-    if [[ ${ZERO_DISKS} == "true" ]]
-    then
+    __dd_zero() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
             echo "Writing Zeros to each disk, this may take a while..."
             dd if=/dev/zero of=${DISK_ID} bs=4096 status=progress
         done
-    fi
+    }
+    [[ ${ZERO_DISKS} == "true" ]] && __dd_zero
+
 }
 
 __zpool_create() {
@@ -333,7 +345,7 @@ __datasets_create() {
     # zswap option
     if [[ ${USE_ZSWAP} == "true" ]]
     then
-        echo "Creation ZSWAP volume and turning on swap..."
+        echo "Creating ZSWAP volume and turning on swap..."
         zfs create \
             -o primarycache=metadata \
             -o secondarycache=metadata \
@@ -352,6 +364,7 @@ __datasets_create() {
         swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
     fi
 
+    # TODO this is not good.
     __zfs_auto_snapshot() {
         # set com.sun:auto-snapshot properties
         if [[ ${SNAPSHOT_HOME} == "true" ]]
@@ -379,23 +392,31 @@ __datasets_create() {
 
 __bootstrap_nixcfg() {
     echo "Moving repo from /tmp to /mnt..."
+    # TODO it sure would be cool to restore ownership of this repo away from root to the user owner in nix.
     cp -rp /tmp/NIXCFG_REPO /mnt/${NIXCFG_DIR}
 
+    # This is for generating our ./hardware-configuration.nix files.
+    # ./configuration.nix will be overwritten shortly hereafter.
     echo "Executing nixos-generate-config --root /mnt"
     nixos-generate-config --root /mnt || __fail_warning
 
+    # give chance for advanced user who is hacking the script in the case of
+    # installation into an already created pool to pass his already existing hostid to script. :)
     [[ ! ${POOL_HOSTID} ]] && POOL_HOSTID="random"
-    if [[ ${POOL_HOSTID} == "random" ]]
-    then
+    __hostid_generate() {
         echo "Generating random hostid..."
         POOL_HOSTID="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
         echo "${POOL_HOSTID}"
-    fi
+    }
+    [[ ${POOL_HOSTID} == "random" ]] && __hostid_generate
 
-    #sanitize TLN for import heredoc
+    # strip './' from  TLN for nix import just incase the user prefixed it with './'
     TOP_LEVEL_NIXFILE=$(echo "${TOP_LEVEL_NIXFILE}" | sed 's|^./||')
 
-    # setup user's future /etc/nixos/configuration.nix file to import their custom TOP_LEVEL_NIXFILE.
+    # Create /mnt/etc/nixos/configuration.nix and import user's TOP_LEVEL_NIXFILE.
+    # populate it also with networking.hostId = \"${POOL_HOSTID}\"; if user has not enabled THEMELIOS_ZFS option.
+    # Otherwise, import themelios-zfs.nix for sensible general zfs settings.
+    # Finally embed a heredoc inside a heredoc which contains the additional optional zfs_care options.
     if [[ ${THEMELIOS_ZFS} == "true" ]]
     then
         THEMELIOS_OPTIONAL_GENERATED="./themelios-zfs.nix"
@@ -470,7 +491,7 @@ CARE
 }
 EOF
 
-    # nixos-install section
+    # nixos-install section, give user retry option with --show-trace to have chance nix imports on another TTY. :)
     __nixos-install-show-trace() {
         nixos-install --root /mnt --show-trace || __nixos-install_fail_retry
     }
