@@ -122,11 +122,12 @@ function die() {
 }
 
 __start_over() {
+    rm -rf /tmp/NIXCFG_REPO
     umount /mnt/home
     umount /mnt/tmp
     umount /mnt
-    rm -rf /tmp/NIXCFG_REPO
-    zpool destroy ${POOL}
+    swapoff /dev/zvol/${POOL_NAME}/SWAP/swap0
+    zpool destroy ${POOL_NAME}
 }
 
 __initial_warning() {
