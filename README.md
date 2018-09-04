@@ -189,7 +189,7 @@ Save the following somewhere on an already existing NixOS install as iso.nix:
 {config, pkgs, ...}:
 let
   themelios = pkgs.writeScriptBin "themelios" ''
-    bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios)
+    bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios) $@
   '';
 in {
   imports = [
