@@ -182,6 +182,41 @@ If something goes haywire and you just want to start the process all over withou
 ```bash
 [root@nixos:~] STARTOVER=1 POOL_NAME=zroot themelios foo bar
 ```
+
+## Build Themelios into a custom NixOS rescue iso
+Save the following somewhere on an already existing NixOS install as iso.nix:
+```nix
+{config, pkgs, ...}:
+let
+  themelios = pkgs.writeScriptBin "themelios" ''
+    bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios)
+  '';
+in {
+  imports = [
+    <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
+    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
+  ];
+
+  networking = {
+    networkmanager.enable = true;
+    wireless.enable = false;
+    firewall.allowPing = true;
+    firewall.allowedTCPPorts = [ 22 ];
+    firewall.allowedUDPPorts = [ 22 ];
+  };
+  services.openssh.enable = true;
+  boot.supportedFilesystems = [ "zfs" ];
+  environment.systemPackages = with pkgs; [ git themelios ];
+}
+```
+
+And build it!
+```bash
+nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix
+```
+
+The generated iso will be found inside the newly created "result/" directory.
+
 ## Making contributions
 Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I appreciate all the help I can get!
 
