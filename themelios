@@ -110,8 +110,8 @@ care_cleanTmpDir="true"
 ####################
 
 # If set, Themelios will source them if the files exist alongside configuration.sh
-POOL_OVERLAY_FILE="overlay-pool"         # Override __zpool_create()
-DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
+POOL_OVERLAY_FILE="overlay-pool"         # Override zpool_create()
+DATASETS_OVERLAY_FILE="overlay-datasets" # Override datasets_create()
 EOF
     exit
 }
@@ -121,7 +121,7 @@ function die() {
     exit 1
 }
 
-__start_over() {
+start_over() {
     rm -rf /tmp/NIXCFG_REPO
     umount /mnt/home
     umount /mnt/tmp
@@ -130,7 +130,7 @@ __start_over() {
     zpool destroy ${POOL_NAME}
 }
 
-__initial_warning() {
+initial_warning() {
     echo "WARNING: The following script intends to replace all of your disk(s) \
 contents with a zfs-on-root NixOS installation and bootstrap your configuration.nix."
 
@@ -138,35 +138,35 @@ contents with a zfs-on-root NixOS installation and bootstrap your configuration.
     [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
-__fail_warning() {
+fail_warning() {
     read -p "The previous command failed. Continue running script? (Y or N) " -n 1 -r
     [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
-__uefi_or_legacy() {
+uefi_or_legacy() {
     # TODO add uefi support.
     [[ -d "/sys/firmware/efi/efivars" ]] && die "Only legacy bios is supported for now."
 }
 
-__switch_if_needed() {
-    nixos-rebuild switch || __fail_warning
+switch_if_needed() {
+    nixos-rebuild switch || fail_warning
 }
 
-__bootstrap_zfs() {
+bootstrap_zfs() {
     sed -i '/imports/a \
 boot.supportedFilesystems = [ \"zfs\" ];' \
         /etc/nixos/configuration.nix
     NEEDS_SWITCH="1"
 }
 
-__bootstrap_git() {
+bootstrap_git() {
     sed -i '/imports/a \
  environment.systemPackages = with pkgs; [ git ];' \
         /etc/nixos/configuration.nix
     NEEDS_SWITCH="1"
 }
 
-__get_custom_nixcfg() {
+get_custom_nixcfg() {
     # Clone the declared repo from NIXCFG_REPO ($2)
     # Optional NIXFG_BRANCH ($3) may be used additionally for all users who need to build from a non-master branch.
     # Github users' https remote will be switched to ssh remote automatically after initial clone.
@@ -174,38 +174,38 @@ __get_custom_nixcfg() {
     # TODO point of failure for github shorthand is reliance on "cut", should github ever change their convention. This could be better.
     GH_SHORTHAND=$(echo ${NIXCFG_REPO} | grep -v ".git")
     GITHUB_URL=$(echo ${NIXCFG_REPO} | grep "github.com")
-    __checkout_branch() {
+    checkout_branch() {
         echo "Checking out ${GITHUBSSHREMOTE}"
         cd /tmp/NIXCFG_REPO
         git checkout ${NIXCFG_BRANCH}
     }
-    __switch_github_remotes() {
+    switch_github_remotes() {
         echo "Switching remote from https to ${GITHUBSSHREMOTE} for user convenience..."
         cd /tmp/NIXCFG_REPO
         git remote set-url origin ${GITHUBSSHREMOTE}
     }
-    __github_clone_and_switch() {
+    github_clone_and_switch() {
         echo "Cloning repo via ${GITHUBHTTPSREMOTE}"
         GITHUBHTTPSREMOTE=https://github.com/${GITHUB_USER}/${GITHUB_REPO}
         GITHUBSSHREMOTE=git@github.com:${GITHUB_USER}/${GITHUB_REPO}
-        git clone ${GITHUBHTTPSREMOTE} /tmp/NIXCFG_REPO || __fail_warning
-        __switch_github_remotes
-        [[ ${NIXCFG_BRANCH} ]] && __checkout_branch
+        git clone ${GITHUBHTTPSREMOTE} /tmp/NIXCFG_REPO || fail_warning
+        switch_github_remotes
+        [[ ${NIXCFG_BRANCH} ]] && checkout_branch
     }
     if [[ ${GITHUB_URL} ]]
     then
         GITHUB_USER=$(echo ${NIXCFG_REPO} | grep github | cut -d '/' -f 4)
         GITHUB_REPO=$(echo ${NIXCFG_REPO} | grep github | cut -d '/' -f 5)
-        __github_clone_and_switch
+        github_clone_and_switch
     elif [[ ${GH_SHORTHAND} ]]
     then
         GITHUB_USER=$(echo ${NIXCFG_REPO} | cut -d '/' -f 1)
         GITHUB_REPO=$(echo ${NIXCFG_REPO} | cut -d '/' -f 2)
-        __github_clone_and_switch
+        github_clone_and_switch
     else
         echo "Cloning repo via ${NIXCFG_REPO}"
-        git clone ${NIXCFG_REPO} /tmp/NIXCFG_REPO || __fail_warning
-        [[ ${NIXCFG_BRANCH} ]] && __checkout_branch
+        git clone ${NIXCFG_REPO} /tmp/NIXCFG_REPO || fail_warning
+        [[ ${NIXCFG_BRANCH} ]] && checkout_branch
     fi
 
     # To find the users configuration.sh file:
@@ -214,7 +214,7 @@ __get_custom_nixcfg() {
     # Third we search again for a unique dirname, but only if the filename search turns up nothing,
     # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
     # Finally, in all cases no matter what we use, we also need to setup optional overlay files which will be next to wherever $1 may be.
-    __find_configuration_sh() {
+    find_configuration_sh() {
         # If given a unique filename, use the filename to source the config variables.
         cd /tmp/NIXCFG_REPO
         find -type f -name "${NIXCFG_HOST}" | grep "." && \
@@ -226,7 +226,7 @@ __get_custom_nixcfg() {
             NIXCFG_HOST=$(echo $(find -type d -name "${NIXCFG_HOST}")/configuration.sh)
     }
     # If not given a path with slashes to a configuration.sh file, then use find.
-    echo ${NIXCFG_HOST} | grep "/" || __find_configuration_sh
+    echo ${NIXCFG_HOST} | grep "/" || find_configuration_sh
 
     source "${NIXCFG_HOST}" || die "${NIXCFG_HOST} file not found."
 
@@ -235,28 +235,28 @@ __get_custom_nixcfg() {
     OVERLAY_DATASETS=${NIXCFG_HOST%/*}/${DATASETS_OVERLAY_FILE}
 }
 
-__disk_prep() {
-    __sgdisk() {
+disk_prep() {
+    sgdisk_clear() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
             echo "Clearing disk with sgdisk..."
-            sgdisk --clear ${DISK_ID} || __fail_warning
+            sgdisk --clear ${DISK_ID} || fail_warning
         done
     }
-    [[ ${SGDISK_CLEAR} == "true" ]] && __sgdisk
+    [[ ${SGDISK_CLEAR} == "true" ]] && sgdisk_clear
 
-    __wipefs() {
+    wipefs_all() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
             echo "Wiping disk signatures with wipefs..."
-            wipefs --all ${DISK_ID} || __fail_warning
+            wipefs --all ${DISK_ID} || fail_warning
         done
     }
-    [[ ${WIPEFS_ALL} == "true" ]] && __wipefs
+    [[ ${WIPEFS_ALL} == "true" ]] && wipefs_all
 
-    __dd_zero() {
+    dd_zero() {
         IFS=$'\n'
         for DISK_ID in ${POOL_DISKS}
         do
@@ -264,11 +264,11 @@ __disk_prep() {
             dd if=/dev/zero of=${DISK_ID} bs=4096 status=progress
         done
     }
-    [[ ${ZERO_DISKS} == "true" ]] && __dd_zero
+    [[ ${ZERO_DISKS} == "true" ]] && dd_zero
 
 }
 
-__zpool_create() {
+zpool_create() {
     echo "Creating zpool..."
     zpool create -f \
           -o ashift=12 \
@@ -281,20 +281,20 @@ __zpool_create() {
           -R /mnt \
           ${POOL_NAME:?"Please define pool name."} \
           ${POOL_TYPE} \
-          ${POOL_DISKS:?"Please define pool disks."} || __fail_warning
+          ${POOL_DISKS:?"Please define pool disks."} || fail_warning
 }
 
-__create_bios_boot_partitions() {
+create_bios_boot_partitions() {
     IFS=$'\n'
     for DISK_ID in ${POOL_DISKS}
     do
         echo "Creating BIOS boot partition..."
-        sgdisk -a1 -n2:48:2047 -t2:EF02 -c2:"BIOS boot partition" ${DISK_ID} || __fail_warning
+        sgdisk -a1 -n2:48:2047 -t2:EF02 -c2:"BIOS boot partition" ${DISK_ID} || fail_warning
         partx -u ${DISK_ID}
     done
 }
 
-__datasets_create() {
+datasets_create() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
     zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/ROOT
@@ -302,13 +302,13 @@ __datasets_create() {
     mount -t zfs ${POOL_NAME}/ROOT/nixos /mnt
     zpool set bootfs=${POOL_NAME}/ROOT/nixos ${POOL_NAME}
 
-    __slash_nix_outside_root() {
+    slash_nix_outside_root() {
         zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/NIX
         zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/NIX/nix
         mkdir /mnt/nix
         mount -t zfs ${POOL_NAME}/NIX/nix /mnt/nix
     }
-    [[ ${NIXDIR_NOROOT} == "true" ]] && __slash_nix_outside_root
+    [[ ${NIXDIR_NOROOT} == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
@@ -323,7 +323,7 @@ __datasets_create() {
     mount -t zfs ${POOL_NAME}/TMP/tmp /mnt/tmp
 
     # swap option
-    __create_zswap() {
+    create_zswap() {
         echo "Creating ZSWAP volume and turning on swap..."
         zfs create \
             -o primarycache=metadata \
@@ -342,9 +342,9 @@ __datasets_create() {
         mkswap -f /dev/zvol/${POOL_NAME}/SWAP/swap0
         swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
     }
-    [[ ${USE_ZSWAP} == "true" ]] && __create_zswap
+    [[ ${USE_ZSWAP} == "true" ]] && create_zswap
 
-    __zfs_auto_snapshot() {
+    zfs_auto_snapshot() {
         IFS=$'\n'
         for DATASET in ${AUTO_SNAPSHOT}
         do
@@ -352,10 +352,10 @@ __datasets_create() {
             zfs set com.sun:auto-snapshot=true ${DATASET}
         done
     }
-    __zfs_auto_snapshot
+    zfs_auto_snapshot
 }
 
-__bootstrap_nixcfg() {
+bootstrap_nixcfg() {
     echo "Moving repo from /tmp to /mnt..."
     # TODO It sure would be cool to restore ownership of this repo away from root to the user owner in nix.
     cp -rp /tmp/NIXCFG_REPO /mnt/${NIXCFG_DIR}
@@ -363,17 +363,17 @@ __bootstrap_nixcfg() {
     # This is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
     echo "Executing nixos-generate-config --root /mnt"
-    nixos-generate-config --root /mnt || __fail_warning
+    nixos-generate-config --root /mnt || fail_warning
 
     # Give a chance for advanced user who is hacking the script in the case of
     # installation into an already created pool to pass his already existing hostid to script. :)
     [[ ! ${POOL_HOSTID} ]] && POOL_HOSTID="random"
-    __hostid_generate() {
+    hostid_generate() {
         echo "Generating random hostid..."
         POOL_HOSTID="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
         echo "${POOL_HOSTID}"
     }
-    [[ ${POOL_HOSTID} == "random" ]] && __hostid_generate
+    [[ ${POOL_HOSTID} == "random" ]] && hostid_generate
 
     # Strip './' from  TLN for nix import just incase the user prefixed it with './'
     TOP_LEVEL_NIXFILE=$(echo "${TOP_LEVEL_NIXFILE}" | sed 's|^./||')
@@ -457,29 +457,29 @@ CARE
 EOF
 
     # Give user a retry option with --show-trace to have a chance to fix imports on another TTY. :)
-    __nixos-install-show-trace() {
-        nixos-install --root /mnt --show-trace || __nixos-install_fail_retry
+    nixos-install-show-trace() {
+        nixos-install --root /mnt --show-trace || nixos-install_fail_retry
     }
-    __nixos-install_fail_retry() {
+    nixos-install_fail_retry() {
         echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/${NIXCFG_DIR} before trying again."
         echo "themelios hint: make sure you are using relative path imports for all of your .nix files."
         read -p "nixos-install --root /mnt failed, retry? will add --show-trace (Y or N) " -n 1 -r
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            __nixos-install-show-trace
+            nixos-install-show-trace
         else
             die "The only steps remaining after nixos-install --root /mnt should be unmounting /mnt and exporting the pool :) Good luck."
         fi
     }
-    __nixos-install() {
+    nixos-install() {
         echo "executing nixos-install --root /mnt"
-        nixos-install --root /mnt || __nixos-install_fail_retry
+        nixos-install --root /mnt || nixos-install_fail_retry
     }
 
-    __nixos-install
+    nixos-install
 }
 
-__thank_you() {
+thank_you() {
     cat <<EOF
 NNNNNNNN        NNNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
 N:::::::N       N::::::NI::::::::IX:::::X       X:::::X
@@ -499,7 +499,7 @@ N::::::N        N::::::NI::::::::IX:::::X       X:::::X
 NNNNNNNN         NNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
 EOF
 
-    __umount_export() {
+    umount_export() {
         [[ ${USE_ZSWAP} == "true" ]] && swapoff /dev/zvol/${POOL_NAME}/SWAP/swap0
 
         echo "Unmounting /mnt"
@@ -515,7 +515,7 @@ EOF
 
     }
     # Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
-    [[ ! ${NOUMOUNT} ]] && __umount_export
+    [[ ! ${NOUMOUNT} ]] && umount_export
 
     exit
 }
@@ -523,7 +523,7 @@ EOF
 # Start executing code !
 
 # Rerun script with "STARTOVER=1 POOL_NAME=poolname ./themelios foo bar" to attempt a fresh start.
-[[ ${STARTOVER} ]] && __start_over
+[[ ${STARTOVER} ]] && start_over
 
 [[ $1 == "-h" ]] && help
 [[ $1 == "--help" ]] && help
@@ -534,37 +534,37 @@ NIXCFG_REPO=$2
 NIXCFG_BRANCH=$3
 
 # Warn user of potential doom.
-__initial_warning
+initial_warning
 
 # Check for legacy or uefi bios.
-__uefi_or_legacy
+uefi_or_legacy
 
 # Install zfs if needed to the livedisk.
-which zfs > /dev/null 2>&1 || __bootstrap_zfs
+which zfs > /dev/null 2>&1 || bootstrap_zfs
 
 # Install git if needed to the livedisk.
-which git > /dev/null 2>&1 || __bootstrap_git
+which git > /dev/null 2>&1 || bootstrap_git
 
 # Reconfigure nix livedisk if needed.
-[[ ${NEEDS_SWITCH} ]] && __switch_if_needed
+[[ ${NEEDS_SWITCH} ]] && switch_if_needed
 
 # Clone the repo and get all of the configuration information.
-__get_custom_nixcfg
+get_custom_nixcfg
 
 # Use sgdisk wipefs and dd tools to cleanup old disks.
-__disk_prep
+disk_prep
 
 # Create default zpool or maybe-use optional user overlay instead.
-if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else __zpool_create ; fi
+if [[ -e ${OVERLAY_POOL} ]] ; then source ${OVERLAY_POOL} ; else zpool_create ; fi
 
 # This is where grub stage1 will be installed later by nixos-install.
-__create_bios_boot_partitions
+create_bios_boot_partitions
 
 # Create default datasets or maybe-use optional user overlay instead.
-if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else __datasets_create ; fi
+if [[ -e ${OVERLAY_DATASETS} ]] ; then source ${OVERLAY_DATASETS} ; else datasets_create ; fi
 
 # Bootstrap the users custom nix configurations.
-__bootstrap_nixcfg
+bootstrap_nixcfg
 
 # May you have a Happy Hacking. :)
-__thank_you
+thank_you
