@@ -30,7 +30,7 @@ NIXCFG_DIR="nix-config"
 # If true, mount /nix outside of the / (root) dataset.
 # Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
 # If you use nix.gc.automatic, then this should not be much of an issue. Recommended "false".
-NIXDIR_NOROOT="false" # mount /nix outside of the / (root) dataset.
+NIXDIR_NOROOT="false"
 
 # Creates /etc/nixos/themelios-zfs.nix with sensible settings
 THEMELIOS_ZFS="true"
