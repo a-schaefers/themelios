@@ -50,6 +50,8 @@ If none of this works for you, just tell themelios where the file is relative to
 [root@nixos:~] themelios ./hosts/vm-example/configuration.sh https://github.com/a-schaefers/themelios.git master
 ```
 
+_The username/repo-name shortcut only works for Github repos. Non-Github repos must provide the full remote._
+
 **TL;DR. Feed Themelios a git repository url that contains a file which has the following configuration variables:**
 ```bash
 # Themelios configuration.sh example
