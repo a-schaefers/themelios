@@ -2,7 +2,7 @@
 POOL_NAME="zroot"
 POOL_TYPE=""          # May also be set to "mirror" or "raidz1", etc... Leave empty "" for single.
 
-# use one disk per line here!
+# Separate each disk using new lines. (Note: using /dev/disk/by-id is also preferable.)
 # POOL_DISKS="/dev/sda
 # /dev/sdb
 # /dev/sdc"

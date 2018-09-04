@@ -58,7 +58,7 @@ _The username/repo-name shortcut only works for Github repos. Non-Github repos m
 POOL_NAME="zroot"
 POOL_TYPE="mirror"    # E.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
 
-# Separate hard disks with new lines in this variable. (Using /dev/disk/by-id is also recommended.)
+# Separate each disk using new lines. (Note: using /dev/disk/by-id is also preferable.)
 POOL_DISKS="/dev/sda
 /dev/sdb"
 
