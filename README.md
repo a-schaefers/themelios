@@ -199,7 +199,7 @@ in {
 
   networking = {
     networkmanager.enable = true;
-    wireless.enable = false;
+    wireless.enable = false; #networkmanager.enable handles this
     firewall.allowPing = true;
     firewall.allowedTCPPorts = [ 22 ];
     firewall.allowedUDPPorts = [ 22 ];
