@@ -9,7 +9,7 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 # zfs pool settings #
 
 zfs_pool_name="zroot"
-zfs_pool_type="mirror"     # e.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
+zfs_pool_type=""     # e.g. may also be "mirror" or maybe "raidz1" with 3 disks. :)
 
 # separate each disk using new lines. (note: using /dev/disk/by-id is also preferable.)
 zfs_pool_disks="/dev/sda"
