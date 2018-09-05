@@ -32,12 +32,12 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 This command executes the script with curl and bash, which in turn downloads the a-schaefers/themelios repo from github, finds the "vm-example" directory with a configuration.sh file and begins the bootstrap process.
 
 ## "configuration.sh" [so-called]
-Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search by filename first and find it automatically, provided it is a uniquely named file.
+Configuration.sh may actually be named anything you want and located anywhere in your project, Themelios will search for $1 by filename first and find it automatically, provided it is a uniquely named file.
 
 If the filename isn't found, then Themelios will search for directories by the same name. So if you prefer using a standard naming convention, put a literal "configuration.sh" file inside of a uniquely named directory and feed Themelios the unique directory name.
 The example "Try it init a VM right now!" command of this repository uses this method:
 ```bash
-# vm-example is not a file inside this repo, so this finds the dir hosts/vm-example/ and loads configuration.sh
+# vm-example is not a file inside this repo, but is a directory-- so this finds the dir hosts/vm-example/ and loads thel literal "configuration.sh" file.
 [root@nixos:~] themelios vm-example a-schaefers/themelios
 ```
 
@@ -47,6 +47,8 @@ If none of this works for you, just tell themelios where the file is relative to
 ```
 
 _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github repos must provide the full remote._
+
+What can I say? I like shortcuts? One command was not enough, it needed to be one _memorable_ command!
 
 **TL;DR. Feed Themelios a git repository url that contains a file which has the following configuration variables:**
 ```bash
