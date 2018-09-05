@@ -161,7 +161,7 @@ nix_zfs_extra_clean_tmp_dir="true"
 ```
 
 ## Optional overlays
-If you want to override the default Themelios __zpool_create() or __datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
+If you want to override the default Themelios zpool_create() or datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
 ```bash
 # if set, themelios will source them, so long as the files exist alongside configuration.sh
 zfs_pool_overlay_file=""         # override zpool_create()
