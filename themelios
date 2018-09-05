@@ -234,7 +234,7 @@ get_custom_nixcfg() {
         cd /tmp/cloned_remote
         find -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh=$(find -type f -name "$config_dot_sh") && \
-            [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$ and try again."
+            [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find -type d -name "$config_dot_sh" | grep "." && \

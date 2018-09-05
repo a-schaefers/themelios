@@ -98,7 +98,7 @@ nix_zfs_configuration_enabled="true"
 ```
 
 ## themelios-zfs.nix
-If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with the following sensible zfs-on-root settings:
+If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with the following zfs-on-root settings:
 ```bash
 { ... }:
 { imports = [];
@@ -134,7 +134,7 @@ boot.zfs.forceImportRoot = false;
 ```
 
 ## Additional configuration.sh settings - Zfs care
-The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true" in configuration.sh
+Enable **nix_zfs_configuration_extra_enabled="true"** in addition to **nix_zfs_configuration_enabled="true"** in configuration.sh for the following extras:
 ```bash
 
 # enable "extra" options [below] in addition to zfs_configuration?
@@ -178,7 +178,7 @@ If you have special [post nixos-install] needs and do not want the script to aut
 ## Debugging
 If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
 ```bash
-[root@nixos:~] STARTOVER=1 POOL_NAME=zroot themelios foo bar
+[root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
 ```
 
 ## Build Themelios into a custom NixOS rescue iso
