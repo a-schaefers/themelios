@@ -412,50 +412,50 @@ bootstrap_nixcfg() {
     else
         maybe_append_host_id="networking.host_id = \"$zfs_host_id\";"
     fi
-    cat <<eof > /mnt/etc/nixos/configuration.nix
-{ ... }:
-{ imports = [
-../../$nix_repo_name/$nix_top_level_configuration
-./hardware-configuration.nix
-$maybe_create_zfs_configuration
-];
-$maybe_append_host_id
-}
-eof
+    cat <<EOF > /mnt/etc/nixos/configuration.nix
+    { ... }:
+    { imports = [
+          ../../$nix_repo_name/$nix_top_level_configuration
+          ./hardware-configuration.nix
+          $maybe_create_zfs_configuration
+      ];
+      $maybe_append_host_id
+    }
+    EOF
 
-    [[ $nix_zfs_configuration_enabled == "true" ]] && cat << eof > /mnt/etc/nixos/zfs-configuration.nix
-{ ... }:
-{ imports = [];
+    [[ $nix_zfs_configuration_enabled == "true" ]] && cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
+    { ... }:
+    { imports = [];
 
-# configure grub using /dev/disk/by-id and zfs-support.
-boot.supportedFilesystems = [ "zfs" ];
-boot.loader.grub.enable = true;
-boot.loader.grub.version = 2;
-boot.loader.grub.devices = [
-$(ifs=$'\n'
-for disk_id in $zfs_pool_disks
-do
-echo $(echo "\"${disk_id}\"")
-done)
-];
+      # configure grub using /dev/disk/by-id and zfs-support.
+      boot.supportedFilesystems = [ "zfs" ];
+      boot.loader.grub.enable = true;
+      boot.loader.grub.version = 2;
+      boot.loader.grub.devices = [
+          $(ifs=$'\n'
+            for disk_id in $zfs_pool_disks
+            do
+                echo $(echo "\"${disk_id}\"")
+            done)
+      ];
 
-# the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
-# you should try to make this id unique among your machines.
-networking.hostId = "$zfs_host_id";
+      # the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
+      # you should try to make this id unique among your machines.
+      networking.hostId = "$zfs_host_id";
 
-# noop, the recommended elevator with zfs.
-# shell_on_fail allows to force import manually in the case of zfs import failure.
-boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
+      # noop, the recommended elevator with zfs.
+      # shell_on_fail allows to force import manually in the case of zfs import failure.
+      boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
-# just copy the kernels to /boot and avoid the issue.
-boot.loader.grub.copyKernels = true;
+      # grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
+      # just copy the kernels to /boot and avoid the issue.
+      boot.loader.grub.copyKernels = true;
 
-# setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
-boot.zfs.forceImportAll = false;
-boot.zfs.forceImportRoot = false;
+      # setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
+      boot.zfs.forceImportAll = false;
+      boot.zfs.forceImportRoot = false;
 
-$([[ $nix_zfs_configuration_extra_enabled == "true" ]] && cat <<-care
+      $([[ $nix_zfs_configuration_extra_enabled == "true" ]] && cat <<-care
 services.zfs.autoScrub.enable = $nix_zfs_extra_auto_scrub;
 services.zfs.autoSnapshot = {
 enable = $nix_zfs_extra_auto_snapshot_enabled;
@@ -474,9 +474,9 @@ nix.gc.options = "$nix_zfs_extra_gc_options";
 # clean /tmp automatically on boot.
 boot.cleanTmpDir = $nix_zfs_extra_clean_tmp_dir;
 care
-)
-}
-eof
+      )
+    }
+    EOF
 
     # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
     nixos-install-show-trace() {

@@ -103,35 +103,34 @@ If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/n
 { ... }:
 { imports = [];
 
-# some zfs-on-root sensible settings
-
-# configure grub using /dev/disk/by-d and zfs-support
+# configure grub using /dev/disk/by-id and zfs-support.
 boot.supportedFilesystems = [ "zfs" ];
-boot.loader.grub.enable = true;
+    boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
-$(IFS=$'\n'
-for DISK_ID in ${POOL_DISKS}
+$(ifs=$'\n'
+for disk_id in $zfs_pool_disks
 do
-echo $(echo "\"${DISK_ID}\"")
+echo $(echo "\"${disk_id}\"")
 done)
 ];
 
-# The 32-bit host ID of the machine, formatted as 8 hexadecimal characters.
-# You should try to make this ID unique among your machines.
-networking.hostId = "${POOL_HOSTID}";
+# the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
+# you should try to make this id unique among your machines.
+networking.hostId = "$zfs_host_id";
 
-# noop elevator recommended.
+# noop, the recommended elevator with zfs.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
-# Just copy the kernels to /boot and avoid the issue.
+# grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
+# just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
-# Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
+# setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
+
 }
 ```
 
