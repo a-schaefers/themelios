@@ -94,7 +94,19 @@ nix_repo_name="nix-config"
 
 # creates /etc/nixos/zfs-configuration.nix with sensible settings
 nix_zfs_configuration_enabled="true"
+
+# enable "extra" options [below] in addition to zfs_configuration?
+nix_zfs_configuration_extra_enabled="true"
 ```
+
+## Optional overlays
+If you want to override the default Themelios zpool_create() or datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
+```bash
+# if set, themelios will source them, so long as the files exist alongside configuration.sh
+zfs_pool_overlay_file=""         # override zpool_create()
+zfs_dataset_overlay_file=""      # override datasets_create()
+```
+And then create the files and place them alongside wherever your configuration.sh is :)
 
 ## themelios-zfs.nix
 If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with the following zfs-on-root settings:
@@ -107,10 +119,9 @@ boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
-$(ifs=$'\n'
-for disk_id in $zfs_pool_disks
+$(for disk_id in "${zfs_pool_disks[@]}"
 do
-echo $(echo "\"${disk_id}\"")
+echo "\"$disk_id\""
 done)
 ];
 
@@ -135,10 +146,6 @@ boot.zfs.forceImportRoot = false;
 ## Additional configuration.sh settings - zfs extra
 Enable **nix_zfs_configuration_extra_enabled="true"** in addition to **nix_zfs_configuration_enabled="true"** in configuration.sh for the following extras:
 ```bash
-
-# enable "extra" options [below] in addition to zfs_configuration?
-nix_zfs_configuration_extra_enabled="true"
-
 # auto scrubs
 nix_zfs_extra_auto_scrub="true"
 
@@ -158,15 +165,6 @@ nix_zfs_extra_gc_options="--delete-older-than 7d"
 # auto /tmp clean
 nix_zfs_extra_clean_tmp_dir="true"
 ```
-
-## Optional overlays
-If you want to override the default Themelios zpool_create() or datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
-```bash
-# if set, themelios will source them, so long as the files exist alongside configuration.sh
-zfs_pool_overlay_file=""         # override zpool_create()
-zfs_dataset_overlay_file=""      # override datasets_create()
-```
-And then create the files and place them alongside wherever your configuration.sh is :)
 
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
