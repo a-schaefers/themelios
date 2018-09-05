@@ -133,7 +133,7 @@ boot.zfs.forceImportRoot = false;
 }
 ```
 
-## Additional configuration.sh settings - Zfs care
+## Additional configuration.sh settings - zfs extra
 Enable **nix_zfs_configuration_extra_enabled="true"** in addition to **nix_zfs_configuration_enabled="true"** in configuration.sh for the following extras:
 ```bash
 
