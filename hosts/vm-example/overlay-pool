@@ -1,20 +1,20 @@
-# Convert option from nix true/false style to proper zfs on/off.
-if [[ $zfs_useAtime == "true" ]] ; then zfs_useAtime="on" ; else zfs_useAtime="off" ; fi
-
 # this pool overlay is only active if set in configuration.sh AND file exists.
 zpool_create() {
-    echo "Creating zpool..."
+    # convert option from nix true/false style to proper zfs on/off.
+    if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
+
+    echo "creating zpool..."
     zpool create -f \
           -o ashift=12 \
           -O compression=lz4 \
-          -O atime=$zfs_useAtime \
+          -O atime=$zfs_use_atime \
           -O relatime=on \
           -O normalization=formD \
           -O xattr=sa \
           -m none \
           -R /mnt \
-          $zfs_poolName \
-          $zfs_poolType \
-          $zfs_poolDisks || fail_warning
+          $zfs_pool_name \
+          $zfs_pool_type \
+          $zfs_pool_disks || fail_warning
 }
 zpool_create

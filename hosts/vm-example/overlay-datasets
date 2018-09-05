@@ -2,30 +2,30 @@
 datasets_create() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/ROOT
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/ROOT/nixos
-    mount -t zfs $zfs_poolName/ROOT/nixos /mnt
-    zpool set bootfs=$zfs_poolName/ROOT/nixos $zfs_poolName
+    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/ROOT
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/ROOT/nixos
+    mount -t zfs $zfs_pool_name/ROOT/nixos /mnt
+    zpool set bootfs=$zfs_pool_name/ROOT/nixos $zfs_pool_name
 
     slash_nix_outside_root() {
-        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/NIX
-        zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/NIX/nix
+        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/NIX
+        zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/NIX/nix
         mkdir /mnt/nix
-        mount -t zfs $zfs_poolName/NIX/nix /mnt/nix
+        mount -t zfs $zfs_pool_name/NIX/nix /mnt/nix
     }
-    [[ $zfs_dataset_slashnix_noRoot == "true" ]] && slash_nix_outside_root
+    [[ $zfs_dataset_slashnix_no_root == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/HOME
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/HOME/home
-    mount -t zfs $zfs_poolName/HOME/home /mnt/home
+    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/HOME
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/HOME/home
+    mount -t zfs $zfs_pool_name/HOME/home /mnt/home
 
     # /tmp datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/TMP
-    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_poolName/TMP/tmp
-    mount -t zfs $zfs_poolName/TMP/tmp /mnt/tmp
+    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/TMP
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_pool_name/TMP/tmp
+    mount -t zfs $zfs_pool_name/TMP/tmp /mnt/tmp
 
     # swap option
     create_zswap() {
@@ -37,24 +37,24 @@ datasets_create() {
             -o sync=always \
             -o logbias=throughput \
             -o com.sun:auto-snapshot=false \
-            $zfs_poolName/SWAP
+            $zfs_pool_name/SWAP
 
         zfs create \
-            -V $zfs_swapSize \
+            -V $zfs_swap_size \
             -b $(getconf PAGESIZE) \
-            $zfs_poolName/SWAP/swap0
+            $zfs_pool_name/SWAP/swap0
 
-        mkswap -f /dev/zvol/$zfs_poolName/SWAP/swap0
-        swapon /dev/zvol/$zfs_poolName/SWAP/swap0
+        mkswap -f /dev/zvol/$zfs_pool_name/SWAP/swap0
+        swapon /dev/zvol/$zfs_pool_name/SWAP/swap0
     }
-    [[ $zfs_makeSwap == "true" ]] && create_zswap
+    [[ $zfs_make_swap == "true" ]] && create_zswap
 
     zfs_auto_snapshot() {
         IFS=$'\n'
-        for DATASET in $zfs_autoSnapshot
+        for dataset in $zfs_auto_snapshot
         do
-            echo "Setting property com.sun:auto-snapshot=true to ${DATASET}..."
-            zfs set com.sun:auto-snapshot=true ${DATASET}
+            echo "Setting property com.sun:auto-snapshot=true to $dataset..."
+            zfs set com.sun:auto-snapshot=true $dataset
         done
     }
     zfs_auto_snapshot
