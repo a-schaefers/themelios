@@ -22,97 +22,97 @@
 # SOFTWARE.
 
 usage() {
-    cat << EOF
-Usage:
+    cat << eof
+usage:
         themelios configuration.sh git-remote [branch]
 
-Use -h or --help for more information.
-EOF
+use -h or --help for more information.
+eof
     exit
 }
 
 help() {
-    cat <<EOF
-Usage:
+    cat <<eof
+usage:
         themelios configuration.sh git-remote [branch]
 
-For detailed examples and instructions please visit the github page:
+for detailed examples and instructions please visit the github page:
 
     https://github.com/a-schaefers/themelios
 
-Essentially, feed Themelios a git repository url that contains a file which has the following configuration variables:
+essentially, feed themelios a git repository url that contains a file which has the following configuration variables:
 
-# Themelios configuration.sh example
+# themelios configuration.sh example
 
-# Disk preparation settings #
+# disk preparation settings #
 
-use_sgdiskClear="true"   # Use sgdisk --clear
-use_wipefsAll="true"     # Use wipefs --all
-use_zeroDisks="true"     # Use dd if=/dev/zero ...
+use_sgdisk_clear="true"    # use sgdisk --clear
+use_wipefs_all="true"      # use wipefs --all
+use_zero_disks="false"     # use dd if=/dev/zero ...
 
-# Zfs Pool settings #
+# zfs pool settings #
 
-zfs_poolName="zroot"
-zfs_poolType="mirror"    # E.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
+zfs_pool_name="zroot"
+zfs_pool_type="mirror"     # e.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
 
-# Separate each disk using new lines. (Note: using /dev/disk/by-id is also preferable.)
-zfs_poolDisks="/dev/sda
+# separate each disk using new lines. (note: using /dev/disk/by-id is also preferable.)
+zfs_pool_disks="/dev/sda
 /dev/sdb"
 
-# Datasets to be set with com.sun:auto-snapshot=true (Separate with new lines.)
-zfs_autoSnapshot="$zfs_poolName/HOME
-$zfs_poolName/ROOT"
+# datasets to be set with com.sun:auto-snapshot=true (separate with new lines.)
+zfs_auto_snapshot="$zfs_pool_name/HOME
+$zfs_pool_name/ROOT"
 
-# If true, mount /nix outside of the / (root) dataset.
-# Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
-# If you use nix.gc.automatic, then this should not be much of an issue. Recommended "false".
-zfs_dataset_slashnix_noRoot="false"
+# if true, mount /nix outside of the / (root) dataset.
+# setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
+# if you use nix.gc.automatic, then this should not be much of an issue. recommended "false".
+zfs_dataset_slashnix_no_root="false"
 
-# TODO allow true or false for this exception.
-zfs_useAtime="off"           # Set to "on" or "off" (recommended "off" for SSD.)
+# todo allow true or false for this exception.
+zfs_use_atime="off"              # set to "on" or "off" (recommended "off" for ssd.)
 
-zfs_makeSwap="false"     # Creates a swap zvol
-zfs_swapSize="4G"
+zfs_make_swap="false"            # creates a swap zvol
+zfs_swap_size="4G"
 
-# If set, Themelios will source them if the files exist alongside configuration.sh
-zfs_poolOverlayFile="overlay-pool"         # Override zpool_create()
-zfs_datasetOverlayFile="overlay-datasets" # Override datasets_create()
+# if set, themelios will source them if the files exist alongside configuration.sh
+zfs_pool_overlay_file=""         # override zpool_create()
+zfs_dataset_overlay_file=""      # override datasets_create()
 
-# NixOS Bootstrap Settings #
+# nix_os bootstrap settings #
 
-# Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
-# For example, to bootstrap project_root/hosts/vm-example/default.nix
-nix_top_level_Configuration="hosts/vm-example"
+# your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
+# for example, to bootstrap project_root/hosts/vm-example/default.nix
+nix_top_level_configuration="hosts/vm-example"
 
-# Directory name of to clone your git-remote in "/" (root). # May be anything, but do not use slashes.
-# This is intended to be the directory to operate the nix installation from.
-nix_repoName="nix-config"
+# directory name of to clone your git-remote in "/" (root). # may be anything, but do not use slashes.
+# this is intended to be the directory to operate the nix installation from.
+nix_repo_name="nix-config"
 
-# Creates /etc/nixos/zfsSensible.nix with sensible settings
-nix_zfsSensible_enabled="true"
+# creates /etc/nixos/zfs-configuration.nix with sensible settings
+nix_zfs_configuration_enabled="true"
 
-# Enable nix_zfs_extra Options [below] in addition to zfsSensible?
-nix_zfsExtra_enabled="true"
+# enable "extra" options [below] in addition to zfs_configuration?
+nix_zfs_configuration_extra_enabled="true"
 
-# Auto Scrubs
-nix_zfs_extra_autoScrub="true"
+# auto scrubs
+nix_zfs_extra_auto_scrub="true"
 
-# Auto Snapshots
-nix_zfs_extra_autoSnapshot_enabled="true"
-nix_zfs_extra_autoSnapshot_frequent="8"   # Take a snapshot every 15 minutes and keep 8 in rotation
-nix_zfs_extra_autoSnapshot_hourly="0"
-nix_zfs_extra_autoSnapshot_daily="7"      # Take a daily snapshot and keep 7 in rotation
-nix_zfs_extra_autoSnapshot_weekly="0"
-nix_zfs_extra_autoSnapshot_monthly="0"
+# auto snapshots
+nix_zfs_extra_auto_snapshot_enabled="true"
+nix_zfs_extra_auto_snapshot_frequent="8"   # take a snapshot every 15 minutes and keep 8 in rotation
+nix_zfs_extra_auto_snapshot_hourly="0"
+nix_zfs_extra_auto_snapshot_daily="7"      # take a daily snapshot and keep 7 in rotation
+nix_zfs_extra_auto_snapshot_weekly="0"
+nix_zfs_extra_auto_snapshot_monthly="0"
 
-# Auto Garbage Collection
+# auto garbage collection
 nix_zfs_extra_gc_automatic="true"
 nix_zfs_extra_gc_dates="daily"
 nix_zfs_extra_gc_options="--delete-older-than 7d"
 
-# Auto /tmp clean
-nix_zfs_extra_cleanTmpDir="true"
-EOF
+# auto /tmp clean
+nix_zfs_extra_clean_tmp_dir="true"
+eof
     exit
 }
 
@@ -122,11 +122,11 @@ function die() {
 }
 
 start_over() {
-    rm -rf /tmp/clonedRemote
+    rm -rf /tmp/cloned_remote
     umount /mnt/home
     umount /mnt/tmp
     umount /mnt
-    swapoff /dev/zvol/$POOL/SWAP/swap0
+    swapoff /dev/zvol/$POOL/swap/swap0
     zpool destroy $POOL
 }
 
@@ -144,14 +144,14 @@ fail_warning() {
 }
 
 uefi_or_legacy() {
-    # TODO add uefi support.
+    # todo add uefi support.
     # let's do:
     # /boot/grub as efi partition
     # /boot as ext2
-    # $zfs_dataset_slashnix_noRoot == "true" #default for uefi
-    # and set the boot.loader.grub.copyKernels = false; #default for uefi
+    # $zfs_dataset_slashnix_no_root == "true" #default for uefi
+    # and set the boot.loader.grub.copy_kernels = false; #default for uefi
     # and enable grub incompatible pool features as bonus side affect.
-    [[ -d "/sys/firmware/efi/efivars" ]] && die "Only legacy bios is supported for now."
+    [[ -d "/sys/firmware/efi/efivars" ]] && die "only legacy bios is supported for now."
 }
 
 switch_if_needed() {
@@ -173,177 +173,177 @@ bootstrap_git() {
 }
 
 get_custom_nixcfg() {
-    # Clone the declared repo from gitRemote ($2)
-    # Optional gitBranch ($3) may be used additionally for all users who need to build from a non-master branch.
+    # clone the declared repo from git_remote ($2)
+    # optional git_branch ($3) may be used additionally for all users who need to build from a non-master branch.
 
-    # Github users' https remote will be switched to ssh remote automatically after initial clone.
-    # Github users also may use the "shorthand" USERNAME/REPO-NAME
+    # github users' https remote will be switched to ssh remote automatically after initial clone.
+    # github users also may use the "shorthand" username/repo-name
 
-    # FIXME grep isn't accurate enough and probably wrong tool for this job.
-    github_shorthand=$(echo $gitRemote | grep -v ".git")
-    github_url=$(echo $gitRemote | grep "github.com")
+    # fixme grep isn't accurate enough and probably wrong tool for this job.
+    github_shorthand=$(echo $git_remote | grep -v ".git")
+    github_url=$(echo $git_remote | grep "github.com")
 
     checkout_branch() {
-        echo "Checking out $github_sshremote"
-        cd /tmp/clonedRemote
-        git checkout $gitBranch
+        echo "checking out $github_sshremote"
+        cd /tmp/cloned_remote
+        git checkout $git_branch
     }
 
     switch_github_remotes() {
-        echo "Switching remote from https to $github_sshremote for user convenience..."
-        cd /tmp/clonedRemote
+        echo "switching remote from https to $github_sshremote for user convenience..."
+        cd /tmp/cloned_remote
         git remote set-url origin $github_sshremote
     }
 
     github_clone_and_switch() {
-        echo "Cloning repo via $github_httpsremote"
+        echo "cloning repo via $github_httpsremote"
         github_httpsremote=https://github.com/$github_user/$github_repo
         github_sshremote=git@github.com:$github_user/$github_repo
-        git clone $github_httpsremote /tmp/clonedRemote || fail_warning
+        git clone $github_httpsremote /tmp/cloned_remote || fail_warning
         switch_github_remotes
-        [[ $gitBranch ]] && checkout_branch
+        [[ $git_branch ]] && checkout_branch
     }
 
     if [[ $github_url ]]
     then
-        # FIXME cut will stop working if github ever changes
-        github_user=$(echo $gitRemote | grep github | cut -d '/' -f 4)
-        github_repo=$(echo $gitRemote | grep github | cut -d '/' -f 5)
+        # fixme cut will stop working if github ever changes
+        github_user=$(echo $git_remote | grep github | cut -d '/' -f 4)
+        github_repo=$(echo $git_remote | grep github | cut -d '/' -f 5)
         github_clone_and_switch
 
     elif [[ $github_shorthand ]]
     then
-        github_user=$(echo $gitRemote | cut -d '/' -f 1)
-        github_repo=$(echo $gitRemote | cut -d '/' -f 2)
+        github_user=$(echo $git_remote | cut -d '/' -f 1)
+        github_repo=$(echo $git_remote | cut -d '/' -f 2)
         github_clone_and_switch
 
     else
-        echo "Cloning repo via $gitRemote"
-        git clone $gitRemote /tmp/clonedRemote || fail_warning
-        [[ $gitBranch ]] && checkout_branch
+        echo "cloning repo via $git_remote"
+        git clone $git_remote /tmp/cloned_remote || fail_warning
+        [[ $git_branch ]] && checkout_branch
     fi
 
-    # To find the users configuration.sh file:
-    # First we simply use "./the/path/to/$1" if the user provides it.
-    # Second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
-    # Third we search again for a unique dirname, but only if the filename search turns up nothing,
+    # to find the users configuration.sh file:
+    # first we simply use "./the/path/to/$1" if the user provides it.
+    # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
+    # third we search again for a unique dirname, but only if the filename search turns up nothing,
     # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
-    # Finally, in all cases no matter what we use, we also need to setup optional overlay files which will be next to wherever $1 may be.
+    # finally, in all cases no matter what we use, we also need to setup optional overlay files which will be next to wherever $1 may be.
     find_configuration_sh() {
-        # If given a unique filename, use the filename to source the config variables.
-        cd /tmp/clonedRemote
-        find -type f -name "$configDotSh" | grep "." && \
-            configDotSh=$(find -type f -name "$configDotSh") && \
-            [ ! -e "$configDotSh" ] && die "Error: Themelios cannot figure out which $configDotSh to use. In this case, feed Themelios ./the/entire/path to the configuration.sh file you are trying to use with STARTOVER=1 POOL=$ and try again."
+        # if given a unique filename, use the filename to source the config variables.
+        cd /tmp/cloned_remote
+        find -type f -name "$config_dot_sh" | grep "." && \
+            config_dot_sh=$(find -type f -name "$config_dot_sh") && \
+            [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$ and try again."
 
-        # If given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
-        find -type d -name "$configDotSh" | grep "." && \
-            configDotSh=$(echo $(find -type d -name "$configDotSh")/configuration.sh)
+        # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
+        find -type d -name "$config_dot_sh" | grep "." && \
+            config_dot_sh=$(echo $(find -type d -name "$config_dot_sh")/configuration.sh)
     }
-    # If not given a path with slashes to a configuration.sh file, then use find.
-    echo $configDotSh | grep "/" || find_configuration_sh
+    # if not given a path with slashes to a configuration.sh file, then use find.
+    echo $config_dot_sh | grep "/" || find_configuration_sh
 
-    source "$configDotSh" || die "$configDotSh file not found."
+    source "$config_dot_sh" || die "$config_dot_sh file not found."
 
     # prepare optional overlay locations based on where the users configuration.sh is.
-    zfs_poolOverlayFile=${configDotSh%/*}/$zfs_poolOverlayFile
-    zfs_datasetOverlayFile=${configDotSh%/*}/$zfs_datasetOverlayFile
+    zfs_pool_overlay_file=${config_dot_sh%/*}/$zfs_pool_overlay_file
+    zfs_dataset_overlay_file=${config_dot_sh%/*}/$zfs_dataset_overlay_file
 }
 
 disk_prep() {
 
-    #FIXME use an array instead of doing this.
+    #fixme use an array instead of doing this.
     sgdisk_clear() {
-        IFS=$'\n'
-        for DISK_ID in $zfs_poolDisks
+        ifs=$'\n'
+        for disk_id in $zfs_pool_disks
         do
-            echo "Clearing disk with sgdisk..."
-            sgdisk --clear ${DISK_ID} || fail_warning
+            echo "clearing disk with sgdisk..."
+            sgdisk --clear ${disk_id} || fail_warning
         done
     }
-    [[ $use_sgdiskClear == "true" ]] && sgdisk_clear
+    [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
 
-    #FIXME use an array instead of doing this.
+    #fixme use an array instead of doing this.
     wipefs_all() {
-        IFS=$'\n'
-        for DISK_ID in $zfs_poolDisks
+        ifs=$'\n'
+        for disk_id in $zfs_pool_disks
         do
-            echo "Wiping disk signatures with wipefs..."
-            wipefs --all ${DISK_ID} || fail_warning
+            echo "wiping disk signatures with wipefs..."
+            wipefs --all ${disk_id} || fail_warning
         done
     }
-    [[ $use_wipefsAll == "true" ]] && wipefs_all
+    [[ $use_wipefs_all == "true" ]] && wipefs_all
 
-    #FIXME use an array instead of doing this.
+    #fixme use an array instead of doing this.
     dd_zero() {
-        IFS=$'\n'
-        for DISK_ID in $zfs_poolDisks
+        ifs=$'\n'
+        for disk_id in $zfs_pool_disks
         do
-            echo "Writing Zeros to each disk, this may take a while..."
-            dd if=/dev/zero of=${DISK_ID} bs=4096 status=progress
+            echo "writing zeros to each disk, this may take a while..."
+            dd if=/dev/zero of=${disk_id} bs=4096 status=progress
         done
     }
-    [[ $use_zeroDisks == "true" ]] && dd_zero
+    [[ $use_zero_disks == "true" ]] && dd_zero
 
 }
 
 zpool_create() {
-    # Convert option from nix true/false style to proper zfs on/off.
-    if [[ $zfs_useAtime == "true" ]] ; then zfs_useAtime="on" ; else zfs_useAtime="off" ; fi
+    # convert option from nix true/false style to proper zfs on/off.
+    if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
 
-    echo "Creating zpool..."
+    echo "creating zpool..."
     zpool create -f \
           -o ashift=12 \
           -O compression=lz4 \
-          -O atime=$zfs_useAtime \
+          -O atime=$zfs_use_atime \
           -O relatime=on \
           -O normalization=formD \
           -O xattr=sa \
           -m none \
           -R /mnt \
-          $zfs_poolName \
-          $zfs_poolType \
-          $zfs_poolDisks || fail_warning
+          $zfs_pool_name \
+          $zfs_pool_type \
+          $zfs_pool_disks || fail_warning
 }
 
-#FIXME use an array instead of doing this.
+#fixme use an array instead of doing this.
 create_bios_boot_partitions() {
-    IFS=$'\n'
-    for DISK_ID in $zfs_poolDisks
+    ifs=$'\n'
+    for disk_id in $zfs_pool_disks
     do
-        echo "Creating BIOS boot partition..."
-        sgdisk -a1 -n2:48:2047 -t2:EF02 -c2:"BIOS boot partition" ${DISK_ID} || fail_warning
-        partx -u ${DISK_ID}
+        echo "creating bios boot partition..."
+        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" ${disk_id} || fail_warning
+        partx -u ${disk_id}
     done
 }
 
 datasets_create() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/ROOT
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/ROOT/nixos
-    mount -t zfs $zfs_poolName/ROOT/nixos /mnt
-    zpool set bootfs=$zfs_poolName/ROOT/nixos $zfs_poolName
+    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/ROOT
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/ROOT/nixos
+    mount -t zfs $zfs_pool_name/ROOT/nixos /mnt
+    zpool set bootfs=$zfs_pool_name/ROOT/nixos $zfs_pool_name
 
     slash_nix_outside_root() {
-        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/NIX
-        zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/NIX/nix
+        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/NIX
+        zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/NIX/nix
         mkdir /mnt/nix
-        mount -t zfs $zfs_poolName/NIX/nix /mnt/nix
+        mount -t zfs $zfs_pool_name/NIX/nix /mnt/nix
     }
-    [[ $zfs_dataset_slashnix_noRoot == "true" ]] && slash_nix_outside_root
+    [[ $zfs_dataset_slashnix_no_root == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/HOME
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/HOME/home
-    mount -t zfs $zfs_poolName/HOME/home /mnt/home
+    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/HOME
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/HOME/home
+    mount -t zfs $zfs_pool_name/HOME/home /mnt/home
 
     # /tmp datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/TMP
-    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_poolName/TMP/tmp
-    mount -t zfs $zfs_poolName/TMP/tmp /mnt/tmp
+    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/TMP
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_pool_name/TMP/tmp
+    mount -t zfs $zfs_pool_name/TMP/tmp /mnt/tmp
 
     # swap option
     create_zswap() {
@@ -355,145 +355,143 @@ datasets_create() {
             -o sync=always \
             -o logbias=throughput \
             -o com.sun:auto-snapshot=false \
-            $zfs_poolName/SWAP
+            $zfs_pool_name/SWAP
 
         zfs create \
-            -V $zfs_swapSize \
+            -V $zfs_swap_size \
             -b $(getconf PAGESIZE) \
-            $zfs_poolName/SWAP/swap0
+            $zfs_pool_name/SWAP/swap0
 
-        mkswap -f /dev/zvol/$zfs_poolName/SWAP/swap0
-        swapon /dev/zvol/$zfs_poolName/SWAP/swap0
+        mkswap -f /dev/zvol/$zfs_pool_name/SWAP/swap0
+        swapon /dev/zvol/$zfs_pool_name/SWAP/swap0
     }
-    [[ $zfs_makeSwap == "true" ]] && create_zswap
+    [[ $zfs_make_swap == "true" ]] && create_zswap
 
-    #FIXME use an array instead of doing this.
     zfs_auto_snapshot() {
         IFS=$'\n'
-        for DATASET in $zfs_autoSnapshot
+        for dataset in $zfs_auto_snapshot
         do
-            echo "Setting property com.sun:auto-snapshot=true to ${DATASET}..."
-            zfs set com.sun:auto-snapshot=true ${DATASET}
+            echo "Setting property com.sun:auto-snapshot=true to $dataset..."
+            zfs set com.sun:auto-snapshot=true $dataset
         done
     }
     zfs_auto_snapshot
 }
 
 bootstrap_nixcfg() {
-    echo "Moving repo from /tmp to /mnt$nix_repoName..."
-    cp -rp /tmp/clonedRemote /mnt/$nix_repoName
+    echo "moving repo from /tmp to /mnt$nix_repo_name..."
+    cp -rp /tmp/cloned_remote /mnt/$nix_repo_name
 
-    # This is for generating our ./hardware-configuration.nix files.
+    # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
-    echo "Executing nixos-generate-config --root /mnt"
+    echo "executing nixos-generate-config --root /mnt"
     nixos-generate-config --root /mnt || fail_warning
 
-    # Give a chance for advanced user who is hacking the script in the case of
+    # give a chance for advanced user who is hacking the script in the case of
     # installation into an already created pool to pass his already existing hostid to script. :)
-    [[ ! $zfs_hostId ]] && zfs_hostId="random"
+    [[ ! $zfs_host_id ]] && zfs_host_id="random"
     hostid_generate() {
-        echo "Generating random hostid..."
-        zfs_hostId="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
-        echo "$zfs_hostId"
+        echo "generating random hostid..."
+        zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
+        echo "$zfs_host_id"
     }
-    [[ $zfs_hostId == "random" ]] && hostid_generate
+    [[ $zfs_host_id == "random" ]] && hostid_generate
 
-    # Strip potential prefixed './'
-    nix_top_level_Configuration=$(echo "$nix_top_level_Configuration" | sed 's|^./||')
-    # Strip potential trailing '/'
-    nix_top_level_Configuration=${nix_top_level_Configuration%/}
+    # strip potential prefixed './'
+    nix_top_level_configuration=$(echo "$nix_top_level_configuration" | sed 's|^./||')
+    # strip potential trailing '/'
+    nix_top_level_configuration=${nix_top_level_configuration%/}
 
-    # Create /mnt/etc/nixos/configuration.nix and import user's TOP_LEVEL_NIXFILE.
-    # Maybe create zfsSensible.nix
-    # Maybe append extra configured options to zfsSensible.nix
-    # Maybe populate configuration.nix networking.hostId = \"$zfs_hostId\";
-    if [[ $nix_zfsSensible_enabled == "true" ]]
+    # create /mnt/etc/nixos/configuration.nix and import user's top_level_nixfile.
+    # maybe create /mnt/etc/nixos/zfs-configuration.nix
+    # maybe append extra configured options to zfs-configuration.nix
+    # maybe populate configuration.nix networking.host_id = \"$zfs_host_id\";
+    if [[ $nix_zfs_configuration_enabled == "true" ]]
     then
-        maybe_import_zfsSensible="./themelios-zfs.nix"
+        maybe_create_zfs_configuration="./zfs-configuration.nix"
     else
-        maybe_set_hostId="networking.hostId = \"$zfs_hostId\";"
+        maybe_append_host_id="networking.host_id = \"$zfs_host_id\";"
     fi
-    cat <<EOF > /mnt/etc/nixos/configuration.nix
+    cat <<eof > /mnt/etc/nixos/configuration.nix
 { ... }:
 { imports = [
-../../$nix_repoName/$nix_top_level_Configuration
+../../$nix_repo_name/$nix_top_level_configuration
 ./hardware-configuration.nix
-$maybe_import_zfsSensible
+$maybe_create_zfs_configuration
 ];
-$maybe_set_hostId
-EOF
+$maybe_append_host_id
+}
+eof
 
-    [[ $nix_zfsSensible_enabled == "true" ]] && cat << EOF > /mnt/etc/nixos/zfsSensible.nix
+    [[ $nix_zfs_configuration_enabled == "true" ]] && cat << eof > /mnt/etc/nixos/zfs-configuration.nix
 { ... }:
 { imports = [];
 
-# Some zfs-on-root sensible settings.
-
-# Configure grub using /dev/disk/by-d and zfs-support.
+# configure grub using /dev/disk/by-id and zfs-support.
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
-$(IFS=$'\n'
-for DISK_ID in $zfs_poolDisks
+$(ifs=$'\n'
+for disk_id in $zfs_pool_disks
 do
-echo $(echo "\"${DISK_ID}\"")
+echo $(echo "\"${disk_id}\"")
 done)
 ];
 
-# The 32-bit host ID of the machine, formatted as 8 hexadecimal characters.
-# You should try to make this ID unique among your machines.
-networking.hostId = "$zfs_hostId";
+# the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
+# you should try to make this id unique among your machines.
+networking.hostId = "$zfs_host_id";
 
-# Noop, the recommended elevator with zfs.
+# noop, the recommended elevator with zfs.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# Grub on ZFS has been known to have a hard time finding kernels with really/long/dir/paths
-# Just copy the kernels to /boot and avoid the issue.
+# grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
+# just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
-# Setting these to false will ensure some safeguards are active that ZFS uses to protect your ZFS pools.
+# setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
 
-$([[ $nix_zfsExtra_enabled == "true" ]] && cat <<-CARE
-services.zfs.autoScrub.enable = $nix_zfs_extra_autoScrub;
+$([[ $nix_zfs_configuration_extra_enabled == "true" ]] && cat <<-care
+services.zfs.autoScrub.enable = $nix_zfs_extra_auto_scrub;
 services.zfs.autoSnapshot = {
-enable = $nix_zfs_extra_autoSnapshot_enabled;
-frequent = $nix_zfs_extra_autoSnapshot_frequent;
-hourly = $nix_zfs_extra_autoSnapshot_hourly;
-daily = $nix_zfs_extra_autoSnapshot_daily;
-weekly = $nix_zfs_extra_autoSnapshot_weekly;
-monthly = $nix_zfs_extra_autoSnapshot_monthly;
+enable = $nix_zfs_extra_auto_snapshot_enabled;
+frequent = $nix_zfs_extra_auto_snapshot_frequent;
+hourly = $nix_zfs_extra_auto_snapshot_hourly;
+daily = $nix_zfs_extra_auto_snapshot_daily;
+weekly = $nix_zfs_extra_auto_snapshot_weekly;
+monthly = $nix_zfs_extra_auto_snapshot_monthly;
 };
 
-# Use gc.automatic with zfs-auto-snapshot to keep disk space under control.
+# use gc.automatic with zfs-auto-snapshot to keep disk space under control.
 nix.gc.automatic = $nix_zfs_extra_gc_automatic;
 nix.gc.dates = "$nix_zfs_extra_gc_dates";
 nix.gc.options = "$nix_zfs_extra_gc_options";
 
-# Clean /tmp automatically on boot.
-boot.cleanTmpDir = $nix_zfs_extra_cleanTmpDir;
-CARE
+# clean /tmp automatically on boot.
+boot.cleanTmpDir = $nix_zfs_extra_clean_tmp_dir;
+care
 )
 }
-EOF
+eof
 
-    # Give user a retry option with --show-trace to have a chance to fix imports on another TTY. :)
+    # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
     nixos-install-show-trace() {
         nixos-install --root /mnt --show-trace || nixos-install_fail_retry
     }
 
     nixos-install_fail_retry() {
-        echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/$nix_repoName before trying again."
+        echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/$nix_repo_name before trying again."
         echo "themelios hint: make sure you are using relative path imports for all of your .nix files."
-        read -p "nixos-install --root /mnt failed, retry? will add --show-trace (Y or N) " -n 1 -r
+        read -p "nixos-install --root /mnt failed, retry? will add --show-trace (y or n) " -n 1 -r
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
             nixos-install-show-trace
         else
-            die "The only steps remaining after nixos-install --root /mnt should be unmounting /mnt and exporting the pool :) Good luck."
+            die "the only steps remaining after nixos-install --root /mnt should be unmounting /mnt and exporting the pool :) good luck."
         fi
     }
 
@@ -503,104 +501,104 @@ EOF
     }
 
     install
-                                                                       }
+}
 
-   thank_you() {
-       cat <<EOF
-NNNNNNNN        NNNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
-N:::::::N       N::::::NI::::::::IX:::::X       X:::::X
-N::::::::N      N::::::NI::::::::IX:::::X       X:::::X
-N:::::::::N     N::::::NII::::::IIX::::::X     X::::::X
-N::::::::::N    N::::::N  I::::I  XXX:::::X   X:::::XXX
-N:::::::::::N   N::::::N  I::::I     X:::::X X:::::X
-N:::::::N::::N  N::::::N  I::::I      X:::::X:::::X
-N::::::N N::::N N::::::N  I::::I       X:::::::::X
-N::::::N  N::::N:::::::N  I::::I       X:::::::::X
-N::::::N   N:::::::::::N  I::::I      X:::::X:::::X
-N::::::N    N::::::::::N  I::::I     X:::::X X:::::X
-N::::::N     N:::::::::N  I::::I  XXX:::::X   X:::::XXX
-N::::::N      N::::::::NII::::::IIX::::::X     X::::::X
-N::::::N       N:::::::NI::::::::IX:::::X       X:::::X
-N::::::N        N::::::NI::::::::IX:::::X       X:::::X
-NNNNNNNN         NNNNNNNIIIIIIIIIIXXXXXXX       XXXXXXX
-EOF
+thank_you() {
+    cat <<eof
+nnnnnnnn        nnnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
+n:::::::n       n::::::ni::::::::ix:::::x       x:::::x
+n::::::::n      n::::::ni::::::::ix:::::x       x:::::x
+n:::::::::n     n::::::nii::::::iix::::::x     x::::::x
+n::::::::::n    n::::::n  i::::i  xxx:::::x   x:::::xxx
+n:::::::::::n   n::::::n  i::::i     x:::::x x:::::x
+n:::::::n::::n  n::::::n  i::::i      x:::::x:::::x
+n::::::n n::::n n::::::n  i::::i       x:::::::::x
+n::::::n  n::::n:::::::n  i::::i       x:::::::::x
+n::::::n   n:::::::::::n  i::::i      x:::::x:::::x
+n::::::n    n::::::::::n  i::::i     x:::::x x:::::x
+n::::::n     n:::::::::n  i::::i  xxx:::::x   x:::::xxx
+n::::::n      n::::::::nii::::::iix::::::x     x::::::x
+n::::::n       n:::::::ni::::::::ix:::::x       x:::::x
+n::::::n        n::::::ni::::::::ix:::::x       x:::::x
+nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
+eof
 
-       umount_export() {
-           [[ $zfs_makeSwap == "true" ]] && swapoff /dev/zvol/$zfs_poolName/SWAP/swap0
+    umount_export() {
+        [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/$zfs_pool_name/swap/swap0
 
-           echo "Unmounting /mnt"
-           umount /mnt/home
-           umount /mnt/tmp
-           umount /mnt
+        echo "unmounting /mnt"
+        umount /mnt/home
+        umount /mnt/tmp
+        umount /mnt
 
-           echo "Exporting $zfs_poolName"
-           zpool export $zfs_poolName
+        echo "exporting $zfs_pool_name"
+        zpool export $zfs_pool_name
 
-           read -p "Finished. Reboot now? (Y or N) " -n 1 -r
-           [[ $REPLY =~ ^[Yy]$ ]] && reboot
+        read -p "finished. reboot now? (y or n) " -n 1 -r
+        [[ $REPLY =~ ^[Yy]$ ]] && reboot
 
-       }
-       # Pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
-       [[ ! ${NOUMOUNT} ]] && umount_export
+    }
+    # pass noumount=1 to not unmount /mnt or export the pool after install automatically
+    [[ ! ${noumount} ]] && umount_export
 
-       exit
-   }
+    exit
+}
 
-   # Start executing code !
+# start executing code !
 
-   # Rerun script with "STARTOVER=1 POOL=zroot themelios foo bar" to attempt a fresh start.
-   [[ ${STARTOVER} ]] && start_over
+# rerun script with "startover=1 pool=zroot themelios foo bar" to attempt a fresh start.
+[[ ${STARTOVER} ]] && start_over
 
-   [[ $1 == "-h" ]] && help
-   [[ $1 == "--help" ]] && help
-   [[ $# -lt 2 ]] && usage
-   [[ $# -gt 3 ]] && usage
-   configDotSh=$1
-   gitRemote=$2
-   gitBranch=$3
+[[ $1 == "-h" ]] && help
+[[ $1 == "--help" ]] && help
+[[ $# -lt 2 ]] && usage
+[[ $# -gt 3 ]] && usage
+config_dot_sh=$1
+git_remote=$2
+git_branch=$3
 
-   # Warn user of potential doom.
-   initial_warning
+# warn user of potential doom.
+initial_warning
 
-   # Check for legacy or uefi bios.
-   uefi_or_legacy
+# check for legacy or uefi bios.
+uefi_or_legacy
 
-   # Install zfs if needed to the livedisk.
-   which zfs > /dev/null 2>&1 || bootstrap_zfs
+# install zfs if needed to the livedisk.
+which zfs > /dev/null 2>&1 || bootstrap_zfs
 
-   # Install git if needed to the livedisk.
-   which git > /dev/null 2>&1 || bootstrap_git
+# install git if needed to the livedisk.
+which git > /dev/null 2>&1 || bootstrap_git
 
-   # Reconfigure nix livedisk if needed.
-   [[ $needs_switch ]] && switch_if_needed
+# reconfigure nix livedisk if needed.
+[[ $needs_switch ]] && switch_if_needed
 
-   # Clone the repo and get all of the configuration information.
-   get_custom_nixcfg
+# clone the repo and get all of the configuration information.
+get_custom_nixcfg
 
-   # Use sgdisk wipefs and dd tools to cleanup old disks.
-   disk_prep
+# use sgdisk wipefs and dd tools to cleanup old disks.
+disk_prep
 
-   # Create default zpool or maybe-use optional user overlay instead.
-   if [[ -e zfs_poolOverlayFile ]]
-   then
-       source zfs_poolOverlayFile
-   else
-       zpool_create
-   fi
+# create default zpool or maybe-use optional user overlay instead.
+if [[ -f zfs_pool_overlay_file ]]
+then
+    source zfs_pool_overlay_file
+else
+    zpool_create
+fi
 
-   # This is where grub stage1 will be installed later by nixos-install.
-   create_bios_boot_partitions
+# this is where grub stage1 will be installed later by nixos-install.
+create_bios_boot_partitions
 
-   # Create default datasets or maybe-use optional user overlay instead.
-   if [[ -e $zfs_datasetOverlayFile ]]
-   then
-       source $zfs_datasetOverlayFile
-   else
-       datasets_create
-   fi
+# create default datasets or maybe-use optional user overlay instead.
+if [[ -f $zfs_dataset_overlay_file ]]
+then
+    source $zfs_dataset_overlay_file
+else
+    datasets_create
+fi
 
-   # Bootstrap the users custom nix configurations.
-   bootstrap_nixcfg
+# bootstrap the users custom nix configurations.
+bootstrap_nixcfg
 
-   # May you have a Happy Hacking. :)
-   thank_you
+# may you have a happy hacking. :)
+thank_you

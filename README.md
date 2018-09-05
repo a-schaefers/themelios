@@ -51,42 +51,50 @@ _The username/repo-name shortcut only works for Github repos. Non-Github repos m
 
 **TL;DR. Feed Themelios a git repository url that contains a file which has the following configuration variables:**
 ```bash
-# Themelios configuration.sh example
-POOL_NAME="zroot"
-POOL_TYPE="mirror"    # E.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
+# themelios configuration.sh example
 
-# Separate each disk using new lines. (Note: using /dev/disk/by-id is also preferable.)
-POOL_DISKS="/dev/sda
+# disk preparation settings #
+
+use_sgdisk_clear="true"    # use sgdisk --clear
+use_wipefs_all="true"      # use wipefs --all
+use_zero_disks="false"     # use dd if=/dev/zero ...
+
+# zfs pool settings #
+
+zfs_pool_name="zroot"
+zfs_pool_type="mirror"     # e.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
+
+# separate each disk using new lines. (note: using /dev/disk/by-id is also preferable.)
+zfs_pool_disks="/dev/sda
 /dev/sdb"
 
-# Datasets to be set with com.sun:auto-snapshot=true (Separate with new lines.)
-AUTO_SNAPSHOT="${POOL_NAME}/HOME
-${POOL_NAME}/ROOT"
+# datasets to be set with com.sun:auto-snapshot=true (separate with new lines.)
+zfs_auto_snapshot="$zfs_pool_name/HOME
+$zfs_pool_name/ROOT"
 
-ATIME="off"           # Set to "on" or "off" (recommended "off" for SSD.)
-USE_ZSWAP="false"     # Creates a swap zvol
-ZSWAP_SIZE="4G"
-SGDISK_CLEAR="true"   # Use sgdisk --clear
-WIPEFS_ALL="true"     # Use wipefs --all
-ZERO_DISKS="false"    # Use dd if=/dev/zero ...
+# if true, mount /nix outside of the / (root) dataset.
+# setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
+# if you use nix.gc.automatic, then this should not be much of an issue. recommended "false".
+zfs_dataset_slashnix_no_root="false"
 
-# Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
-# For example, to bootstrap project_root/hosts/vm-example/default.nix all of the following are equivalent:
-TOP_LEVEL_NIXFILE="./hosts/vm-example"
-TOP_LEVEL_NIXFILE="hosts/vm-example"
-TOP_LEVEL_NIXFILE="hosts/vm-example/default.nix"
+# todo allow true or false for this exception.
+zfs_use_atime="off"              # set to "on" or "off" (recommended "off" for ssd.)
 
-# Directory name of to clone your git-remote in "/" (root). # May be anything, but do not use slashes.
-# This is intended to be the directory to operate the nix installation from.
-NIXCFG_DIR="nix-config"
+zfs_make_swap="false"            # creates a swap zvol
+zfs_swap_size="4G"
 
-# If true, mount /nix outside of the / (root) dataset.
-# Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
-# If you use nix.gc.automatic, then this should not be much of an issue. Recommended "false".
-NIXDIR_NOROOT="false"
+# nix_os bootstrap settings #
 
-# Creates /etc/nixos/themelios-zfs.nix with sensible settings
-THEMELIOS_ZFS="true"
+# your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
+# for example, to bootstrap project_root/hosts/vm-example/default.nix
+nix_top_level_configuration="hosts/vm-example"
+
+# directory name of to clone your git-remote in "/" (root). # may be anything, but do not use slashes.
+# this is intended to be the directory to operate the nix installation from.
+nix_repo_name="nix-config"
+
+# creates /etc/nixos/zfs-configuration.nix with sensible settings
+nix_zfs_configuration_enabled="true"
 ```
 
 ## themelios-zfs.nix
@@ -130,43 +138,36 @@ boot.zfs.forceImportRoot = false;
 ## Additional configuration.sh settings - Zfs care
 The following options are only applicable if both THEMELIOS_ZFS="true" and THEMELIOS_ZFS_CARE="true" in configuration.sh
 ```bash
-# Enable ZFS_CARE Options? (Only enable this if THEMELIOS_ZFS="true" also.)
-THEMELIOS_ZFS_CARE="true"
 
-####################
-# ZFS_CARE Options #
-####################
+# enable "extra" options [below] in addition to zfs_configuration?
+nix_zfs_configuration_extra_enabled="true"
 
-# Auto Scrubs
-care_autoScrub="true"
+# auto scrubs
+nix_zfs_extra_auto_scrub="true"
 
-# Auto Snapshots
-care_autoSnapshot_enabled="true"
-care_autoSnapshot_frequent="8"   # Take a snapshot every 15 minutes and keep 8 in rotation
-care_autoSnapshot_hourly="0"
-care_autoSnapshot_daily="7"      # Take a daily snapshot and keep 7 in rotation
-care_autoSnapshot_weekly="0"
-care_autoSnapshot_monthly="0"
+# auto snapshots
+nix_zfs_extra_auto_snapshot_enabled="true"
+nix_zfs_extra_auto_snapshot_frequent="8"   # take a snapshot every 15 minutes and keep 8 in rotation
+nix_zfs_extra_auto_snapshot_hourly="0"
+nix_zfs_extra_auto_snapshot_daily="7"      # take a daily snapshot and keep 7 in rotation
+nix_zfs_extra_auto_snapshot_weekly="0"
+nix_zfs_extra_auto_snapshot_monthly="0"
 
-# Auto Garbage Collection
-care_gc_automatic="true"
-care_gc_dates="daily"
-care_gc_options="--delete-older-than 7d"
+# auto garbage collection
+nix_zfs_extra_gc_automatic="true"
+nix_zfs_extra_gc_dates="daily"
+nix_zfs_extra_gc_options="--delete-older-than 7d"
 
-# Auto /tmp clean
-care_cleanTmpDir="true"
+# auto /tmp clean
+nix_zfs_extra_clean_tmp_dir="true"
 ```
 
 ## Optional overlays
 If you want to override the default Themelios __zpool_create() or __datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
 ```bash
-####################
-# Overlay Section #
-####################
-
-# If set, Themelios will source them if the files exist alongside configuration.sh
-POOL_OVERLAY_FILE="overlay-pool"         # Override __zpool_create()
-DATASETS_OVERLAY_FILE="overlay-datasets" # Override __datasets_create()
+# if set, themelios will source them, so long as the files exist alongside configuration.sh
+zfs_pool_overlay_file=""         # override zpool_create()
+zfs_dataset_overlay_file=""      # override datasets_create()
 ```
 And then create the files and place them alongside wherever your configuration.sh is :)
 
