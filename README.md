@@ -1,10 +1,10 @@
 # Themelios
-Bootstrap a zfs-on-root NixOS configuration in one command
+Bootstrap a zfs-on-root NixOS configuration in one command.
 
 ![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
 
 ## What Themelios does
-From any NixOS live disk, Themelios will do the following in approximate order:
+From any NixOS live disk, Themelios
 - Automatically installs zfs and git to the livedisk if needed
 - Clones your git repo, optionally using a non-master branch
 - Finds your configuration.sh file automatically
@@ -19,7 +19,7 @@ From any NixOS live disk, Themelios will do the following in approximate order:
 - Aims to fail gracefully with continue and retry options
 
 ## What Themelios does not do (yet)
-- Currently uefi is unsupported because UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.
+- Currently UEFI is unsupported because UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.
 - Use msdos partition tables (Zfs is GPT by default.)
 - Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full maturity before implementing this...)
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
