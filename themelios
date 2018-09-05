@@ -55,13 +55,11 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 zfs_pool_name="zroot"
 zfs_pool_type="mirror"     # e.g. change to "" for single disk, or maybe "raidz1" with 3 disks. :)
 
-# separate each disk using new lines. (note: using /dev/disk/by-id is also preferable.)
-zfs_pool_disks="/dev/sda
-/dev/sdb"
+# Note: using /dev/disk/by-id is also preferable.
+zfs_pool_disks=("/dev/sda" "/dev/sdb")
 
-# datasets to be set with com.sun:auto-snapshot=true (separate with new lines.)
-zfs_auto_snapshot="$zfs_pool_name/HOME
-$zfs_pool_name/ROOT"
+# datasets to be set with com.sun:auto-snapshot=true
+zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
 # if true, mount /nix outside of the / (root) dataset.
 # setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
@@ -251,35 +249,29 @@ get_custom_nixcfg() {
 
 disk_prep() {
 
-    #FIXME use an array instead of doing this.
     sgdisk_clear() {
-        IFS=$'\n'
-        for disk_id in $zfs_pool_disks
+        for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "clearing disk with sgdisk..."
-            sgdisk --clear ${disk_id} || fail_warning
+            sgdisk --clear "$disk_id" || fail_warning
         done
     }
     [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
 
-    #FIXME use an array instead of doing this.
     wipefs_all() {
-        IFS=$'\n'
-        for disk_id in $zfs_pool_disks
+        for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "wiping disk signatures with wipefs..."
-            wipefs --all ${disk_id} || fail_warning
+            wipefs --all "$disk_id" || fail_warning
         done
     }
     [[ $use_wipefs_all == "true" ]] && wipefs_all
 
-    #FIXME use an array instead of doing this.
     dd_zero() {
-        IFS=$'\n'
-        for disk_id in $zfs_pool_disks
+        for disk_id in "${zfs_pool_disks[@]}"
         do
-            echo "writing zeros to each disk, this may take a while..."
-            dd if=/dev/zero of=${disk_id} bs=4096 status=progress
+            echo "writing zeros to ${disk_id}..."
+            dd if=/dev/zero of="$disk_id" bs=4096 status=progress
         done
     }
     [[ $use_zero_disks == "true" ]] && dd_zero
@@ -289,6 +281,9 @@ disk_prep() {
 zpool_create() {
     # convert option from nix true/false style to proper zfs on/off.
     if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
+
+    join_by() { local IFS="$1"; shift; echo "$*"; }
+    zfs_pool_disks_joined=$(join_by ' \n' "${zfs_pool_disks[@]}")
 
     echo "creating zpool..."
     zpool create -f \
@@ -302,17 +297,15 @@ zpool_create() {
           -R /mnt \
           $zfs_pool_name \
           $zfs_pool_type \
-          $zfs_pool_disks || fail_warning
+          $zfs_pool_disks_joined || fail_warning
 }
 
-#FIXME use an array instead of doing this.
 create_bios_boot_partitions() {
-    IFS=$'\n'
-    for disk_id in $zfs_pool_disks
+    for disk_id in "${zfs_pool_disks[@]}"
     do
         echo "creating bios boot partition..."
-        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" ${disk_id} || fail_warning
-        partx -u ${disk_id}
+        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" "$disk_id" || fail_warning
+        partx -u "$disk_id"
     done
 }
 
@@ -366,13 +359,11 @@ datasets_create() {
     }
     [[ $zfs_make_swap == "true" ]] && create_zswap
 
-    #FIXME use an array instead of doing this.
     zfs_auto_snapshot() {
-        IFS=$'\n'
-        for dataset in $zfs_auto_snapshot
+        for dataset in "${zfs_auto_snapshot[@]}"
         do
-            echo "Setting property com.sun:auto-snapshot=true to $dataset..."
-            zfs set com.sun:auto-snapshot=true $dataset
+            echo "Setting property com.sun:auto-snapshot=true to ${dataset}..."
+            zfs set com.sun:auto-snapshot=true "$dataset"
         done
     }
     zfs_auto_snapshot
@@ -432,10 +423,9 @@ boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
-$(IFS=$'\n'
-for disk_id in $zfs_pool_disks
+$(for disk_id in "${zfs_pool_disks[@]}"
 do
-echo $(echo "\"${disk_id}\"")
+echo "\"$disk_id\""
 done)
 ];
 
@@ -538,15 +528,15 @@ EOF
         [[ $REPLY =~ ^[Yy]$ ]] && reboot
 
     }
-    # pass noumount=1 to not unmount /mnt or export the pool after install automatically
-    [[ ! ${noumount} ]] && umount_export
+    # pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
+    [[ ! ${NOUMOUNT} ]] && umount_export
 
     exit
 }
 
 # start executing code !
 
-# rerun script with "startover=1 pool=zroot themelios foo bar" to attempt a fresh start.
+# rerun script with "STARTOVER=1 POOL=zroot themelios foo bar" to attempt a fresh start.
 [[ ${STARTOVER} ]] && start_over
 
 [[ $1 == "-h" ]] && help
