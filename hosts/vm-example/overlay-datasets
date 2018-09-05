@@ -1,35 +1,34 @@
 # this dataset overlay is only active if set in configuration.sh AND file exists.
-
-__datasets_create() {
-    echo "Creating and mounting datasets in /mnt using ${OVERLAY_DATASETS}..."
+datasets_create() {
+    echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/ROOT
-    zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/ROOT/nixos
-    mount -t zfs ${POOL_NAME}/ROOT/nixos /mnt
-    zpool set bootfs=${POOL_NAME}/ROOT/nixos ${POOL_NAME}
+    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/ROOT
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/ROOT/nixos
+    mount -t zfs $zfs_poolName/ROOT/nixos /mnt
+    zpool set bootfs=$zfs_poolName/ROOT/nixos $zfs_poolName
 
-    __slash_nix_outside_root() {
-        zfs create -o mountpoint=none -o canmount=off -o sync=always ${POOL_NAME}/NIX
-        zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/NIX/nix
+    slash_nix_outside_root() {
+        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_poolName/NIX
+        zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/NIX/nix
         mkdir /mnt/nix
-        mount -t zfs ${POOL_NAME}/NIX/nix /mnt/nix
+        mount -t zfs $zfs_poolName/NIX/nix /mnt/nix
     }
-    [[ ${NIXDIR_NOROOT} == "true" ]] && __slash_nix_outside_root
+    [[ $zfs_dataset_slashnix_noRoot == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
-    zfs create -o mountpoint=none -o canmount=off ${POOL_NAME}/HOME
-    zfs create -o mountpoint=legacy -o canmount=on ${POOL_NAME}/HOME/home
-    mount -t zfs ${POOL_NAME}/HOME/home /mnt/home
+    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/HOME
+    zfs create -o mountpoint=legacy -o canmount=on $zfs_poolName/HOME/home
+    mount -t zfs $zfs_poolName/HOME/home /mnt/home
 
     # /tmp datasets
-    zfs create -o mountpoint=none -o canmount=off ${POOL_NAME}/TMP
-    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled ${POOL_NAME}/TMP/tmp
-    mount -t zfs ${POOL_NAME}/TMP/tmp /mnt/tmp
+    zfs create -o mountpoint=none -o canmount=off $zfs_poolName/TMP
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_poolName/TMP/tmp
+    mount -t zfs $zfs_poolName/TMP/tmp /mnt/tmp
 
     # swap option
-    __create_zswap() {
+    create_zswap() {
         echo "Creating ZSWAP volume and turning on swap..."
         zfs create \
             -o primarycache=metadata \
@@ -38,27 +37,26 @@ __datasets_create() {
             -o sync=always \
             -o logbias=throughput \
             -o com.sun:auto-snapshot=false \
-            ${POOL_NAME}/SWAP
+            $zfs_poolName/SWAP
 
         zfs create \
-            -V ${ZSWAP_SIZE} \
+            -V $zfs_swapSize \
             -b $(getconf PAGESIZE) \
-            ${POOL_NAME}/SWAP/swap0
+            $zfs_poolName/SWAP/swap0
 
-        mkswap -f /dev/zvol/${POOL_NAME}/SWAP/swap0
-        swapon /dev/zvol/${POOL_NAME}/SWAP/swap0
+        mkswap -f /dev/zvol/$zfs_poolName/SWAP/swap0
+        swapon /dev/zvol/$zfs_poolName/SWAP/swap0
     }
-    [[ ${USE_ZSWAP} == "true" ]] && __create_zswap
+    [[ $zfs_makeSwap == "true" ]] && create_zswap
 
-    __zfs_auto_snapshot() {
+    zfs_auto_snapshot() {
         IFS=$'\n'
-        for DATASET in ${AUTO_SNAPSHOT}
+        for DATASET in $zfs_autoSnapshot
         do
             echo "Setting property com.sun:auto-snapshot=true to ${DATASET}..."
             zfs set com.sun:auto-snapshot=true ${DATASET}
         done
     }
-    __zfs_auto_snapshot
+    zfs_auto_snapshot
 }
-
-__datasets_create
+datasets_create
