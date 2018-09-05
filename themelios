@@ -22,18 +22,18 @@
 # SOFTWARE.
 
 usage() {
-    cat << eof
-usage:
+    cat << EOF
+    usage:
         themelios configuration.sh git-remote [branch]
 
 use -h or --help for more information.
-eof
+EOF
     exit
 }
 
 help() {
-    cat <<eof
-usage:
+    cat << EOF
+    usage:
         themelios configuration.sh git-remote [branch]
 
 for detailed examples and instructions please visit the github page:
@@ -112,7 +112,7 @@ nix_zfs_extra_gc_options="--delete-older-than 7d"
 
 # auto /tmp clean
 nix_zfs_extra_clean_tmp_dir="true"
-eof
+EOF
     exit
 }
 
@@ -412,7 +412,7 @@ bootstrap_nixcfg() {
     else
         maybe_append_host_id="networking.host_id = \"$zfs_host_id\";"
     fi
-    cat <<EOF > /mnt/etc/nixos/configuration.nix
+    cat << EOF > /mnt/etc/nixos/configuration.nix
     { ... }:
     { imports = [
           ../../$nix_repo_name/$nix_top_level_configuration
