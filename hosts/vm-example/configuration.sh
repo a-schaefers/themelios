@@ -9,10 +9,10 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 # zfs pool settings #
 
 zfs_pool_name="zroot"
-zfs_pool_type=""     # e.g. may also be "mirror" or maybe "raidz1" with 3 disks. :)
+zfs_pool_type="mirror"     # e.g. may also be "mirror" or maybe "raidz1" with 3 disks. :)
 
 # Note: using /dev/disk/by-id is also preferable.
-zfs_pool_disks=("/dev/sda")
+zfs_pool_disks=("/dev/sda" "/dev/sdb")
 
 # datasets to be set with com.sun:auto-snapshot=true
 zfs_auto_snapshot=("$zfs_pool_name/HOME")
