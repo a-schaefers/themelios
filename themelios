@@ -229,14 +229,15 @@ get_custom_nixcfg() {
     # finally, in all cases no matter what we use, we also need to setup optional overlay files which must be beside configuration.sh, wherever that may be.
     find_configuration_sh() {
         # if given a unique filename, use the filename to source the config variables.
+        # find via 'cd' and '.' gives relative path to file that is needed.
         cd /tmp/cloned_remote || return 1
-        find -type f -name "$config_dot_sh" | grep "." && \
-            config_dot_sh=$(find -type f -name "$config_dot_sh") && \
+        find . -type f -name "$config_dot_sh" | grep "." && \
+            config_dot_sh=$(find . -type f -name "$config_dot_sh") && \
             [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
-        find -type d -name "$config_dot_sh" | grep "." && \
-            config_dot_sh=$(echo $(find -type d -name "$config_dot_sh")/configuration.sh)
+        find . -type d -name "$config_dot_sh" | grep "." && \
+            config_dot_sh=$(echo $(find . -type d -name "$config_dot_sh")/configuration.sh)
     }
     # if not given a path with slashes to a configuration.sh file, then use find.
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
