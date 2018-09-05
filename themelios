@@ -177,7 +177,7 @@ get_custom_nixcfg() {
     # github users' https remote will be switched to ssh remote automatically after initial clone.
     # github users also may use the "shorthand" username/repo-name
 
-    # fixme grep isn't accurate enough and probably wrong tool for this job.
+    # FIXME grep isn't accurate enough and probably wrong tool for this job.
     github_shorthand=$(echo "$git_remote" | grep -v ".git")
     github_url=$(echo "$git_remote" | grep "github.com")
 
@@ -204,7 +204,7 @@ get_custom_nixcfg() {
 
     if [[ $github_url ]]
     then
-        # fixme cut will stop working if github ever changes
+        # FIXME cut will stop working if github ever changes
         github_user=$(echo "$git_remote" | grep github | cut -d '/' -f 4)
         github_repo=$(echo "$git_remote" | grep github | cut -d '/' -f 5)
         github_clone_and_switch
@@ -250,7 +250,7 @@ get_custom_nixcfg() {
 
 disk_prep() {
 
-    #fixme use an array instead of doing this.
+    #FIXME use an array instead of doing this.
     sgdisk_clear() {
         IFS=$'\n'
         for disk_id in $zfs_pool_disks
@@ -261,7 +261,7 @@ disk_prep() {
     }
     [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
 
-    #fixme use an array instead of doing this.
+    #FIXME use an array instead of doing this.
     wipefs_all() {
         IFS=$'\n'
         for disk_id in $zfs_pool_disks
@@ -272,7 +272,7 @@ disk_prep() {
     }
     [[ $use_wipefs_all == "true" ]] && wipefs_all
 
-    #fixme use an array instead of doing this.
+    #FIXME use an array instead of doing this.
     dd_zero() {
         IFS=$'\n'
         for disk_id in $zfs_pool_disks
@@ -304,7 +304,7 @@ zpool_create() {
           $zfs_pool_disks || fail_warning
 }
 
-#fixme use an array instead of doing this.
+#FIXME use an array instead of doing this.
 create_bios_boot_partitions() {
     IFS=$'\n'
     for disk_id in $zfs_pool_disks
@@ -365,6 +365,7 @@ datasets_create() {
     }
     [[ $zfs_make_swap == "true" ]] && create_zswap
 
+    #FIXME use an array instead of doing this.
     zfs_auto_snapshot() {
         IFS=$'\n'
         for dataset in $zfs_auto_snapshot
