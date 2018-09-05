@@ -126,8 +126,8 @@ start_over() {
     umount /mnt/home
     umount /mnt/tmp
     umount /mnt
-    swapoff /dev/zvol/$POOL/swap/swap0
-    zpool destroy $POOL
+    swapoff /dev/zvol/"$POOL"/swap/swap0
+    zpool destroy "$POOL"
 }
 
 initial_warning() {
@@ -159,15 +159,13 @@ switch_if_needed() {
 }
 
 bootstrap_zfs() {
-    sed -i '/imports/a \
-boot.supportedFilesystems = [ \"zfs\" ];' \
+    sed -i '/imports/a boot.supportedFilesystems = [ \"zfs\" ];' \
         /etc/nixos/configuration.nix
     needs_switch="1"
 }
 
 bootstrap_git() {
-    sed -i '/imports/a \
- environment.systemPackages = with pkgs; [ git ];' \
+    sed -i '/imports/a environment.systemPackages = with pkgs; [ git ];' \
         /etc/nixos/configuration.nix
     needs_switch="1"
 }
@@ -180,26 +178,26 @@ get_custom_nixcfg() {
     # github users also may use the "shorthand" username/repo-name
 
     # fixme grep isn't accurate enough and probably wrong tool for this job.
-    github_shorthand=$(echo $git_remote | grep -v ".git")
-    github_url=$(echo $git_remote | grep "github.com")
+    github_shorthand=$(echo "$git_remote" | grep -v ".git")
+    github_url=$(echo "$git_remote" | grep "github.com")
 
     checkout_branch() {
         echo "checking out $github_sshremote"
-        cd /tmp/cloned_remote
-        git checkout $git_branch
+        cd /tmp/cloned_remote || return 1
+        git checkout "$git_branch"
     }
 
     switch_github_remotes() {
         echo "switching remote from https to $github_sshremote for user convenience..."
-        cd /tmp/cloned_remote
-        git remote set-url origin $github_sshremote
+        cd /tmp/cloned_remote || return 1
+        git remote set-url origin "$github_sshremote"
     }
 
     github_clone_and_switch() {
         echo "cloning repo via $github_httpsremote"
         github_httpsremote=https://github.com/$github_user/$github_repo
         github_sshremote=git@github.com:$github_user/$github_repo
-        git clone $github_httpsremote /tmp/cloned_remote || fail_warning
+        git clone "$github_httpsremote" /tmp/cloned_remote || fail_warning
         switch_github_remotes
         [[ $git_branch ]] && checkout_branch
     }
@@ -207,19 +205,19 @@ get_custom_nixcfg() {
     if [[ $github_url ]]
     then
         # fixme cut will stop working if github ever changes
-        github_user=$(echo $git_remote | grep github | cut -d '/' -f 4)
-        github_repo=$(echo $git_remote | grep github | cut -d '/' -f 5)
+        github_user=$(echo "$git_remote" | grep github | cut -d '/' -f 4)
+        github_repo=$(echo "$git_remote" | grep github | cut -d '/' -f 5)
         github_clone_and_switch
 
     elif [[ $github_shorthand ]]
     then
-        github_user=$(echo $git_remote | cut -d '/' -f 1)
-        github_repo=$(echo $git_remote | cut -d '/' -f 2)
+        github_user=$(echo "$git_remote" | cut -d '/' -f 1)
+        github_repo=$(echo "$git_remote" | cut -d '/' -f 2)
         github_clone_and_switch
 
     else
         echo "cloning repo via $git_remote"
-        git clone $git_remote /tmp/cloned_remote || fail_warning
+        git clone "$git_remote" /tmp/cloned_remote || fail_warning
         [[ $git_branch ]] && checkout_branch
     fi
 
@@ -231,7 +229,7 @@ get_custom_nixcfg() {
     # finally, in all cases no matter what we use, we also need to setup optional overlay files which must be beside configuration.sh, wherever that may be.
     find_configuration_sh() {
         # if given a unique filename, use the filename to source the config variables.
-        cd /tmp/cloned_remote
+        cd /tmp/cloned_remote || return 1
         find -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh=$(find -type f -name "$config_dot_sh") && \
             [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
@@ -241,7 +239,7 @@ get_custom_nixcfg() {
             config_dot_sh=$(echo $(find -type d -name "$config_dot_sh")/configuration.sh)
     }
     # if not given a path with slashes to a configuration.sh file, then use find.
-    echo $config_dot_sh | grep "/" || find_configuration_sh
+    echo "$config_dot_sh" | grep "/" || find_configuration_sh
 
     source "$config_dot_sh" || die "$config_dot_sh file not found."
 
@@ -254,7 +252,7 @@ disk_prep() {
 
     #fixme use an array instead of doing this.
     sgdisk_clear() {
-        ifs=$'\n'
+        IFS=$'\n'
         for disk_id in $zfs_pool_disks
         do
             echo "clearing disk with sgdisk..."
@@ -265,7 +263,7 @@ disk_prep() {
 
     #fixme use an array instead of doing this.
     wipefs_all() {
-        ifs=$'\n'
+        IFS=$'\n'
         for disk_id in $zfs_pool_disks
         do
             echo "wiping disk signatures with wipefs..."
@@ -276,7 +274,7 @@ disk_prep() {
 
     #fixme use an array instead of doing this.
     dd_zero() {
-        ifs=$'\n'
+        IFS=$'\n'
         for disk_id in $zfs_pool_disks
         do
             echo "writing zeros to each disk, this may take a while..."
@@ -308,7 +306,7 @@ zpool_create() {
 
 #fixme use an array instead of doing this.
 create_bios_boot_partitions() {
-    ifs=$'\n'
+    IFS=$'\n'
     for disk_id in $zfs_pool_disks
     do
         echo "creating bios boot partition..."
@@ -320,30 +318,30 @@ create_bios_boot_partitions() {
 datasets_create() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/ROOT
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/ROOT/nixos
-    mount -t zfs $zfs_pool_name/ROOT/nixos /mnt
-    zpool set bootfs=$zfs_pool_name/ROOT/nixos $zfs_pool_name
+    zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/ROOT
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/ROOT/nixos
+    mount -t zfs "$zfs_pool_name"/ROOT/nixos /mnt
+    zpool set bootfs="$zfs_pool_name"/ROOT/nixos "$zfs_pool_name"
 
     slash_nix_outside_root() {
-        zfs create -o mountpoint=none -o canmount=off -o sync=always $zfs_pool_name/NIX
-        zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/NIX/nix
+        zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/NIX
+        zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/NIX/nix
         mkdir /mnt/nix
-        mount -t zfs $zfs_pool_name/NIX/nix /mnt/nix
+        mount -t zfs "$zfs_pool_name"/NIX/nix /mnt/nix
     }
     [[ $zfs_dataset_slashnix_no_root == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/HOME
-    zfs create -o mountpoint=legacy -o canmount=on $zfs_pool_name/HOME/home
-    mount -t zfs $zfs_pool_name/HOME/home /mnt/home
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/HOME
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/HOME/home
+    mount -t zfs "$zfs_pool_name"/HOME/home /mnt/home
 
     # /tmp datasets
-    zfs create -o mountpoint=none -o canmount=off $zfs_pool_name/TMP
-    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled $zfs_pool_name/TMP/tmp
-    mount -t zfs $zfs_pool_name/TMP/tmp /mnt/tmp
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/TMP
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name"/TMP/tmp
+    mount -t zfs "$zfs_pool_name"/TMP/tmp /mnt/tmp
 
     # swap option
     create_zswap() {
@@ -355,15 +353,15 @@ datasets_create() {
             -o sync=always \
             -o logbias=throughput \
             -o com.sun:auto-snapshot=false \
-            $zfs_pool_name/SWAP
+            "$zfs_pool_name"/SWAP
 
         zfs create \
-            -V $zfs_swap_size \
-            -b $(getconf PAGESIZE) \
-            $zfs_pool_name/SWAP/swap0
+            -V "$zfs_swap_size" \
+            -b "$(getconf PAGESIZE)" \
+            "$zfs_pool_name"/SWAP/swap0
 
-        mkswap -f /dev/zvol/$zfs_pool_name/SWAP/swap0
-        swapon /dev/zvol/$zfs_pool_name/SWAP/swap0
+        mkswap -f /dev/zvol/"$zfs_pool_name"/SWAP/swap0
+        swapon /dev/zvol/"$zfs_pool_name"/SWAP/swap0
     }
     [[ $zfs_make_swap == "true" ]] && create_zswap
 
@@ -379,8 +377,8 @@ datasets_create() {
 }
 
 bootstrap_nixcfg() {
-    echo "moving repo from /tmp to /mnt$nix_repo_name..."
-    cp -rp /tmp/cloned_remote /mnt/$nix_repo_name
+    echo "moving repo from /tmp to /mnt/$nix_repo_name..."
+    cp -rp /tmp/cloned_remote /mnt/"$nix_repo_name"
 
     # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
@@ -432,21 +430,25 @@ boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
-$(ifs=$'\n'
+$(IFS=$'\n'
 for disk_id in $zfs_pool_disks
 do
 echo $(echo "\"${disk_id}\"")
 done)
 ];
+
 # the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
 # you should try to make this id unique among your machines.
 networking.hostId = "$zfs_host_id";
+
 # noop, the recommended elevator with zfs.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
+
 # grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
 # just copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
+
 # setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
@@ -520,7 +522,7 @@ thank_you() {
 EOF
 
     umount_export() {
-        [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/$zfs_pool_name/swap/swap0
+        [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
 
         echo "unmounting /mnt"
         umount /mnt/home
@@ -528,7 +530,7 @@ EOF
         umount /mnt
 
         echo "exporting $zfs_pool_name"
-        zpool export $zfs_pool_name
+        zpool export "$zfs_pool_name"
 
         read -p "finished. reboot now? (y or n) " -n 1 -r
         [[ $REPLY =~ ^[Yy]$ ]] && reboot
