@@ -4,7 +4,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 ![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
 
 ## What Themelios does
-From any NixOS live disk, Themelios
+From any NixOS live disk, [Themelios]
 - Automatically installs zfs and git to the livedisk if needed
 - Clones your git repo, optionally using a non-master branch
 - Finds your configuration.sh file automatically
