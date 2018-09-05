@@ -105,7 +105,7 @@ If THEMELIOS_ZFS="true" in a configuration.sh file, Themelios will create /etc/n
 
 # configure grub using /dev/disk/by-id and zfs-support.
 boot.supportedFilesystems = [ "zfs" ];
-    boot.loader.grub.enable = true;
+boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
 $(ifs=$'\n'
