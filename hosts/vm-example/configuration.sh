@@ -9,13 +9,13 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 # zfs pool settings #
 
 zfs_pool_name="zroot"
-zfs_pool_type="mirror"     # e.g. may also be "mirror" or maybe "raidz1" with 3 disks. :)
+zfs_pool_type=""           # Use "" for single, or "mirror", "raidz1", etc.
 
 # Note: using /dev/disk/by-id is also preferable.
-zfs_pool_disks=("/dev/sda" "/dev/sdb")
+zfs_pool_disks=("/dev/sda")
 
-# datasets to be set with com.sun:auto-snapshot=true
-zfs_auto_snapshot=("$zfs_pool_name/HOME")
+# Datasets to be set with com.sun:auto-snapshot=true
+zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
 # if true, mount /nix outside of the / (root) dataset.
 # setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
