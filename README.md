@@ -130,7 +130,6 @@ boot.loader.grub.copyKernels = true;
 # setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
-
 }
 ```
 
