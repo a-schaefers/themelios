@@ -109,7 +109,7 @@ zfs_dataset_overlay_file=""      # override datasets_create()
 And then create the files and place them alongside wherever your configuration.sh is :)
 
 ## themelios-zfs.nix
-If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/themelios-zfs.nix with the following zfs-on-root settings:
+If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/zfs-configuration.nix with the following zfs-on-root settings:
 ```bash
 { ... }:
 { imports = [];
