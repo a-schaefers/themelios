@@ -1,6 +1,6 @@
 # this dataset overlay is only active if set in configuration.sh AND file exists.
 datasets_create() {
-    echo "Creating and mounting datasets in /mnt..."
+    echo "Creating and mounting datasets in /mnt using overlay..."
     # / (root) datasets
     zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/ROOT
     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/ROOT/nixos

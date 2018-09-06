@@ -6,7 +6,7 @@ zpool_create() {
     join_by() { local IFS="$1"; shift; echo "$*"; }
     zfs_pool_disks_joined=$(join_by ' \n' "${zfs_pool_disks[@]}")
 
-    echo "creating zpool..."
+    echo "creating zpool(s) using overlay..."
     zpool create -f \
           -o ashift=12 \
           -O compression=lz4 \
