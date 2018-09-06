@@ -29,8 +29,8 @@ zfs_make_swap="false"            # creates a swap zvol
 zfs_swap_size="4G"
 
 # if set, themelios will source them if the files exist alongside configuration.sh
-zfs_pool_overlay_file="overlay-pool"             # override zpool_create()
-zfs_dataset_overlay_file="overlay-datasets"      # override datasets_create()
+zfs_pool_overlay_file=""             # override zpool_create()
+zfs_dataset_overlay_file=""      # override datasets_create()
 
 # nix_os bootstrap settings #
 
