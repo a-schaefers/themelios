@@ -48,61 +48,64 @@ If none of this works for you, just tell themelios where the file is relative to
 
 _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github repos must provide the full remote._
 
-What can I say? I like shortcuts? One command was not enough, it needed to be one _memorable_ command!
-
 **TL;DR. Feed Themelios a git repository url that contains a file which has the following configuration variables:**
 ```bash
-# themelios configuration.sh example
+# Themelios configuration.sh example
 
-# disk preparation settings #
+# Disk preparation settings #
 
 use_sgdisk_clear="true"    # use sgdisk --clear
 use_wipefs_all="true"      # use wipefs --all
 use_zero_disks="false"     # use dd if=/dev/zero ...
 
-# zfs pool settings #
+# ZFS POOL SETTINGS #
 
 zfs_pool_name="zroot"
 zfs_pool_type="mirror"     # use "" for single, or "mirror", "raidz1", etc.
 
-# note: using /dev/disk/by-id is also preferable.
+# Note: using /dev/disk/by-id is also preferable.
 zfs_pool_disks=("/dev/sda" "/dev/sdb")
 
-# datasets to be set with com.sun:auto-snapshot=true
+# Datasets to be set with com.sun:auto-snapshot=true.
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
-# if true, mount /nix outside of the / (root) dataset.
-# setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
-# if you use nix.gc.automatic, then this should not be much of an issue. recommended "false".
+# If true, mount /nix outside of the / (root) dataset.
+# Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
+# If you use nix.gc.automatic, then this should not be much of an issue. recommended "false".
 zfs_dataset_slashnix_no_root="false"
 
-# todo allow true or false for this exception.
+# Todo allow true or false for this exception.
 zfs_use_atime="off"              # set to "on" or "off" (recommended "off" for ssd.)
 
 zfs_make_swap="false"            # creates a swap zvol
 zfs_swap_size="4G"
 
-# nix_os bootstrap settings #
+# If set, themelios will source them if the files exist alongside configuration.sh
+zfs_pool_overlay_file=""         # override zpool_create()
+zfs_dataset_overlay_file=""      # override datasets_create()
 
-# your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
-# for example, to bootstrap project_root/hosts/vm-example/default.nix
+# NIX_OS BOOTSTRAP SETTINGS #
+
+# Your top-level configuration.nix file to be bootstrapped-- (use the relative path from the project_root.)
+# For example, to bootstrap project_root/hosts/vm-example/default.nix
 nix_top_level_configuration="hosts/vm-example"
 
-# directory name of to clone your git-remote in "/" (root). # may be anything, but do not use slashes.
-# this is intended to be the directory to operate the nix installation from.
+# Directory name of to clone your git-remote in "/" (root). Do not use slashes.
+# This is intended to be the directory to operate the nix installation from.
+# For example, here is mine! https://github.com/a-schaefers/nix-config
 nix_repo_name="nix-config"
 
-# creates /etc/nixos/zfs-configuration.nix with sensible settings
+# Creates /etc/nixos/zfs-configuration.nix with sensible settings.
 nix_zfs_configuration_enabled="true"
 
-# enable "extra" options [below] in addition to zfs_configuration?
+# Enable "extra" options [below] in addition to zfs_configuration?
 nix_zfs_configuration_extra_enabled="true"
 ```
 
 ## Optional overlays
 If you want to override the default Themelios zpool_create() or datasets_create() functions with your own code, then set the optional variables in your configuration.sh,
 ```bash
-# if set, themelios will source them, so long as the files exist alongside configuration.sh
+# If set, themelios will source them if the files exist alongside configuration.sh
 zfs_pool_overlay_file=""         # override zpool_create()
 zfs_dataset_overlay_file=""      # override datasets_create()
 ```
