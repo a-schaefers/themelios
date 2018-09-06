@@ -22,7 +22,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - Use msdos partition tables (Zfs is GPT by default.)
 - Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full maturity before implementing this...)
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
-- Posix. My bash-fu is an ongoing work-in-progress. I keep cleaning this script and improving it as I learn better bash. Anyone who can help in this area with pull-requests, I'd appreciate it!
+- Posix. All NixOS live disks come with Bash, this is a NixOS specific project, so Bash is perfect. I keep cleaning this script and improving it as I learn better bash. Anyone who can help in this area with pull-requests, I'd appreciate it!
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
