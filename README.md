@@ -114,7 +114,7 @@ If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelio
 { ... }:
 { imports = [];
 
-# configure grub using /dev/disk/by-id and zfs-support.
+# Configure grub with zfs support.
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
@@ -125,31 +125,32 @@ echo "\"$disk_id\""
 done)
 ];
 
-# the 32-bit host id of the machine, formatted as 8 hexadecimal characters.
-# you should try to make this id unique among your machines.
+# The 32-bit host id of the machine, formatted as 8 hexadecimal characters.
+# You should try to make this id unique among your machines.
 networking.hostId = "$zfs_host_id";
 
 # noop, the recommended elevator with zfs.
 # shell_on_fail allows to force import manually in the case of zfs import failure.
 boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 
-# grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths
-# just copy the kernels to /boot and avoid the issue.
+# Grub on zfs has been known to have a hard time finding kernels with really/long/dir/paths.
+# Copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
-# setting these to false will ensure some safeguards are active that zfs uses to protect your zfs pools.
+# Ensure some safeguards are active that zfs uses to protect zfs pools.
 boot.zfs.forceImportAll = false;
 boot.zfs.forceImportRoot = false;
 }
+
 ```
 
 ## Additional configuration.sh settings - zfs extra
 Enable **nix_zfs_configuration_extra_enabled="true"** in addition to **nix_zfs_configuration_enabled="true"** in configuration.sh for the following extras:
 ```bash
-# auto scrubs
+# Enables periodic scrubbing of ZFS pools.
 nix_zfs_extra_auto_scrub="true"
 
-# auto snapshots
+# Enable the (OpenSolaris-compatible) ZFS auto-snapshotting service.
 nix_zfs_extra_auto_snapshot_enabled="true"
 nix_zfs_extra_auto_snapshot_frequent="8"   # take a snapshot every 15 minutes and keep 8 in rotation
 nix_zfs_extra_auto_snapshot_hourly="0"
@@ -157,12 +158,12 @@ nix_zfs_extra_auto_snapshot_daily="7"      # take a daily snapshot and keep 7 in
 nix_zfs_extra_auto_snapshot_weekly="0"
 nix_zfs_extra_auto_snapshot_monthly="0"
 
-# auto garbage collection
+# Use gc.automatic with autoSnapshot to keep disk space under control.
 nix_zfs_extra_gc_automatic="true"
 nix_zfs_extra_gc_dates="daily"
 nix_zfs_extra_gc_options="--delete-older-than 7d"
 
-# auto /tmp clean
+# Clean /tmp automatically on boot.
 nix_zfs_extra_clean_tmp_dir="true"
 ```
 
