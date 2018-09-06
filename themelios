@@ -569,7 +569,7 @@ get_custom_nixcfg
 disk_prep
 
 # create default zpool or maybe-use optional user overlay instead.
-if [[ -f zfs_pool_overlay_file ]]
+if [[ -f $zfs_pool_overlay_file ]]
 then
     source zfs_pool_overlay_file
 else
