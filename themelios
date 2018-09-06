@@ -149,6 +149,7 @@ uefi_or_legacy() {
     # $zfs_dataset_slashnix_no_root == "true" #default for uefi
     # and set the boot.loader.grub.copy_kernels = false; #default for uefi
     # and enable grub incompatible pool features as bonus side affect.
+    # and use less aggressive garbage collection in the UEFI recommended extra settings.
     [[ -d "/sys/firmware/efi/efivars" ]] && die "only legacy bios is supported for now."
 }
 
@@ -418,7 +419,7 @@ EOF
 { ... }:
 { imports = [];
 
-# configure grub using /dev/disk/by-id and zfs-support.
+# Configure grub with zfs support.
 boot.supportedFilesystems = [ "zfs" ];
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
