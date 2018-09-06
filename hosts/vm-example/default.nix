@@ -16,11 +16,7 @@
   programs.mtr.enable = true;
   programs.bash.enableCompletion = true;
 
-  networking.hostName = "nixvm";
-
-  nix.allowedUsers = [ "root" "@wheel" ];
-  nix.trustedUsers = [ "root" "@wheel" ];
-  nix.useSandbox = true;
+  networking.hostName = "themelios-vm";
 
   # This value determines the NixOS release with which your system is to be
     # compatible, in order to avoid breaking some software such as database
