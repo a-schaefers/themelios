@@ -49,15 +49,14 @@ datasets_create() {
     }
     [[ $zfs_make_swap == "true" ]] && create_zswap
 
-    #FIXME use an array instead of doing this.
     zfs_auto_snapshot() {
-        IFS=$'\n'
-        for dataset in $zfs_auto_snapshot
+        for dataset in "${zfs_auto_snapshot[@]}"
         do
-            echo "Setting property com.sun:auto-snapshot=true to $dataset..."
-            zfs set com.sun:auto-snapshot=true $dataset
+            echo "Setting property com.sun:auto-snapshot=true to ${dataset}..."
+            zfs set com.sun:auto-snapshot=true "$dataset"
         done
     }
     zfs_auto_snapshot
 }
+
 datasets_create
