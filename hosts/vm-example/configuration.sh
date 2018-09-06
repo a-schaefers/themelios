@@ -25,7 +25,7 @@ zfs_dataset_slashnix_no_root="false"
 # Todo allow true or false for this exception.
 zfs_use_atime="off"              # set to "on" or "off" (recommended "off" for ssd.)
 
-zfs_make_swap="false"            # creates a swap zvol
+zfs_make_swap="false"            # creates a swap zvol (Not recommended in zfs-land.)
 zfs_swap_size="4G"
 
 # If set, themelios will source them if the files exist alongside configuration.sh
