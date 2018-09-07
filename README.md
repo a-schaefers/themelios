@@ -18,14 +18,23 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - Aims to fail gracefully with continue and retry options.
 
 ## What Themelios does not do (yet)
-- Currently UEFI is unsupported because UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.
-- Full Disk encryption (Let's just wait for zfsonlinux native encryption to reach full maturity before implementing this...)
-- **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
+- Currently UEFI is unsupported because UEFI ~~is garbage~~ and
+does not allow for pure zfs-on-root systems and therefore is to be avoided.
+Of course on one peculiar day when I do not feel like gnashing teeth I will
+implement a uefi configuration option, but the drawbacks are clear and there
+is no way around them at this time-- uefi is unable to support zfs boot environments,
+and thus is a step backwards.
 
-## What Themelios has no plans to do
-- Using non-native zfs encryption. I really do not like the approach of using a luks wrapper and find it overly constricting. Zfs native encryption will offer much more flexibility, worth waiting for.
-- Using msdos partition tables (Zfs is GPT by default.)
-- Posix. All NixOS live disks come with bash, "bashism" is not a problem.
+- Full Disk encryption (Let's just wait for zfsonlinux native encryption to reach full
+maturity before implementing this...)
+
+- **Include the beadm script and with full beadm and nix grub integration on the bootloader.
+[This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
+
+## What Themelios will never do
+- Using non-native zfs encryption. I really don't like the alternatives-- native zfs encryption will offer more flexibility, worth waiting for.
+- Using msdos partition tables-- zfs is GPT by default.
+- Posix-- all NixOS live disks come with bash, "bashism" is okay here, I like bash. :)
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
