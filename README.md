@@ -4,25 +4,28 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 ![Themelios NixOS Screenshot](https://github.com/a-schaefers/themelios/raw/master/themelios_usage.png)
 
 ## From any NixOS live disk, Themelios
-- Automatically installs zfs and git to the livedisk if needed
-- Clones your git repo, optionally using a non-master branch
-- Finds your configuration.sh file automatically
+- Automatically installs zfs and git to the livedisk if needed.
+- Clones your git repo, optionally using a non-master branch.
+- Finds your configuration.sh file automatically.
 - Configures a zfs-on-root system to your configuration.sh file specification including the following options:
-  * Uses sgdisk and/or wipefs, or dd to clear your disks
-  * Creates a single/mirror/raidz1/raidz2/raidz3 zpool
-  * Configures a zfs-on-root dataset scheme by default
+  * Uses sgdisk and/or wipefs, or dd to clear your disks.
+  * Creates a single/mirror/raidz1/raidz2/raidz3 zpool.
+  * Configures a zfs-on-root dataset scheme by default.
   * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes sensible settings for zfs-on-root.
-  * Optional "zfs-extra" enables further zfs-support options in NixOS
-  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly
-- Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo (and thereby nixos-install's the rest of your operating system)
-- Aims to fail gracefully with continue and retry options
+  * Optional "zfs-extra" enables further zfs-support options in NixOS.
+  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
+- Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo-- (and thereby nixos-install's the rest of your operating system.)
+- Aims to fail gracefully with continue and retry options.
 
 ## What Themelios does not do (yet)
 - Currently UEFI is unsupported because UEFI does not allow for "pure" zfs-on-root systems and therefore using legacy bios with zfs boot environments is a more robust solution.
-- Use msdos partition tables (Zfs is GPT by default.)
-- Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full maturity before implementing this...)
+- Full Disk encryption (Let's just wait for zfsonlinux native encryption to reach full maturity before implementing this...)
 - **Include the beadm script and with full beadm and nix grub integration on the bootloader. [This is my personal first priority.](https://github.com/a-schaefers/grubbe-mkconfig/issues/7)**
-- Posix. All NixOS live disks come with bash, this is a NixOS specific project, so bash is perfect. Have a nice day. :)
+
+## What Themelios has no plans to do
+- Using non-native zfs encryption. I really do not like the approach of using a luks wrapper and find it overly constricting. Zfs native encryption will offer much more flexibility, worth waiting for.
+- Using msdos partition tables (Zfs is GPT by default.)
+- Posix. All NixOS live disks come with bash, "bashism" is not a problem.
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
