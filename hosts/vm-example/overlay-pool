@@ -19,5 +19,8 @@ zpool_create() {
           $zfs_pool_name \
           $zfs_pool_type \
           $zfs_pool_disks_joined || fail_warning
+
+    # https://github.com/NixOS/nixpkgs/issues/16954
+    zfs set acltype=posixacl "$zfs_pool_name"
 }
 zpool_create
