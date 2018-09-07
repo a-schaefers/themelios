@@ -273,7 +273,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "writing zeros to ${disk_id}..."
-            dd if=/dev/zero of="$disk_id" bs=4096 status=progress &
+            dd if=/dev/zero of="$disk_id" bs=1M oflag=direct status=progress &
         done
         wait
     }
