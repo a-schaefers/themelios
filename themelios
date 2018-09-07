@@ -145,8 +145,8 @@ fail_warning() {
 uefi_or_legacy() {
     # todo add uefi support.
     # let's do:
-    # /boot/grub as efi partition
-    # /boot as ext2
+    # /boot/grub as efi partition with fat32
+    # /boot with ext2
     # $zfs_dataset_slashnix_no_root == "true" #default for uefi
     # and set the boot.loader.grub.copy_kernels = false; #default for uefi
     # and enable grub incompatible pool features as bonus side affect.
