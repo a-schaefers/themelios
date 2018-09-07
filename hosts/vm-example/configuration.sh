@@ -4,15 +4,15 @@
 
 use_sgdisk_clear="true"    # use sgdisk --clear
 use_wipefs_all="true"      # use wipefs --all
-use_zero_disks="false"     # use dd if=/dev/zero ...
+use_zero_disks="true"     # use dd if=/dev/zero ...
 
 # ZFS POOL SETTINGS #
 
 zfs_pool_name="zroot"
-zfs_pool_type=""           # use "" for single, or "mirror", "raidz1", etc.
+zfs_pool_type="raidz1"           # use "" for single, or "mirror", "raidz1", etc.
 
 # Note: using /dev/disk/by-id is also preferable.
-zfs_pool_disks=("/dev/sda")
+zfs_pool_disks=("/dev/sda" "/dev/sdb" "/dev/sdc")
 
 # Datasets to be set with com.sun:auto-snapshot=true.
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
