@@ -24,9 +24,6 @@ and also to give legacy users the additional option to use e.g. ext2 for /boot.
 - Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full
 maturity before implementing this...)
 
-## What Themelios will never do
-- Use non-native zfs encryption. I really don't like the alternatives-- native zfs encryption will offer more flexibility, worth waiting for.
-
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
 ```bash
