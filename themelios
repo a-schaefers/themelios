@@ -521,6 +521,8 @@ thank_you() {
     n::::::n        n::::::ni::::::::ix:::::x       x:::::x
     nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
 EOF
+    # give the user one last chance to do things
+    [[ -f /root/postinstall.sh ]] && source /root/postinstall.sh
 
     umount_export() {
         [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
@@ -537,6 +539,7 @@ EOF
         [[ $REPLY =~ ^[Yy]$ ]] && reboot
 
     }
+
     # pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
     [[ ! ${NOUMOUNT} ]] && umount_export
 
