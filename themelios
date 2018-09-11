@@ -88,7 +88,7 @@ nix_top_level_configuration="hosts/vm-example"
 nix_repo_name="nix-config"
 
 # Optionally inserted as "nixos-install --root /mnt $nixos_install_opts"
-nixos_install_opts=""
+nix_install_opts=""
 
 # Creates /etc/nixos/zfs-configuration.nix with sensible settings.
 nix_zfs_configuration_enabled="true"
@@ -484,7 +484,7 @@ EOF
 
     # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
     nixos-install-show-trace() {
-        nixos-install --root /mnt --show-trace $nixos_install_opts || nixos-install_fail_retry
+        nixos-install --root /mnt --show-trace $nix_install_opts || nixos-install_fail_retry
     }
 
     nixos-install_fail_retry() {
@@ -501,7 +501,7 @@ EOF
 
     install() {
         echo "executing nixos-install --root /mnt"
-        nixos-install --root /mnt $nixos_install_opts || nixos-install_fail_retry
+        nixos-install --root /mnt $nix_install_opts || nixos-install_fail_retry
     }
 
     install
