@@ -164,10 +164,10 @@ nix_zfs_extra_auto_snapshot_daily="7"      # take a daily snapshot and keep 7 in
 nix_zfs_extra_auto_snapshot_weekly="0"
 nix_zfs_extra_auto_snapshot_monthly="0"
 
-# Use gc.automatic with autoSnapshot to keep disk space under control.
-nix_zfs_extra_gc_automatic="true"
-nix_zfs_extra_gc_dates="daily"
-nix_zfs_extra_gc_options="--delete-older-than 7d"
+# Use NixOs automatic garbage collection?
+nix_zfs_extra_gc_automatic="false"
+nix_zfs_extra_gc_dates="weekly"
+nix_zfs_extra_gc_options="--delete-older-than 14d"
 
 # Clean /tmp automatically on boot.
 nix_zfs_extra_clean_tmp_dir="true"
