@@ -212,6 +212,8 @@ nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.
 
 The generated iso will be found inside the newly created "result/" directory.
 
+_Note: It would be best practice to fork the project, audit the script, and modify the curl url to use your fork._ :)
+
 ## Putting it all together (a real-world example)
 While I do not regard my personal setup to be the ideal for everybody, what follows is to show-case
 [how Themelios can be used to bootstrap multiple, per-machine configurations](https://github.com/a-schaefers/nix-config).
