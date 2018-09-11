@@ -107,6 +107,7 @@ If you want to override the default Themelios zpool_create() or datasets_create(
 # If set, themelios will source them if the files exist alongside configuration.sh
 zfs_pool_overlay_file=""         # override zpool_create()
 zfs_dataset_overlay_file=""      # override datasets_create()
+postinstall_overlay_file=""      # run arbritary code after nixos-install and before umount /mnt.
 ```
 And then create the files and place them alongside wherever your configuration.sh is :)
 

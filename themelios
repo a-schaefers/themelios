@@ -74,6 +74,7 @@ zfs_swap_size="4G"
 # If set, themelios will source them if the files exist alongside configuration.sh
 zfs_pool_overlay_file=""         # override zpool_create()
 zfs_dataset_overlay_file=""      # override datasets_create()
+postinstall_overlay_file=""      # run arbritary code after nixos-install and before umount /mnt.
 
 # NIX_OS BOOTSTRAP SETTINGS #
 
@@ -246,6 +247,7 @@ get_custom_nixcfg() {
     # prepare optional overlay locations based on where the users configuration.sh is.
     zfs_pool_overlay_file=${config_dot_sh%/*}/$zfs_pool_overlay_file
     zfs_dataset_overlay_file=${config_dot_sh%/*}/$zfs_dataset_overlay_file
+    postinstall_overlay_file=${config_dot_sh%/*}/$postinstall_overlay_file
 }
 
 disk_prep() {
@@ -522,7 +524,7 @@ thank_you() {
     nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
 EOF
     # give the user one last chance to do things
-    [[ -f /root/postinstall.sh ]] && source /root/postinstall.sh
+    [[ -f $postinstall_overlay_file ]] && source $postinstall_overlay_file
 
     umount_export() {
         [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
