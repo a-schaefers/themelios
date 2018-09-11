@@ -199,12 +199,8 @@ in {
   networking = {
     networkmanager.enable = true;
     wireless.enable = false; #networkmanager.enable handles this
-    firewall.allowPing = true;
-    firewall.allowedTCPPorts = [ 22 ];
-    firewall.allowedUDPPorts = [ 22 ];
   };
-  services.openssh.enable = true;
-  boot.supportedFilesystems = [ "zfs" ];
+    boot.supportedFilesystems = [ "zfs" ];
   environment.systemPackages = with pkgs; [ git themelios ];
 }
 ```
