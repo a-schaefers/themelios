@@ -18,9 +18,8 @@ zfs_pool_disks=("/dev/sda" "/dev/sdb")
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
 # If true, mount /nix outside of the / (root) dataset.
-# Setting this to true would trade-off the ability to use zfs boot environments for extra disk space.
-# If you use nix.gc.automatic, then this should not be much of an issue. recommended "false".
-zfs_dataset_slashnix_no_root="false"
+# Recommended true for now due to https://github.com/a-schaefers/themelios/issues/1
+zfs_dataset_slashnix_no_root="true"
 
 # Todo allow true or false for this exception.
 zfs_use_atime="off"              # set to "on" or "off" (recommended "off" for ssd.)
