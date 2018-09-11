@@ -52,7 +52,7 @@ _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github r
 ```bash
 # Themelios configuration.sh example
 
-# Disk preparation settings #
+# DISK PREPARATION SETTINGS #
 
 use_sgdisk_clear="true"    # use sgdisk --clear
 use_wipefs_all="true"      # use wipefs --all

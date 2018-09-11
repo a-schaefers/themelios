@@ -1,6 +1,6 @@
 # Themelios configuration.sh example
 
-# Disk preparation settings #
+# DISK PREPARATION SETTINGS #
 
 use_sgdisk_clear="true"    # use sgdisk --clear
 use_wipefs_all="true"      # use wipefs --all
