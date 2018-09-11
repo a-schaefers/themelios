@@ -27,7 +27,6 @@ maturity before implementing this...)
 ## What Themelios will never do
 - Use non-native zfs encryption. I really don't like the alternatives-- native zfs encryption will offer more flexibility, worth waiting for.
 - Use msdos partition tables-- zfs is GPT by default.
-- Posix. All NixOS live disks come with bash, "bashism" is fine.
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
