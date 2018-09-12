@@ -111,9 +111,11 @@ If you want to override the default Themelios zpool_create() or datasets_create(
 zfs_pool_overlay_file=""         # override zpool_create()
 zfs_dataset_overlay_file=""      # override datasets_create()
 ```
-And then create the files and place them alongside wherever your configuration.sh is :)
+Create the files and place them alongside wherever your configuration.sh is.
+The [vm-example in this repo](https://github.com/a-schaefers/themelios/tree/master/hosts/vm-example)
+uses stock pool and dataset overlays by default. :)
 
-You can also use postinstall_overlay_file in the same way,
+You can also set the postinstall_overlay_file in the same way,
 ```bash
 postinstall_overlay_file=""      # run arbritrary code after nixos-install and before umount /mnt.
 ```
