@@ -110,9 +110,14 @@ If you want to override the default Themelios zpool_create() or datasets_create(
 # If set, themelios will source them if the files exist alongside configuration.sh
 zfs_pool_overlay_file=""         # override zpool_create()
 zfs_dataset_overlay_file=""      # override datasets_create()
-postinstall_overlay_file=""      # run arbritrary code after nixos-install and before umount /mnt.
 ```
 And then create the files and place them alongside wherever your configuration.sh is :)
+
+You can also use postinstall_overlay_file in the same way,
+```bash
+postinstall_overlay_file=""      # run arbritrary code after nixos-install and before umount /mnt.
+```
+The following is an example of a small [overlay that mounts a usb stick and copies my Private keys to my dotfiles](https://github.com/a-schaefers/nix-config/blob/master/hosts/latitudeE6430/postinstall.sh).
 
 ## zfs-configuration.nix
 If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/zfs-configuration.nix with the following zfs-on-root settings:
