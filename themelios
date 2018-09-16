@@ -563,6 +563,7 @@ EOF
 config_dot_sh=$1
 git_remote=$2
 git_branch=$3
+export THEMELIOS_INSTALL="1"
 
 # warn user of potential doom.
 initial_warning
