@@ -18,8 +18,8 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - Aims to fail gracefully with continue and retry options.
 
 ## What Themelios does not do (yet)
-- Currently UEFI is unsupported. I do have plans to add this in as an option,
-and also to give legacy users the additional option to use e.g. ext2 for /boot.
+- **UEFI** There is experimental uefi support in the testing branch. I'm not sure it's ready yet.
+Then again, it might work great, please let me know. Thanks. Thu Sep 27 23:17:46 PDT 2018
 
 - Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full
 maturity before implementing this...)
