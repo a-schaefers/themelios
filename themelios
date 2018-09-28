@@ -268,7 +268,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "wiping disk signatures with wipefs..."
-            wipefs --all "$disk_id" || fail_warning
+            wipefs -af "$disk_id" || fail_warning
         done
     }
     [[ $use_wipefs_all == "true" ]] && wipefs_all
