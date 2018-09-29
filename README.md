@@ -16,12 +16,10 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
   * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
 - Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo-- (and thereby nixos-install's the rest of your operating system.)
 - Aims to fail gracefully with continue and retry options.
+- **Legacy** *and* **UEFI** are now both supported.
 
 ## What Themelios does not do (yet)
-- **UEFI** There is experimental uefi support in the testing branch. I'm not sure it's ready yet.
-Then again, it might work great, please let me know. Thanks. Thu Sep 27 23:17:46 PDT 2018
-
-- Full Disk encryption (Let's wait for zfsonlinux native encryption to reach full
+- Disk encryption (Let's wait for zfsonlinux native encryption to reach full
 maturity before implementing this...)
 
 ## Try it in it a VM right now!
