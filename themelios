@@ -125,9 +125,7 @@ function die() {
 
 start_over() {
     rm -rf /tmp/cloned_remote
-    umount /mnt/home
-    umount /mnt/tmp
-    umount /mnt
+    umount -R /mnt
     swapoff /dev/zvol/"$POOL"/swap/swap0
     zpool destroy "$POOL"
 }
@@ -146,15 +144,22 @@ fail_warning() {
 }
 
 uefi_or_legacy() {
-    # todo add uefi support.
-    # let's do:
-    # /boot/grub as efi partition with fat32
-    # /boot with ext2
-    # $zfs_dataset_slashnix_no_root == "true" #default for uefi
-    # and set the boot.loader.grub.copy_kernels = false; #default for uefi
-    # and enable grub incompatible pool features as bonus side affect.
-    # and use less aggressive garbage collection in the UEFI recommended extra settings.
-    [[ -d "/sys/firmware/efi/efivars" ]] && die "only legacy bios is supported for now."
+    # detect if this is a uefi installation.
+    [[ -d "/sys/firmware/efi/efivars" ]] && uefi_install="1"
+
+    uefi_translate() {
+        # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*
+        [[ $(echo ${zfs_pool_disks[0]} | grep "/dev/sd") ]] && use_uefi_sdX="1"
+        if [[ $use_uefi_sdX ]]
+        then
+            efi_part="2"
+            zpool_partition="3"
+        else
+            efi_part="-part2"
+            zpool_partition="-part3"
+        fi
+    }
+    [[ $uefi_install ]] && uefi_translate
 }
 
 switch_if_needed() {
@@ -247,14 +252,20 @@ get_custom_nixcfg() {
 
     source "$config_dot_sh" || die "$config_dot_sh file not found."
 
+    #############
+    # parse the newly received $config_dot_sh variables
+    #############
+
     # prepare optional overlay locations based on where the users configuration.sh is.
     zfs_pool_overlay_file=${config_dot_sh%/*}/$zfs_pool_overlay_file
     zfs_dataset_overlay_file=${config_dot_sh%/*}/$zfs_dataset_overlay_file
     postinstall_overlay_file=${config_dot_sh%/*}/$postinstall_overlay_file
+
+    # convert option from nix true/false style to proper zfs on/off option format.
+    if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
 }
 
 disk_prep() {
-
     sgdisk_clear() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
@@ -268,7 +279,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "wiping disk signatures with wipefs..."
-            wipefs -af "$disk_id" || fail_warning
+            wipefs -fa "$disk_id" || fail_warning
         done
     }
     [[ $use_wipefs_all == "true" ]] && wipefs_all
@@ -282,17 +293,9 @@ disk_prep() {
         wait
     }
     [[ $use_zero_disks == "true" ]] && dd_zero
-
 }
 
 zpool_create() {
-    # convert option from nix true/false style to proper zfs on/off.
-    if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
-
-    # join each array item together into one variable, separated by spaces.
-    join_by() { local IFS="$1"; shift; echo "$*"; }
-    zfs_pool_disks_joined=$(join_by ' ' "${zfs_pool_disks[@]}")
-
     echo "creating zpool..."
     zpool create -f \
           -o ashift=12 \
@@ -305,10 +308,60 @@ zpool_create() {
           -R /mnt \
           $zfs_pool_name \
           $zfs_pool_type \
-          $zfs_pool_disks_joined || fail_warning
+          ${zfs_pool_disks[@]/%/$zpool_partition} || fail_warning
+    # NOTE! quoting the above variables causes __very__ strange zpool create command behavior!
 
     # https://github.com/NixOS/nixpkgs/issues/16954
     zfs set acltype=posixacl "$zfs_pool_name"
+}
+
+uefi_disk_part() {
+    # make 1mb bios boot (for good measure)
+    # 1G (for nixos copykern) - shared efi / fat32 boot partition (simplicity)
+    # remaining partition for the zpool
+    # more advanced users may want to separate boot and efi partitions and mdadm array the boot part.
+    # I see little advantage because uefi still does not allow raiding the ESP, so I prefer a simple layout.
+    # TL,DR; Use legacy, it is more robust!!!!!!!!
+    for disk_id in "${zfs_pool_disks[@]}"
+    do
+        sgdisk -og "$disk_id"
+        echo "making bios boot partition..."
+        sgdisk -n 1:2048:4095 -c 1:"BIOS Boot Partition" -t 1:ef02 "$disk_id" || fail_warning
+        echo "make efi system partition..."
+        sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || fail_warning
+        echo "making zpool partition..."
+        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || fail_warning
+        sgdisk -p "$disk_id" || fail_warning
+        partx -u "$disk_id"
+    done
+    # HELP-WANTED I have encountered strange bugs here while developing, possibly only vm-related.
+    # basically, even though i have partx -u already, sometimes linux still isn't able to resolve
+    # the /dev/path/to/disk in the pool create command or with the mkfs.vfat command.
+    # after waiting a bit, or restarting the host machine / vm, running the same command works.
+    # sleep for good measure, just in case.
+    # related: https://github.com/zfsonlinux/zfs/issues/3708
+    echo "Please wait..."
+    sleep 10
+}
+
+uefi_mkfs() {
+    # HELP-WANTED I have encountered strange bugs here while developing, possibly only vm-related.
+    # basically, even though i have partx -u already, sometimes linux still isn't able to resolve
+    # the /dev/path/to/disk in the pool create command or with the mkfs.vfat command.
+    # after waiting a bit, or restarting the host machine / vm, running the same command works.
+    # sleep for good measure, just in case.
+    # related: https://github.com/zfsonlinux/zfs/issues/3708
+    echo "Please wait..."
+    sleep 10
+
+    # make fat32 for /boot on all disks
+    for disk_id in "${zfs_pool_disks[@]}"
+    do
+         mkfs.vfat -F32 "$disk_id""$efi_part" || fail_warning
+    done
+
+    mkdir /mnt/boot
+    mount "${zfs_pool_disks[0]}""$efi_part" /mnt/boot
 }
 
 create_bios_boot_partitions() {
@@ -327,6 +380,9 @@ datasets_create() {
     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/ROOT/nixos
     mount -t zfs "$zfs_pool_name"/ROOT/nixos /mnt
     zpool set bootfs="$zfs_pool_name"/ROOT/nixos "$zfs_pool_name"
+
+    # for UEFI systems - create/mount the EFI partition to /boot with a fat32 fs.
+    [[ $uefi_install ]] && uefi_mkfs
 
     slash_nix_outside_root() {
         zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/NIX
@@ -428,9 +484,23 @@ EOF
     [[ $nix_zfs_configuration_enabled == "true" ]] && cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
 { ... }:
 { imports = [];
-
-# Configure grub with zfs support.
 boot.supportedFilesystems = [ "zfs" ];
+$(if [[ $uefi_install ]]
+then
+cat <<- UEFI
+
+boot.loader = {
+efi = {
+canTouchEfiVariables = true;
+efiSysMountPoint = "/boot"; # use the same mount point here.
+};
+systemd-boot.enable = true; # (for UEFI systems only)
+};
+
+UEFI
+else
+cat <<- LEGACY
+
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
 boot.loader.grub.devices = [
@@ -439,6 +509,9 @@ do
 echo "\"$disk_id\""
 done)
 ];
+
+LEGACY
+fi)
 
 # The 32-bit host id of the machine, formatted as 8 hexadecimal characters.
 # You should try to make this id unique among your machines.
@@ -508,6 +581,9 @@ EOF
 }
 
 thank_you() {
+    # give the user one last chance to do things
+    [[ -f $postinstall_overlay_file ]] && source $postinstall_overlay_file
+
     cat << EOF
     nnnnnnnn        nnnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
     n:::::::n       n::::::ni::::::::ix:::::x       x:::::x
@@ -526,23 +602,18 @@ thank_you() {
     n::::::n        n::::::ni::::::::ix:::::x       x:::::x
     nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
 EOF
-    # give the user one last chance to do things
-    [[ -f $postinstall_overlay_file ]] && source $postinstall_overlay_file
 
     umount_export() {
         [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
 
         echo "unmounting /mnt"
-        umount /mnt/home
-        umount /mnt/tmp
-        umount /mnt
+        umount -R /mnt
 
         echo "exporting $zfs_pool_name"
         zpool export "$zfs_pool_name"
 
         read -p "finished. reboot now? (y or n) " -n 1 -r
         [[ $REPLY =~ ^[Yy]$ ]] && reboot
-
     }
 
     # pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
@@ -556,6 +627,7 @@ EOF
 # rerun script with "STARTOVER=1 POOL=zroot themelios foo bar" to attempt a fresh start.
 [[ ${STARTOVER} ]] && start_over
 
+# arguments
 [[ $1 == "-h" ]] && help
 [[ $1 == "--help" ]] && help
 [[ $# -lt 2 ]] && usage
@@ -566,9 +638,6 @@ git_branch=$3
 
 # warn user of potential doom.
 initial_warning
-
-# check for legacy or uefi bios.
-uefi_or_legacy
 
 # install zfs if needed to the livedisk.
 which zfs > /dev/null 2>&1 || bootstrap_zfs
@@ -582,8 +651,14 @@ which git > /dev/null 2>&1 || bootstrap_git
 # clone the repo and get all of the configuration information.
 get_custom_nixcfg
 
+# check for legacy or uefi bios.
+uefi_or_legacy
+
 # use sgdisk wipefs and dd tools to cleanup old disks.
 disk_prep
+
+# if uefi partition disks for a uefi disk scheme
+[[ $uefi_install ]] && uefi_disk_part
 
 # create default zpool or maybe-use optional user overlay instead.
 if [[ -f $zfs_pool_overlay_file ]]
@@ -593,8 +668,7 @@ else
     zpool_create
 fi
 
-# this is where grub stage1 will be installed later by nixos-install.
-create_bios_boot_partitions
+[[ ! $uefi_install ]] && create_bios_boot_partitions
 
 # create default datasets or maybe-use optional user overlay instead.
 if [[ -f $zfs_dataset_overlay_file ]]

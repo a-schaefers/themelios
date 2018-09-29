@@ -1,13 +1,6 @@
 # this pool overlay is only active if set in configuration.sh AND file exists.
 zpool_create() {
-    # convert option from nix true/false style to proper zfs on/off.
-    if [[ $zfs_use_atime == "true" ]] ; then zfs_use_atime="on" ; else zfs_use_atime="off" ; fi
-
-    # join each array item together into one variable, separated by spaces.
-    join_by() { local IFS="$1"; shift; echo "$*"; }
-    zfs_pool_disks_joined=$(join_by ' ' "${zfs_pool_disks[@]}")
-
-    echo "creating zpool(s) using overlay..."
+    echo "creating zpool..."
     zpool create -f \
           -o ashift=12 \
           -O compression=lz4 \
@@ -19,7 +12,7 @@ zpool_create() {
           -R /mnt \
           $zfs_pool_name \
           $zfs_pool_type \
-          $zfs_pool_disks_joined || fail_warning
+          ${zfs_pool_disks[@]/%/$zpool_partition} || fail_warning
 
     # https://github.com/NixOS/nixpkgs/issues/16954
     zfs set acltype=posixacl "$zfs_pool_name"
