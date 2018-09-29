@@ -118,7 +118,7 @@ EOF
     exit
 }
 
-function die() {
+die() {
     echo "$1"
     exit 1
 }
