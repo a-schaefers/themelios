@@ -191,13 +191,13 @@ get_custom_nixcfg() {
 
     checkout_branch() {
         echo "checking out $github_sshremote"
-        cd /tmp/cloned_remote || return 1
+        cd /tmp/cloned_remote || exit 1
         git checkout "$git_branch"
     }
 
     switch_github_remotes() {
         echo "switching remote from https to $github_sshremote for user convenience..."
-        cd /tmp/cloned_remote || return 1
+        cd /tmp/cloned_remote || exit 1
         git remote set-url origin "$github_sshremote"
     }
 
@@ -238,7 +238,7 @@ get_custom_nixcfg() {
     find_configuration_sh() {
         # if given a unique filename, use the filename to source the config variables.
         # find via 'cd' and '.' gives relative path to file that is needed.
-        cd /tmp/cloned_remote || return 1
+        cd /tmp/cloned_remote || exit 1
         find . -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh=$(find . -type f -name "$config_dot_sh") && \
             [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
