@@ -148,9 +148,9 @@ boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 # Copy the kernels to /boot and avoid the issue.
 boot.loader.grub.copyKernels = true;
 
-# Ensure some safeguards are active that zfs uses to protect zfs pools.
-boot.zfs.forceImportAll = false;
-boot.zfs.forceImportRoot = false;
+# Uncomment [on a working system] to ensure extra safeguards are active that zfs uses to protect zfs pools:
+#boot.zfs.forceImportAll = false;
+#boot.zfs.forceImportRoot = false;
 }
 
 ```
