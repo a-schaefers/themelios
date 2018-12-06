@@ -119,7 +119,7 @@ EOF
 }
 
 die() {
-    echo "$1"
+    [ $# -gt 0 ] && printf -- "%s\n" "$*"
     exit 1
 }
 
@@ -191,13 +191,13 @@ get_custom_nixcfg() {
 
     checkout_branch() {
         echo "checking out $github_sshremote"
-        cd /tmp/cloned_remote || exit 1
+        cd /tmp/cloned_remote || die
         git checkout "$git_branch"
     }
 
     switch_github_remotes() {
         echo "switching remote from https to $github_sshremote for user convenience..."
-        cd /tmp/cloned_remote || exit 1
+        cd /tmp/cloned_remote || die
         git remote set-url origin "$github_sshremote"
     }
 
@@ -238,10 +238,10 @@ get_custom_nixcfg() {
     find_configuration_sh() {
         # if given a unique filename, use the filename to source the config variables.
         # find via 'cd' and '.' gives relative path to file that is needed.
-        cd /tmp/cloned_remote || exit 1
+        cd /tmp/cloned_remote || die
         find . -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh=$(find . -type f -name "$config_dot_sh") && \
-            [ ! -e "$config_dot_sh" ] && die "error: themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
+            [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find . -type d -name "$config_dot_sh" | grep "." && \
@@ -357,7 +357,7 @@ uefi_mkfs() {
     # make fat32 for /boot on all disks
     for disk_id in "${zfs_pool_disks[@]}"
     do
-         mkfs.vfat -F32 "$disk_id""$efi_part" || fail_warning
+        mkfs.vfat -F32 "$disk_id""$efi_part" || fail_warning
     done
 
     mkdir /mnt/boot
@@ -618,7 +618,6 @@ EOF
 
     # pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
     [[ ! ${NOUMOUNT} ]] && umount_export
-
     exit
 }
 
