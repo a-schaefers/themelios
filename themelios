@@ -438,7 +438,7 @@ datasets_create() {
 
 bootstrap_nixcfg() {
     echo "moving repo from /tmp to /mnt/$nix_repo_name..."
-    cp -rp /tmp/cloned_remote /mnt/"$nix_repo_name"
+    cp -a /tmp/cloned_remote /mnt/"$nix_repo_name"
 
     # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
