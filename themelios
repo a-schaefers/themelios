@@ -46,7 +46,7 @@ essentially, feed themelios a git repository url that contains a file which has 
 
 # DISK PREPARATION SETTINGS #
 
-use_sgdisk_clear="true"    # use sgdisk --clear
+use_sgdisk_clear="true"    # use sgdisk --zap-all
 use_wipefs_all="true"      # use wipefs --all
 use_zero_disks="false"     # use dd if=/dev/zero ...
 
@@ -270,7 +270,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "clearing disk with sgdisk..."
-            sgdisk --clear "$disk_id" || fail_warning
+            sgdisk --zap-all "$disk_id" || fail_warning
         done
     }
     [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear

@@ -52,7 +52,7 @@ _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github r
 
 # DISK PREPARATION SETTINGS #
 
-use_sgdisk_clear="true"    # use sgdisk --clear
+use_sgdisk_clear="true"    # use sgdisk --zap-all
 use_wipefs_all="true"      # use wipefs --all
 use_zero_disks="false"     # use dd if=/dev/zero ...
 
