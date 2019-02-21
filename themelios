@@ -21,6 +21,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+################################################################################
+# NOTE To The Reader of this script:
+#
+# When I first began creating this script, I learned bash for the first time.
+# Now as a more experienced shell scripter, I know this script needs to be
+# cleaned up and improved. (Many variables need quoting, Useless echo's need removed,
+# there is a lot of unneeded usage of test "[[]]", too many uses of grep and cut where
+# a simple regex or parameter substitution would be more ideal, etc...)
+# but I do not have time clean, improve and then test it properly afterwards.
+# So for now, the script stays as it is.
+#
+# Thank you for understanding! - Adam
+################################################################################
+
+
 usage() {
     cat << EOF
     usage:
@@ -185,7 +201,6 @@ get_custom_nixcfg() {
     # github users' https remote will be switched to ssh remote automatically after initial clone.
     # github users also may use the "shorthand" username/repo-name
 
-    # FIXME grep isn't accurate enough and probably wrong tool for this job.
     github_shorthand=$(echo "$git_remote" | grep -v ".git")
     github_url=$(echo "$git_remote" | grep "github.com")
 
@@ -212,7 +227,6 @@ get_custom_nixcfg() {
 
     if [[ $github_url ]]
     then
-        # FIXME cut will stop working if github ever changes
         github_user=$(echo "$git_remote" | grep github | cut -d '/' -f 4)
         github_repo=$(echo "$git_remote" | grep github | cut -d '/' -f 5)
         github_clone_and_switch
@@ -309,7 +323,6 @@ zpool_create() {
           $zfs_pool_name \
           $zfs_pool_type \
           ${zfs_pool_disks[@]/%/$zpool_partition} || fail_warning
-    # NOTE! quoting the above variables causes __very__ strange zpool create command behavior!
 
     # https://github.com/NixOS/nixpkgs/issues/16954
     zfs set acltype=posixacl "$zfs_pool_name"
@@ -319,9 +332,6 @@ uefi_disk_part() {
     # make 1mb bios boot (for good measure)
     # 1G (for nixos copykern) - shared efi / fat32 boot partition (simplicity)
     # remaining partition for the zpool
-    # more advanced users may want to separate boot and efi partitions and mdadm array the boot part.
-    # I see little advantage because uefi still does not allow raiding the ESP, so I prefer a simple layout.
-    # TL,DR; Use legacy, it is more robust!!!!!!!!
     for disk_id in "${zfs_pool_disks[@]}"
     do
         sgdisk -og "$disk_id"
@@ -334,26 +344,9 @@ uefi_disk_part() {
         sgdisk -p "$disk_id" || fail_warning
         partx -u "$disk_id"
     done
-    # HELP-WANTED I have encountered strange bugs here while developing, possibly only vm-related.
-    # basically, even though i have partx -u already, sometimes linux still isn't able to resolve
-    # the /dev/path/to/disk in the pool create command or with the mkfs.vfat command.
-    # after waiting a bit, or restarting the host machine / vm, running the same command works.
-    # sleep for good measure, just in case.
-    # related: https://github.com/zfsonlinux/zfs/issues/3708
-    echo "Please wait..."
-    sleep 10
 }
 
 uefi_mkfs() {
-    # HELP-WANTED I have encountered strange bugs here while developing, possibly only vm-related.
-    # basically, even though i have partx -u already, sometimes linux still isn't able to resolve
-    # the /dev/path/to/disk in the pool create command or with the mkfs.vfat command.
-    # after waiting a bit, or restarting the host machine / vm, running the same command works.
-    # sleep for good measure, just in case.
-    # related: https://github.com/zfsonlinux/zfs/issues/3708
-    echo "Please wait..."
-    sleep 10
-
     # make fat32 for /boot on all disks
     for disk_id in "${zfs_pool_disks[@]}"
     do
