@@ -536,7 +536,8 @@ weekly = $nix_zfs_extra_auto_snapshot_weekly;
 monthly = $nix_zfs_extra_auto_snapshot_monthly;
 };
 
-# Use gc.automatic with autoSnapshot to keep disk space under control.
+# Use gc.automatic to keep disk space under control.
+nix.autoOptimiseStore = $nix_zfs_extra_auto_optimise_store;
 nix.gc.automatic = $nix_zfs_extra_gc_automatic;
 nix.gc.dates = "$nix_zfs_extra_gc_dates";
 nix.gc.options = "$nix_zfs_extra_gc_options";
