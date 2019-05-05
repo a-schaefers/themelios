@@ -17,6 +17,20 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo-- (and thereby nixos-install's the rest of your operating system.)
 - Aims to fail gracefully with continue and retry options.
 - **Legacy** *and* **UEFI** are now both supported.
+- **ZFS native-encryption is now possible**
+  * See below for details...
+
+## NEWS
+- Sun May  5 01:58:45 PDT 2019
+
+To use native zfs-encryption, use a UEFI bios system. This is needed because themelios will default to using systemd-boot with UEFI, (as GRUB does not support zfs-encryption yet...), and then install using themelios as normal, however, add the following nixos options to your configuration.nix:
+
+```nix
+boot.zfs.enableUnstable = true;
+boot.zfs.requestEncryptionCredentials = true;
+```
+
+After successful installation, simply enable zfs native encryption features by doing a pool upgrade, then you should be able to create zfs native encrypted datasets. I recommend then recreating your $HOME dataset using an encrypted dataset. Be careful to ensure your /etc/nixos/hardware-configuration.nix file is accurate. Finally run a nixos-rebuild switch and reboot. It should ask your for your $HOME dataset password on the next reboot. Good luck.
 
 ## What Themelios does not do (yet)
 - Disk encryption (Let's wait for zfsonlinux native encryption to reach full
