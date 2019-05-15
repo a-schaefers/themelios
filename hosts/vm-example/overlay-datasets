@@ -2,7 +2,7 @@
 datasets_create() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/ROOT
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/ROOT
     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/ROOT/nixos
     mount -t zfs "$zfs_pool_name"/ROOT/nixos /mnt
     zpool set bootfs="$zfs_pool_name"/ROOT/nixos "$zfs_pool_name"
@@ -11,7 +11,7 @@ datasets_create() {
     [[ $uefi_install ]] && uefi_mkfs
 
     slash_nix_outside_root() {
-        zfs create -o mountpoint=none -o canmount=off -o sync=always "$zfs_pool_name"/NIX
+        zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/NIX
         zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/NIX/nix
         mkdir /mnt/nix
         mount -t zfs "$zfs_pool_name"/NIX/nix /mnt/nix
@@ -37,7 +37,6 @@ datasets_create() {
             -o primarycache=metadata \
             -o secondarycache=metadata \
             -o compression=zle \
-            -o sync=always \
             -o logbias=throughput \
             -o com.sun:auto-snapshot=false \
             "$zfs_pool_name"/SWAP
