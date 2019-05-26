@@ -32,10 +32,10 @@ boot.zfs.requestEncryptionCredentials = true;
 
 After successful installation, simply enable zfs native encryption features by doing a pool upgrade, then you should be able to create zfs native encrypted datasets. I recommend then recreating your $HOME dataset using an encrypted dataset. Be careful to ensure your /etc/nixos/hardware-configuration.nix file is accurate. Finally run a nixos-rebuild switch and reboot. It should ask your for your $HOME dataset password on the next reboot. Good luck.
 
-The commands should look something like this:
+The commands to convert $HOME to using zfs encryption should be as follows:
 ```bash
 zfs upgrade -a
-zpool destroy rpool/HOME/home
+zfs destroy rpool/HOME/home
 zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase rpool/HOME/home
 zfs set com.sun:auto-snapshot=true rpool/HOME/home # (ONLY if you intended to use the auto-snapshot service...)
 nixos-rebuild switch
