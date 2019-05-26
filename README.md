@@ -23,7 +23,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 ## NEWS
 - Sun May  5 01:58:45 PDT 2019
 
-To use native zfs-encryption, use a UEFI bios system. This is needed because themelios will default to using systemd-boot with UEFI, (as GRUB does not support zfs-encryption yet...), and then install using themelios as normal, however, add the following nixos options to your configuration.nix:
+To use *native zfs-encryption*, use a UEFI bios system. This is needed because themelios will default to using systemd-boot with UEFI, (as GRUB does not support zfs-encryption yet...), and then install using themelios as normal, however, add the following nixos options to your configuration.nix:
 
 ```nix
 boot.zfs.enableUnstable = true;
@@ -32,9 +32,22 @@ boot.zfs.requestEncryptionCredentials = true;
 
 After successful installation, simply enable zfs native encryption features by doing a pool upgrade, then you should be able to create zfs native encrypted datasets. I recommend then recreating your $HOME dataset using an encrypted dataset. Be careful to ensure your /etc/nixos/hardware-configuration.nix file is accurate. Finally run a nixos-rebuild switch and reboot. It should ask your for your $HOME dataset password on the next reboot. Good luck.
 
+The commands would look something as follows:
+```bash
+zfs upgrade -a
+zpool destroy rpool/HOME/home
+zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase rpool/HOME/home
+nixos-rebuild switch
+reboot
+```
+
+If that doesn't work, report what happened and if you got it working, how you got it working in issue #3:
+https://github.com/a-schaefers/themelios/issues/3
+
 ## What Themelios does not do (yet)
 - Disk encryption (Let's wait for zfsonlinux native encryption to reach full
-maturity before implementing this...)
+maturity *AND* GRUB to support the encryption features before
+implementing Themelios encryption support built-in to the script...)
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
