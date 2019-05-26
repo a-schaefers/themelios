@@ -199,11 +199,13 @@ If you have special [post nixos-install] needs and do not want the script to aut
 ```
 
 ## Debugging
+### How to start over again from the beginning...
 If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
 ```bash
 [root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
 ```
 
+### fetchTarball currently does not work ...
 While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
 
 ## Build Themelios into a custom NixOS rescue iso
