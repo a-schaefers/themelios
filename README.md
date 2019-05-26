@@ -44,10 +44,7 @@ nixos-rebuild switch
 If that doesn't work, report what happened and if you got it working, how you got it working in issue #3:
 https://github.com/a-schaefers/themelios/issues/3
 
-## What Themelios does not do (yet)
-- Disk encryption (Let's wait for zfsonlinux native encryption to reach full
-maturity *AND* GRUB to support the encryption features before
-implementing Themelios encryption support built-in to the script...)
+In the (distant) future, I plan to make this an option to be selected from within the install script itself.
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
