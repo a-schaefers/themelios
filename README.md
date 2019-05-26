@@ -204,6 +204,8 @@ If something goes haywire and you just want to start the process all over withou
 [root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
 ```
 
+While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
+
 ## Build Themelios into a custom NixOS rescue iso
 Save the following somewhere on an already existing NixOS install as iso.nix:
 ```nix
@@ -240,8 +242,3 @@ _Note: It would be best practice to fork the project, audit the script, and modi
 While I do not regard my personal setup to be the ideal for everybody, what follows is to show-case
 [how Themelios can be used to bootstrap multiple, per-machine configurations](https://github.com/a-schaefers/nix-config).
 The goal was simplicity, efficiency, and reproducibility.
-
-## Making contributions
-Check out the [What Themelios does not do](https://github.com/a-schaefers/themelios#what-themelios-does-not-do-yet) section and make PR's. I appreciate all the help I can get!
-
-Thank you!
