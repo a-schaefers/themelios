@@ -166,10 +166,15 @@ uefi_or_legacy() {
     uefi_translate() {
         # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*
         [[ $(echo ${zfs_pool_disks[0]} | grep "/dev/sd") ]] && use_uefi_sdX="1"
+        [[ $(echo ${zfs_pool_disks[0]} | grep "/dev/nvme") ]] && use_uefi_nvme="1"
         if [[ $use_uefi_sdX ]]
         then
             efi_part="2"
             zpool_partition="3"
+        elif [[ $use_uefi_nvme ]]
+        then
+            efi_part="p2"
+            zpool_partition="p3"
         else
             efi_part="-part2"
             zpool_partition="-part3"
