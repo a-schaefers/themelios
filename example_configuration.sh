@@ -21,9 +21,6 @@ zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 # Recommended true for now due to https://github.com/a-schaefers/themelios/issues/1
 zfs_dataset_slashnix_no_root="true"
 
-# Use atime?
-zfs_use_atime="false"            # (recommended "false" for ssd.)
-
 zfs_make_swap="false"            # creates a swap zvol (Not recommended in zfs-land.)
 zfs_swap_size="4G"
 

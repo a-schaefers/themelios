@@ -4,7 +4,7 @@ zpool_create() {
     zpool create -f \
           -o ashift=12 \
           -O compression=lz4 \
-          -O atime=$zfs_use_atime \
+          -O atime=on \
           -O relatime=on \
           -O normalization=formD \
           -O xattr=sa \
