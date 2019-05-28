@@ -8,7 +8,7 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 
 # ZFS POOL SETTINGS #
 
-zfs_pool_name="zroot"
+zfs_pool_name="rpool"
 zfs_pool_type=""           # use "" for single, or "mirror", "raidz1", etc.
 
 # Note: using /dev/disk/by-id is also preferable.

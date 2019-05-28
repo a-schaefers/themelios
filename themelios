@@ -68,7 +68,7 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 
 # ZFS POOL SETTINGS #
 
-zfs_pool_name="zroot"
+zfs_pool_name="rpool"
 zfs_pool_type="mirror"     # use "" for single, or "mirror", "raidz1", etc.
 
 # Note: using /dev/disk/by-id is also preferable.
@@ -615,7 +615,7 @@ EOF
 
 # start executing code !
 
-# rerun script with "STARTOVER=1 POOL=zroot themelios foo bar" to attempt a fresh start.
+# rerun script with "STARTOVER=1 POOL=rpool themelios foo bar" to attempt a fresh start.
 [[ ${STARTOVER} ]] && start_over
 
 # arguments

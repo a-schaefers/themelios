@@ -88,7 +88,7 @@ use_zero_disks="false"     # use dd if=/dev/zero ...
 
 # ZFS POOL SETTINGS #
 
-zfs_pool_name="zroot"
+zfs_pool_name="rpool"
 zfs_pool_type="mirror"     # use "" for single, or "mirror", "raidz1", etc.
 
 # Note: using /dev/disk/by-id is also preferable.
@@ -215,7 +215,7 @@ If you have special [post nixos-install] needs and do not want the script to aut
 ### How to start over again from the beginning...
 If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
 ```bash
-[root@nixos:~] STARTOVER=1 POOL=zroot themelios foo bar
+[root@nixos:~] STARTOVER=1 POOL=rpool themelios foo bar
 ```
 
 ### fetchTarball currently does not work ...
