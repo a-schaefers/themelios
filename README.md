@@ -21,6 +21,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
   * See below for details...
 
 ## NEWS
+### How to manually convert $HOME to use native ZFS encryption
 - Sun May  5 01:58:45 PDT 2019
 
 To use *native zfs-encryption*, use a UEFI bios system. This is needed because themelios will default to using systemd-boot with UEFI, (as GRUB does not support zfs-encryption yet...), and then install using themelios as normal, however, add the following nixos options to your configuration.nix:
