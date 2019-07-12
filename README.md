@@ -23,6 +23,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 ## NEWS
 ### How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
 - Fri Jul 12 15:11:07 PDT 2019
+
 See the end of this readme.md for information regarding how to do this in a very simple way.
 
 ### How to manually convert $HOME to use native ZFS encryption
