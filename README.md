@@ -264,7 +264,7 @@ While I do not regard my personal setup to be the ideal for everybody, what foll
 The goal was simplicity, efficiency, and reproducibility.
 
 ## How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
-One limitation of UEFI / ESP's is that you cannot raid the ESP, and so it is required that /boot be mounted as fat32, outside of the zpool. If your primary (e.g. /dev/sda) disk were to fail in a mirrored configuration, by default, (while you wouldn't lose the copy of your zpool on the mirror), you would lose your bootloader because the mirrored (e.g. /dev/sdb disk) would not have a copy of the /boot files on its' ESP. In any case, it may be worked around by copying all of the files from /boot on the /dev/sda disk to /boot on the /dev/sdb disk every time the files in /boot on the /dev/sda disk are changed. I have created a system service that does this.
+One limitation of UEFI / ESP's is that you cannot raid the ESP, and so it is required that /boot be mounted as fat32, outside of the zpool. If your primary (e.g. /dev/sda) disk were to fail in a mirrored configuration, by default, (while you wouldn't lose the copy of your zpool on the mirror), you would lose your bootloader because the mirrored (e.g. /dev/sdb disk) would not have a copy of the /boot files on its ESP. In any case, it may be worked around by copying all of the files from /boot on the /dev/sda disk to /boot on the /dev/sdb disk every time the files in /boot on the /dev/sda disk are changed. I have created a system service that does this.
 
 On my UEFI mirrored machines, I mount the ESP of the mirror to "/boot2" in /etc/nixos/hardware-configuration.nix
 
