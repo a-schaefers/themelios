@@ -21,6 +21,10 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
   * See below for details...
 
 ## NEWS
+### How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
+- Fri Jul 12 15:11:07 PDT 2019
+See the end of this readme.md for information regarding how to do this in a very simple way.
+
 ### How to manually convert $HOME to use native ZFS encryption
 - Sun May  5 01:58:45 PDT 2019
 
@@ -257,3 +261,57 @@ _Note: It would be best practice to fork the project, audit the script, and modi
 While I do not regard my personal setup to be the ideal for everybody, what follows is to show-case
 [how Themelios can be used to bootstrap multiple, per-machine configurations](https://github.com/a-schaefers/nix-config).
 The goal was simplicity, efficiency, and reproducibility.
+
+## How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
+One limitation of UEFI / ESP's is that you cannot raid the ESP, and so it is required that /boot be mounted as fat32, outside of the zpool. If your primary (e.g. /dev/sda) disk were to fail in a mirrored configuration, by default you would lose your bootloader. In this case, it may be worked around by copying all of the files from /boot on /dev/sda to /boot on /dev/sdb every time the files on /dev/sda are changed. I have created a system service that does just this.
+
+On my UEFI mirrored machines, I mount /dev/sdb to "/boot2" in /etc/nixos/hardware-configuration.nix
+
+```bash
+mkdir /boot2
+mount /dev/sdb /boot2
+nixos-generate-config
+```
+
+Now in configuratiopn.nix create the system service,
+
+```nix
+{ config, ... }:
+# this is a workaround
+# UEFI ESP's have a limitation in that they cannot RAID.
+# this script monitors /boot for changes; and upon change, copies the files to /boot2
+# this keeps the systemd-boot loader in sync for multi-disk arrays.
+let
+copyBootScript = pkgs.writeScriptBin "copyBootScript" ''
+while inotifywait -r -e modify,create,delete /boot
+do
+rm -rf /boot2/* ; cp -a /boot/* /boot2
+done
+'';
+in
+{
+imports = [  ];
+
+systemd.services.copy-boot = {
+path = [ pkgs.inotify-tools ];
+
+after = [ "multi-user.target" ];
+wantedBy = [ "multi-user.target" ];
+script = "${copyBootScript}/bin/copyBootScript";
+serviceConfig = {
+User = "root";
+};
+};
+
+systemd.services.copy-boot.enable = true;
+
+}
+```
+
+Finally update the system so that /dev/sdb2 will be mounted on boot and the copy-boot service will be enabled.
+
+```bash
+nixos-rebuild switch
+```
+
+Now you should be able to `plug and play' the /dev/sdb hard drive anywhere and atleast you will be able to select and boot the current loader from the bios, in emergency situations.
