@@ -266,7 +266,7 @@ The goal was simplicity, efficiency, and reproducibility.
 ## How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
 One limitation of UEFI / ESP's is that you cannot raid the ESP, and so it is required that /boot be mounted as fat32, outside of the zpool. If your primary (e.g. /dev/sda) disk were to fail in a mirrored configuration, by default you would lose your bootloader. In this case, it may be worked around by copying all of the files from /boot on /dev/sda to /boot on /dev/sdb every time the files on /dev/sda are changed. I have created a system service that does just this.
 
-On my UEFI mirrored machines, I mount /dev/sdb to "/boot2" in /etc/nixos/hardware-configuration.nix
+On my UEFI mirrored machines, I mount the ESP of the mirror to "/boot2" in /etc/nixos/hardware-configuration.nix
 
 ```bash
 mkdir /boot2
@@ -274,7 +274,7 @@ mount /dev/sdb2 /boot2
 nixos-generate-config
 ```
 
-Now in configuratiopn.nix create the system service,
+Now in configuration.nix create the system service,
 
 ```nix
 { config, ... }:
