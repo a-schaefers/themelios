@@ -270,7 +270,7 @@ On my UEFI mirrored machines, I mount /dev/sdb to "/boot2" in /etc/nixos/hardwar
 
 ```bash
 mkdir /boot2
-mount /dev/sdb /boot2
+mount /dev/sdb2 /boot2
 nixos-generate-config
 ```
 
