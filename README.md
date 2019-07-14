@@ -21,10 +21,6 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
   * See below for details...
 
 ## NEWS
-### How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
-- Fri Jul 12 15:11:07 PDT 2019
-
-See the end of this readme.md for information regarding how to do this in a very simple way.
 
 ### How to manually convert $HOME to use native ZFS encryption
 - Sun May  5 01:58:45 PDT 2019
@@ -226,95 +222,5 @@ If something goes haywire and you just want to start the process all over withou
 ### fetchTarball currently does not work ...
 While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
 
-## Build Themelios into a custom NixOS rescue iso
-Save the following somewhere on an already existing NixOS install as iso.nix:
-```nix
-{config, pkgs, ...}:
-let
-  themelios = pkgs.writeScriptBin "themelios" ''
-    bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios) $@
-  '';
-in {
-  imports = [
-    <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
-    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
-  ];
-
-  networking = {
-    networkmanager.enable = true;
-    wireless.enable = false; #networkmanager.enable handles this
-  };
-    boot.supportedFilesystems = [ "zfs" ];
-  environment.systemPackages = with pkgs; [ git themelios ];
-}
-```
-
-And build it!
-```bash
-nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix
-```
-
-The generated iso will be found inside the newly created "result/" directory.
-
-_Note: It would be best practice to fork the project, audit the script, and modify the curl url to use your fork._ :)
-
-## Putting it all together (a real-world example)
-While I do not regard my personal setup to be the ideal for everybody, what follows is to show-case
-[how Themelios can be used to bootstrap multiple, per-machine configurations](https://github.com/a-schaefers/nix-config).
-The goal was simplicity, efficiency, and reproducibility.
-
-## How to sync the systemd-boot (UEFI) boot loaders across multiple (ie. mirrored) disks
-One limitation of UEFI is the ESP cannot be inside the zpool and also cannot be raided-- thus requiring /boot be mounted as fat32, outside of the zpool. If your primary (e.g. /dev/sda) disk were to fail in a mirrored configuration, by default, (while you wouldn't lose the copy of your zpool on the mirror), you would lose your bootloader because the mirrored (e.g. /dev/sdb disk) would not have a copy of the /boot files on its ESP. In any case, it may be worked around by copying all of the files from /boot on the /dev/sda disk to /boot on the /dev/sdb disk every time the files in /boot on the /dev/sda disk are changed. I have created a system service that does this.
-
-On my UEFI mirrored machines, I mount the ESP of the mirror to "/boot2" in /etc/nixos/hardware-configuration.nix
-
-```bash
-mkdir /boot2
-mount /dev/sdb2 /boot2
-nixos-generate-config
-```
-
-Now in configuration.nix create the system service,
-
-```nix
-{ config, ... }:
-# this is a workaround
-# UEFI ESP's have a limitation in that they cannot RAID.
-# this script monitors /boot for changes; and upon change, copies the files to /boot2
-# this keeps the systemd-boot loader in sync for multi-disk arrays.
-let
-copyBootScript = pkgs.writeScriptBin "copyBootScript" ''
-while inotifywait -r -e modify,create,delete /boot
-do
-sleep 2 # for good measure
-rm -rf /boot2/* ; cp -a /boot/* /boot2
-done
-'';
-in
-{
-imports = [  ];
-
-systemd.services.copy-boot = {
-path = [ pkgs.inotify-tools ];
-
-after = [ "multi-user.target" ];
-wantedBy = [ "multi-user.target" ];
-script = "${copyBootScript}/bin/copyBootScript";
-serviceConfig = {
-User = "root";
-Restart = "on-failure";
-};
-};
-
-systemd.services.copy-boot.enable = true;
-
-}
-```
-
-Finally update the system so that /dev/sdb2 will be mounted on boot and the copy-boot service will be enabled.
-
-```bash
-nixos-rebuild switch
-```
-
-Now you should be able to `plug and play' the /dev/sdb hard drive anywhere and atleast you will be able to select and boot the current loader from the bios, in emergency situations.
+### home-manager: a common source of bootstrap fails
+At present, if the bootstrap fails due to home-manager, I comment out home-manager section of my configuration in /mnt during the initial bootstrap. Once rebooted, (and so out of the chroot), then I uncomment it and nixos-rebuild switch again.
