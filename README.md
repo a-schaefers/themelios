@@ -206,6 +206,33 @@ nix_zfs_extra_gc_options="--delete-older-than 30d"
 nix_zfs_extra_clean_tmp_dir="true"
 ```
 
+## Build Themelios into a custom NixOS rescue iso
+Save the following somewhere on an already existing NixOS install as iso.nix:
+
+```nix
+{config, pkgs, ...}:
+let
+  themelios = pkgs.writeScriptBin "themelios" ''
+    bash <(curl https://raw.githubusercontent.com/a-schaefers/themelios/master/themelios) $@
+  '';
+in {
+  imports = [
+    <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
+    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
+  ];
+   networking = {
+    networkmanager.enable = true;
+    wireless.enable = false; #networkmanager.enable handles this
+  };
+    boot.supportedFilesystems = [ "zfs" ];
+  environment.systemPackages = with pkgs; [ git themelios ];
+}
+```
+ And build it!
+```bash
+nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix
+```
+
 ## Last things
 If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
 ```bash
