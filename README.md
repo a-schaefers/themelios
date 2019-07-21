@@ -36,15 +36,15 @@ After successful installation, simply enable zfs native encryption features by d
 
 The commands to convert $HOME to using zfs encryption should be as follows:
 ```bash
-zpool upgrade -a && zfs upgrade -a
+zpool upgrade -a
+zfs upgrade -a
 reboot
 
+umount -lR /home
 zfs destroy -r rpool/HOME/home # remember to make BACKUPS first!
 zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase rpool/HOME/home
-mount -t zfs rpool/HOME/home /home # just to confirm everything works before the next reboot...
 zfs set com.sun:auto-snapshot=true rpool/HOME/home # if you intended to use zfs auto-snapshot...
 zpool set autotrim=on rpool # if you are using SSD...
-nixos-rebuild switch
 reboot
 ```
 
