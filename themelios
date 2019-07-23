@@ -48,7 +48,7 @@ contents with a zfs-on-root NixOS installation and bootstrap your configuration.
 }
 
 fail_warning() {
-    read -p "The previous command (!!) failed with exit code: $?. Continue running script? (Y or N) " -n 1 -r
+    read -p "The previous command failed with exit code: $?. Continue running script? (Y or N) " -n 1 -r
     [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
