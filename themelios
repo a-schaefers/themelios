@@ -141,18 +141,16 @@ get_custom_nixcfg() {
         [[ $git_branch ]] && checkout_branch
     fi
 
-    # to find the users configuration.sh file:
-    # first we simply use "./the/path/to/$1" if the user provides it.
-    # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
-    # third we search again for a unique dirname, but only if the filename search turns up nothing,
-    # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
     find_configuration_sh() {
-        # if given a unique filename, use the filename to source the config variables.
-        # find via 'cd' and '.' gives relative path to file that is needed.
+        # to find the users configuration.sh file:
+        # first we simply use "./the/path/to/$1" if the user provides it.
+        # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
+        # third we search again for a unique dirname, but only if the filename search turns up nothing,
+        # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
         cd /tmp/cloned_remote || die
         find . -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh="$(find . -type f -name "$config_dot_sh")" && \
-            [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
+            [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use."
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find . -type d -name "$config_dot_sh" | grep "." && \
