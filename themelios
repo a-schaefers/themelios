@@ -232,7 +232,7 @@ mount_boots() {
     for disk_id in "${zfs_pool_disks[@]}"
     do
         mkfs.vfat -F32 "${disk_id}${boot_part}" || fail_warning
-        mkdir "/mnt/boot${bootnum}"
+        mkdir -p "/mnt/boot${bootnum}"
         mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
         ((bootnum++))
     done
