@@ -7,18 +7,16 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - Automatically installs zfs and git to the livedisk if needed.
 - Clones your git repo, optionally using a non-master branch.
 - Finds your configuration.sh file automatically.
-- Configures a zfs-on-root system to your configuration.sh file specification including the following options:
-  * Uses sgdisk and/or wipefs, or dd to clear your disks.
-  * Creates a single/mirror/raidz1/raidz2/raidz3 zpool.
-  * Configures a zfs-on-root dataset scheme by default.
-  * Optionally generates and imports an /etc/nixos/themelios-zfs.nix which includes sensible settings for zfs-on-root.
-  * Optional "zfs-extra" enables further zfs-support options in NixOS.
-  * Optional "overlay" feature allows easy custom pool creation settings and dataset scheme changes without need to hack on the script directly.
+- Configures a basic ZFS system according to your configuration.sh file specification:
+  * Use sgdisk and/or wipefs, or dd to clear your disks.
+  * Create a single/mirror/raidz1/raidz2/raidz3 zpool.
+  * Install a bootloader to each disk in the pool.
+  * Optionally generate and import /etc/nixos/themelios-zfs.nix which includes sensible settings for zfs-on-root.
+  * Optionally enable "zfs-extra" for further zfs-support options.
 - Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo-- (and thereby nixos-install's the rest of your operating system.)
 - Aims to fail gracefully with continue and retry options.
 - **Legacy** *and* **UEFI** are now both supported.
-- **ZFS native-encryption is now possible**
-  * See below for details...
+- **ZFS native-encryption is now an option in configuration.sh**
 
 ## NEWS
 ### Themelios 2.0
