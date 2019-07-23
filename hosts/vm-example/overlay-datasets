@@ -10,13 +10,10 @@ datasets_create() {
     # for UEFI systems - create/mount the EFI partition to /boot with a fat32 fs.
     [[ $uefi_install ]] && uefi_mkfs
 
-    slash_nix_outside_root() {
         zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/NIX
         zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/NIX/nix
         mkdir /mnt/nix
         mount -t zfs "$zfs_pool_name"/NIX/nix /mnt/nix
-    }
-    [[ $zfs_dataset_slashnix_no_root == "true" ]] && slash_nix_outside_root
 
     mkdir -p /mnt/{home,tmp}
 

@@ -98,10 +98,6 @@ zfs_pool_disks=("/dev/sda" "/dev/sdb")
 # Datasets to be set with com.sun:auto-snapshot=true.
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
-# If true, mount /nix outside of the / (root) dataset.
-# Recommended true for now due to https://github.com/a-schaefers/themelios/issues/1
-zfs_dataset_slashnix_no_root="true"
-
 zfs_make_swap="false"            # creates a swap zvol (Not recommended in zfs-land.)
 zfs_swap_size="4G"
 
