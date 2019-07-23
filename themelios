@@ -168,7 +168,7 @@ uefi_or_legacy() {
         then
             efi_part="2"
             zpool_partition="3"
-        elif [[ $use_uefi_nvme ]]
+        elif [[ $use_uefi_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
         then
             efi_part="p2"
             zpool_partition="p3"
