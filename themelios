@@ -246,16 +246,33 @@ zpool_create() {
     zfs set acltype=posixacl "$zfs_pool_name"
 }
 
-uefi_disk_part() {
-    # 1G (for nixos copykern) - shared efi / fat32 boot partition (simplicity)
-    # remaining partition for the zpool
+# TODO
+legacy_disk_part() {
     for disk_id in "${zfs_pool_disks[@]}"
     do
         sgdisk -og "$disk_id"
-        echo "make efi system partition..."
-        sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || fail_warning
-        echo "making zpool partition..."
-        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || fail_warning
+        echo "make 1G /boot ext2 system partition..."
+        sgdisk -n 1:4096:2101247 -c 1:"EFI System Partition" -t 1:ef00 "$disk_id" || fail_warning
+        echo "making zpool partition with remainder of space..."
+        sgdisk -n 2:2101248:"$(sgdisk -E "$disk_id")" -c 2:"Linux ZPOOL Partition" -t 2:8300 "$disk_id" || fail_warning
+        sgdisk -p "$disk_id" || fail_warning
+        partx -u "$disk_id"
+
+        # bios boot partition for grub
+        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" "$disk_id" || fail_warning
+        partx -u "$disk_id"
+    done
+}
+
+
+uefi_disk_part() {
+    for disk_id in "${zfs_pool_disks[@]}"
+    do
+        sgdisk -og "$disk_id"
+        echo "make 1G /boot fat32 ESP..."
+        sgdisk -n 1:4096:2101247 -c 1:"EFI System Partition" -t 1:ef00 "$disk_id" || fail_warning
+        echo "making zpool partition with remainder of space..."
+        sgdisk -n 2:2101248:"$(sgdisk -E "$disk_id")" -c 2:"Linux ZPOOL Partition" -t 2:8300 "$disk_id" || fail_warning
         sgdisk -p "$disk_id" || fail_warning
         partx -u "$disk_id"
     done
@@ -272,13 +289,16 @@ uefi_mkfs() {
     mount "${zfs_pool_disks[0]}""$efi_part" /mnt/boot
 }
 
-create_bios_boot_partitions() {
+# TODO raid this
+legacy_mkfs() {
+    # make /boot on all disks
     for disk_id in "${zfs_pool_disks[@]}"
     do
-        echo "creating bios boot partition..."
-        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" "$disk_id" || fail_warning
-        partx -u "$disk_id"
+        mkfs.ext2 "$disk_id""$efi_part" || fail_warning
     done
+
+    mkdir /mnt/boot
+    mount "${zfs_pool_disks[0]}""$efi_part" /mnt/boot
 }
 
 datasets_create() {
@@ -289,8 +309,9 @@ datasets_create() {
     mount -t zfs "$zfs_pool_name"/ROOT/nixos /mnt
     zpool set bootfs="$zfs_pool_name"/ROOT/nixos "$zfs_pool_name"
 
-    # for UEFI systems - create/mount the EFI partition to /boot with a fat32 fs.
+    # create/mount /boot
     [[ $uefi_install ]] && uefi_mkfs
+    [[ ! $uefi_install ]] && legacy_mkfs
 
     # mount /nix outside of the root dataset
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/NIX
@@ -540,8 +561,9 @@ uefi_or_legacy
 # use sgdisk wipefs and dd tools to cleanup old disks.
 disk_prep
 
-# if uefi partition disks for a uefi disk scheme
+# partition disks
 [[ $uefi_install ]] && uefi_disk_part
+[[ ! $uefi_install ]] && legacy_disk_part
 
 # create default zpool or maybe-use optional user overlay instead.
 if [[ -f $zfs_pool_overlay_file ]]
@@ -550,8 +572,6 @@ then
 else
     zpool_create
 fi
-
-[[ ! $uefi_install ]] && create_bios_boot_partitions
 
 # create default datasets or maybe-use optional user overlay instead.
 if [[ -f $zfs_dataset_overlay_file ]]
