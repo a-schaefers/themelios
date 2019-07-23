@@ -142,7 +142,6 @@ get_custom_nixcfg() {
     fi
 
     find_configuration_sh() {
-        # to find the users configuration.sh file:
         # first we simply use "./the/path/to/$1" if the user provides it.
         # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
         # third we search again for a unique dirname, but only if the filename search turns up nothing,
@@ -151,12 +150,9 @@ get_custom_nixcfg() {
         find . -type f -name "$config_dot_sh" | grep "." && \
             config_dot_sh="$(find . -type f -name "$config_dot_sh")" && \
             [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use."
-
-        # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find . -type d -name "$config_dot_sh" | grep "." && \
             config_dot_sh="$(find . -type d -name "$config_dot_sh")/configuration.sh"
     }
-    # if not given a path with slashes to a configuration.sh file, then use find.
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
 
     source "$config_dot_sh" || die "$config_dot_sh file not found."
