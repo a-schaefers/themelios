@@ -65,8 +65,8 @@ uefi_or_legacy() {
 
     uefi_translate() {
         # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*
-        [[ $(echo ${zfs_pool_disks[0]} | grep "/dev/sd") ]] && use_uefi_sdX="1"
-        [[ $(echo ${zfs_pool_disks[0]} | grep "/dev/nvme") ]] && use_uefi_nvme="1"
+        echo "${zfs_pool_disks[0]}" | grep -q "/dev/sd" && use_uefi_sdX="1"
+        echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_uefi_nvme="1"
         if [[ $use_uefi_sdX ]]
         then
             efi_part="2"
@@ -79,7 +79,7 @@ uefi_or_legacy() {
             efi_part="-part2"
             zpool_partition="-part3"
         fi
-    }
+}
     [[ $uefi_install ]] && uefi_translate
 }
 
@@ -163,7 +163,7 @@ get_custom_nixcfg() {
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find . -type d -name "$config_dot_sh" | grep "." && \
-            config_dot_sh=$(echo $(find . -type d -name "$config_dot_sh")/configuration.sh)
+            config_dot_sh=$(find . -type d -name "$config_dot_sh")/configuration.sh
     }
     # if not given a path with slashes to a configuration.sh file, then use find.
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
@@ -437,7 +437,7 @@ EOF
 
     # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
     nixos-install-show-trace() {
-        nixos-install --root /mnt --show-trace $nix_install_opts || nixos-install_fail_retry
+        nixos-install "--root /mnt --show-trace $nix_install_opts" || nixos-install_fail_retry
     }
 
     nixos-install_fail_retry() {
@@ -454,7 +454,7 @@ EOF
 
     install() {
         echo "executing nixos-install --root /mnt"
-        nixos-install --root /mnt $nix_install_opts || nixos-install_fail_retry
+        nixos-install "--root /mnt $nix_install_opts" || nixos-install_fail_retry
     }
 
     install
@@ -517,7 +517,6 @@ initial_warning
 # install zfs if needed to the livedisk.
 command -v zfs || bootstrap_zfs
 
-
 # install git if needed to the livedisk.
 command -v git || bootstrap_git
 
@@ -543,7 +542,7 @@ zpool_create
 # create datasets
 datasets_create
 
-# bootstrap the users custom nix configurations.
+# bootstrap the users custom nix configurations
 bootstrap_nixcfg
 
 # may you have a happy hacking. :)
