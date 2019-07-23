@@ -95,10 +95,8 @@ bootstrap_git() {
 get_custom_nixcfg() {
     # clone the declared repo from git_remote ($2)
     # optional git_branch ($3) may be used additionally for all users who need to build from a non-master branch.
-
     # github users' https remote will be switched to ssh remote automatically after initial clone.
     # github users also may use the "shorthand" username/repo-name
-
     github_shorthand="$(echo "$git_remote" | grep -v ".git")"
     github_url="$(echo "$git_remote" | grep "github.com")"
 
@@ -223,6 +221,7 @@ disk_part() {
 }
 
 mount_boots() {
+    bootnum=""
     for disk_id in "${zfs_pool_disks[@]}"
     do
         mkfs.vfat -F32 "${disk_id}${boot_part}" || fail_warning
@@ -291,27 +290,18 @@ bootstrap_nixcfg() {
     nix_top_level_configuration="${nix_top_level_configuration%/}"
 
     # create /mnt/etc/nixos/configuration.nix and import user's top_level_nixfile.
-    # maybe create /mnt/etc/nixos/zfs-configuration.nix
-    # maybe append extra configured options to zfs-configuration.nix
-    # maybe populate configuration.nix networking.host_id = \"$zfs_host_id\";
-    if [[ $nix_zfs_configuration_enabled == "true" ]]
-    then
-        maybe_create_zfs_configuration="./zfs-configuration.nix"
-    else
-        maybe_append_host_id="networking.host_id = \"$zfs_host_id\";"
-    fi
     cat << EOF > /mnt/etc/nixos/configuration.nix
 { ... }:
 { imports = [
 ../../$nix_repo_name/$nix_top_level_configuration
 ./hardware-configuration.nix
-$maybe_create_zfs_configuration
+./zfs-configuration.nix
 ];
-$maybe_append_host_id
 }
 EOF
 
-    [[ $nix_zfs_configuration_enabled == "true" ]] && cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
+    # create /mnt/etc/nixos/zfs-configuration.nix
+    cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
 { ... }:
 { imports = [];
 boot.supportedFilesystems = [ "zfs" ];
@@ -324,7 +314,34 @@ efi = {
 canTouchEfiVariables = true;
 efiSysMountPoint = "/boot"; # use the same mount point here.
 };
-systemd-boot.enable = true; # (for UEFI systems only)
+grub = {
+copyKernels = true;
+efiSupport = true;
+enable = true;
+version = 2;
+
+devices = [
+$(for disk_id in "${zfs_pool_disks[@]}"
+do
+echo "\"$disk_id\""
+done)
+];
+
+$(if [ ${#zfs_pool_disks[@]} -gt 1 ]
+then
+cat <<- MIRROREDBOOTS
+mirroredBoots = [
+$(bootnum=""
+for disk_id in "${zfs_pool_disks[@]}"
+do
+echo "{devices = [ \"${disk_id}${boot_part}\" ]; path = \"/boot${bootnum}\";}"
+((bootnum++))
+done)
+MIRROREDBOOTS
+];
+fi)
+
+};
 };
 
 UEFI
@@ -339,6 +356,20 @@ do
 echo "\"$disk_id\""
 done)
 ];
+
+$(if [ ${#zfs_pool_disks[@]} -gt 1 ]
+then
+cat <<- MIRROREDBOOTS
+mirroredBoots = [
+$(bootnum=""
+for disk_id in "${zfs_pool_disks[@]}"
+do
+echo "{devices = [ \"${disk_id}${boot_part}\" ]; path = \"/boot${bootnum}\";}"
+((bootnum++))
+done)
+MIRROREDBOOTS
+];
+fi)
 
 LEGACY
 fi)
@@ -461,27 +492,3 @@ zpool_create
 mount_create_datasets
 bootstrap_nixcfg
 installation_complete
-
-# TODO
-# boot.loader.grub.mirroredBoots
-# boot.loader = {
-#     efi = {
-#         canTouchEfiVariables = true;
-#         efiSysMountPoint = "/boot"; # use the same mount point here.
-#     };
-#     # systemd-boot.enable = true; # (for UEFI systems only)
-
-#     grub.copyKernels = true;
-#     grub.efiSupport = true;
-#     grub.enable = true;
-#     grub.version = 2;
-#     grub.devices = [
-#         "/dev/sda"
-#         "/dev/sdb"
-#     ];
-#     grub.mirroredBoots = [
-#         {devices = [ "/dev/sda2" ]; path = "/boot1";}
-#         {devices = [ "/dev/sdb2" ]; path = "/boot";}
-#     ];
-
-# };

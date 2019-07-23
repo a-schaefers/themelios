@@ -11,7 +11,7 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
   * Use sgdisk and/or wipefs, or dd to clear your disks.
   * Create a single/mirror/raidz1/raidz2/raidz3 zpool.
   * Install a bootloader to each disk in the pool.
-  * Optionally generate and import /etc/nixos/themelios-zfs.nix which includes sensible settings for zfs-on-root.
+  * Creates generate and import /etc/nixos/zfs-configuration.nix which includes sensible settings for zfs-on-root.
   * Optionally enable "zfs-extra" for further zfs-support options.
 - Generates an /etc/nixos/configuration.nix which imports your top-level-nixfile from your repo-- (and thereby nixos-install's the rest of your operating system.)
 - Aims to fail gracefully with continue and retry options.

@@ -38,9 +38,6 @@ nix_repo_name="nix-config"
 # Optionally inserted as "nixos-install --root /mnt $nix_install_opts"
 nix_install_opts=""
 
-# Creates /etc/nixos/zfs-configuration.nix with sensible settings.
-nix_zfs_configuration_enabled="true"
-
 # Enable "extra" options [below] in addition to zfs_configuration?
 nix_zfs_configuration_extra_enabled="true"
 
