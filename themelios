@@ -21,22 +21,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-################################################################################
-# NOTE To The Reader of this script:
-#
-# When I first began creating this script, I learned bash for the first time.
-# Now as a more experienced shell scripter, I know this script needs to be
-# cleaned up and improved. (Many variables need quoting, Useless echo's need removed,
-# there is a lot of unneeded usage of test "[[]]", too many uses of grep and cut where
-# a simple regex or parameter substitution would be more ideal, etc...)
-# but I do not have time clean, improve and then test it properly afterwards.
-# So for now, the script stays as it is.
-#
-# Thank you for understanding! - Adam
-################################################################################
-
-
 usage() {
     cat << EOF
     usage:
@@ -582,3 +566,6 @@ bootstrap_nixcfg
 
 # may you have a happy hacking. :)
 thank_you
+
+# TODO
+# boot.loader.grub.mirroredBoots
