@@ -48,7 +48,9 @@ _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github r
 
 **TL;DR. Feed Themelios a git repository url that contains a [configuration.sh](https://github.com/a-schaefers/themelios/blob/testing/example_configuration.sh) file:**
 
-## Build Themelios into a custom NixOS rescue iso
+## Tips & Tricks
+
+### Build Themelios into a custom NixOS rescue iso
 Save the following somewhere on an already existing NixOS install as iso.nix:
 
 ```nix
@@ -75,18 +77,7 @@ in {
 nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix
 ```
 
-## Last things
-If you have special [post nixos-install] needs and do not want the script to automatically umount /mnt, export zpool, and ask to reboot, pass NOUMOUNT=1 to the script.
-```bash
-[root@nixos:~] NOUMOUNT=1 themelios foo bar ...
-```
-
-## Debugging
-### How to start over again from the beginning...
-If something goes haywire and you just want to start the process all over without rebooting the machine, you could try the following:
-```bash
-[root@nixos:~] STARTOVER=1 POOL=rpool themelios foo bar
-```
+## [non-]Issues
 
 ### fetchTarball currently does not work ...
 While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
