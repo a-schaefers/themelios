@@ -99,8 +99,8 @@ get_custom_nixcfg() {
     # github users' https remote will be switched to ssh remote automatically after initial clone.
     # github users also may use the "shorthand" username/repo-name
 
-    github_shorthand=$(echo "$git_remote" | grep -v ".git")
-    github_url=$(echo "$git_remote" | grep "github.com")
+    github_shorthand="$(echo "$git_remote" | grep -v ".git")"
+    github_url="$(echo "$git_remote" | grep "github.com")"
 
     checkout_branch() {
         echo "checking out $github_sshremote"
@@ -125,14 +125,14 @@ get_custom_nixcfg() {
 
     if [[ $github_url ]]
     then
-        github_user=$(echo "$git_remote" | grep github | cut -d '/' -f 4)
-        github_repo=$(echo "$git_remote" | grep github | cut -d '/' -f 5)
+        github_user="$(echo "$git_remote" | grep github | cut -d '/' -f 4)"
+        github_repo="$(echo "$git_remote" | grep github | cut -d '/' -f 5)"
         github_clone_and_switch
 
     elif [[ $github_shorthand ]]
     then
-        github_user=$(echo "$git_remote" | cut -d '/' -f 1)
-        github_repo=$(echo "$git_remote" | cut -d '/' -f 2)
+        github_user="$(echo "$git_remote" | cut -d '/' -f 1)"
+        github_repo="$(echo "$git_remote" | cut -d '/' -f 2)"
         github_clone_and_switch
 
     else
@@ -151,12 +151,12 @@ get_custom_nixcfg() {
         # find via 'cd' and '.' gives relative path to file that is needed.
         cd /tmp/cloned_remote || die
         find . -type f -name "$config_dot_sh" | grep "." && \
-            config_dot_sh=$(find . -type f -name "$config_dot_sh") && \
+            config_dot_sh="$(find . -type f -name "$config_dot_sh")" && \
             [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use. in this case, feed themelios ./the/entire/path to the configuration.sh file you are trying to use with startover=1 pool=$zfs_pool_name and try again."
 
         # if given a unique dirname, use unique_dirname/configuration.sh convention to source the variables.
         find . -type d -name "$config_dot_sh" | grep "." && \
-            config_dot_sh=$(find . -type d -name "$config_dot_sh")/configuration.sh
+            config_dot_sh="$(find . -type d -name "$config_dot_sh")/configuration.sh"
     }
     # if not given a path with slashes to a configuration.sh file, then use find.
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
@@ -292,9 +292,9 @@ bootstrap_nixcfg() {
     echo "$zfs_host_id"
 
     # strip potential prefixed './'
-    nix_top_level_configuration=$(echo "$nix_top_level_configuration" | sed 's|^./||')
+    nix_top_level_configuration="$(echo "$nix_top_level_configuration" | sed 's|^./||')"
     # strip potential trailing '/'
-    nix_top_level_configuration=${nix_top_level_configuration%/}
+    nix_top_level_configuration="${nix_top_level_configuration%/}"
 
     # create /mnt/etc/nixos/configuration.nix and import user's top_level_nixfile.
     # maybe create /mnt/etc/nixos/zfs-configuration.nix
