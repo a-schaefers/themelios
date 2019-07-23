@@ -57,7 +57,7 @@ die() {
 
 start_over() {
     rm -rf /tmp/cloned_remote
-    umount -R /mnt
+    umount -lR /mnt
     swapoff /dev/zvol/"$POOL"/swap/swap0 # # TODO use regular swap zswap sucks
     zpool destroy "$POOL"
 }
@@ -514,7 +514,7 @@ EOF
         # [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
 
         echo "unmounting /mnt"
-        umount -R /mnt
+        umount -lR /mnt
 
         echo "exporting $zfs_pool_name"
         zpool export "$zfs_pool_name"
