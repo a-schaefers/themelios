@@ -69,14 +69,14 @@ uefi_or_legacy() {
         echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_uefi_nvme="1"
         if [[ $use_uefi_sdX ]]
         then
-            efi_part="2"
+            boot_part="2"
             zpool_partition="3"
         elif [[ $use_uefi_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
         then
-            efi_part="p2"
+            boot_part="p2"
             zpool_partition="p3"
         else
-            efi_part="-part2"
+            boot_part="-part2"
             zpool_partition="-part3"
         fi
 }
@@ -221,89 +221,62 @@ zpool_create() {
 }
 
 # TODO
-legacy_disk_part() {
+disk_part() {
     for disk_id in "${zfs_pool_disks[@]}"
     do
         sgdisk -og "$disk_id"
-        echo "make 1G /boot ext2 system partition..."
-        sgdisk -n 1:4096:2101247 -c 1:"EFI System Partition" -t 1:ef00 "$disk_id" || fail_warning
-        echo "making zpool partition with remainder of space..."
-        sgdisk -n 2:2101248:"$(sgdisk -E "$disk_id")" -c 2:"Linux ZPOOL Partition" -t 2:8300 "$disk_id" || fail_warning
-        sgdisk -p "$disk_id" || fail_warning
-        partx -u "$disk_id"
-
-        # bios boot partition for grub
+        echo "making bios boot partition..."
         sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" "$disk_id" || fail_warning
-        partx -u "$disk_id"
-    done
-}
-
-
-uefi_disk_part() {
-    for disk_id in "${zfs_pool_disks[@]}"
-    do
-        sgdisk -og "$disk_id"
-        echo "make 1G /boot fat32 ESP..."
-        sgdisk -n 1:4096:2101247 -c 1:"EFI System Partition" -t 1:ef00 "$disk_id" || fail_warning
+        echo "making 1G /boot fat32 ESP..."
+        sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || fail_warning
         echo "making zpool partition with remainder of space..."
-        sgdisk -n 2:2101248:"$(sgdisk -E "$disk_id")" -c 2:"Linux ZPOOL Partition" -t 2:8300 "$disk_id" || fail_warning
+        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || fail_warning
         sgdisk -p "$disk_id" || fail_warning
         partx -u "$disk_id"
     done
 }
 
-uefi_mkfs() {
+# TODO
+mount_boots() {
     # make fat32 for /boot on all disks
     for disk_id in "${zfs_pool_disks[@]}"
     do
-        mkfs.vfat -F32 "$disk_id""$efi_part" || fail_warning
+        mkfs.vfat -F32 "${disk_id}${boot_part}" || fail_warning
+        mkdir "/mnt/boot${bootnum}"
+        mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
+        ((bootnum++))
     done
-
-    mkdir /mnt/boot
-    mount "${zfs_pool_disks[0]}""$efi_part" /mnt/boot
 }
 
-# TODO raid this
-legacy_mkfs() {
-    # make /boot on all disks
-    for disk_id in "${zfs_pool_disks[@]}"
-    do
-        mkfs.ext2 "$disk_id""$efi_part" || fail_warning
-    done
-
-    mkdir /mnt/boot
-    mount "${zfs_pool_disks[0]}""$efi_part" /mnt/boot
-}
-
-datasets_create() {
+mount_create_datasets() {
     echo "Creating and mounting datasets in /mnt..."
     # / (root) datasets
-    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/ROOT
-    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/ROOT/nixos
-    mount -t zfs "$zfs_pool_name"/ROOT/nixos /mnt
-    zpool set bootfs="$zfs_pool_name"/ROOT/nixos "$zfs_pool_name"
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/ROOT"
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/ROOT/nixos"
+    mount -t zfs "$zfs_pool_name/ROOT/nixos" /mnt
+    zpool set bootfs="$zfs_pool_name/ROOT/nixos" "$zfs_pool_name"
 
     # create/mount /boot
     [[ $uefi_install ]] && uefi_mkfs
     [[ ! $uefi_install ]] && legacy_mkfs
 
     # mount /nix outside of the root dataset
-    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/NIX
-    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/NIX/nix
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/NIX"
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/NIX/nix"
     mkdir /mnt/nix
-    mount -t zfs "$zfs_pool_name"/NIX/nix /mnt/nix
+    mount -t zfs "$zfs_pool_name/NIX/nix" /mnt/nix
 
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/HOME
     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/HOME/home
-    mount -t zfs "$zfs_pool_name"/HOME/home /mnt/home
+    mount -t zfs "$zfs_pool_name/HOME/home" /mnt/home
 
     # /tmp datasets
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/TMP
     zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name"/TMP/tmp
-    mount -t zfs "$zfs_pool_name"/TMP/tmp /mnt/tmp
+    mount -t zfs "$zfs_pool_name/TMP/tmp" /mnt/tmp
 
     zfs_auto_snapshot() {
         for dataset in "${zfs_auto_snapshot[@]}"
@@ -454,7 +427,7 @@ EOF
     install
 }
 
-thank_you() {
+installation_complete() {
     cat << EOF
     nnnnnnnn        nnnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
     n:::::::n       n::::::ni::::::::ix:::::x       x:::::x
@@ -509,12 +482,11 @@ command -v git || bootstrap_git
 get_custom_nixcfg
 uefi_or_legacy
 disk_prep
-[[ $uefi_install ]] && uefi_disk_part
-[[ ! $uefi_install ]] && legacy_disk_part
+mount_boots
 zpool_create
-datasets_create
+mount_create_datasets
 bootstrap_nixcfg
-thank_you
+installation_complete
 
 # TODO
 # boot.loader.grub.mirroredBoots
