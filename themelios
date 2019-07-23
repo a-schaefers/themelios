@@ -501,51 +501,25 @@ EOF
 
 # start executing code !
 
-# rerun script with "STARTOVER=1 POOL=rpool themelios foo bar" to attempt a fresh start.
-[[ ${STARTOVER} ]] && start_over
-
-# arguments
 [[ $# -lt 2 ]] && usage
 [[ $# -gt 3 ]] && usage
 config_dot_sh=$1
 git_remote=$2
 git_branch=$3
+[[ ${STARTOVER} ]] && start_over
 
-# warn user of potential doom.
 initial_warning
-
-# install zfs if needed to the livedisk.
 command -v zfs || bootstrap_zfs
-
-# install git if needed to the livedisk.
 command -v git || bootstrap_git
-
-# reconfigure nix livedisk if needed.
 [[ $needs_switch ]] && switch_if_needed
-
-# clone the repo and get all of the configuration information.
 get_custom_nixcfg
-
-# check for legacy or uefi bios.
 uefi_or_legacy
-
-# use sgdisk wipefs and dd tools to cleanup old disks.
 disk_prep
-
-# partition disks
 [[ $uefi_install ]] && uefi_disk_part
 [[ ! $uefi_install ]] && legacy_disk_part
-
-# create zpool
 zpool_create
-
-# create datasets
 datasets_create
-
-# bootstrap the users custom nix configurations
 bootstrap_nixcfg
-
-# may you have a happy hacking. :)
 thank_you
 
 # TODO
