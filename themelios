@@ -39,13 +39,6 @@ die() {
     exit 1
 }
 
-start_over() {
-    rm -rf /tmp/cloned_remote
-    umount -lR /mnt
-    swapoff /dev/zvol/"$POOL"/swap/swap0 # # TODO use regular swap zswap sucks
-    zpool destroy "$POOL"
-}
-
 initial_warning() {
     echo "WARNING: The following script intends to replace all of your disk(s) \
 contents with a zfs-on-root NixOS installation and bootstrap your configuration.nix."
@@ -79,7 +72,7 @@ uefi_or_legacy() {
             boot_part="-part2"
             zpool_partition="-part3"
         fi
-}
+    }
     [[ $uefi_install ]] && uefi_translate
 }
 
@@ -220,7 +213,6 @@ zpool_create() {
     zfs set acltype=posixacl "$zfs_pool_name"
 }
 
-# TODO
 disk_part() {
     for disk_id in "${zfs_pool_disks[@]}"
     do
@@ -236,9 +228,7 @@ disk_part() {
     done
 }
 
-# TODO
 mount_boots() {
-    # make fat32 for /boot on all disks
     for disk_id in "${zfs_pool_disks[@]}"
     do
         mkfs.vfat -F32 "${disk_id}${boot_part}" || fail_warning
@@ -447,23 +437,14 @@ installation_complete() {
     nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
 EOF
 
-    umount_export() {
-        # TODO use regular swap zswap sucks
-        # [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
+    echo "unmounting /mnt"
+    umount -lR /mnt
 
-        echo "unmounting /mnt"
-        umount -lR /mnt
+    echo "exporting $zfs_pool_name"
+    zpool export "$zfs_pool_name"
 
-        echo "exporting $zfs_pool_name"
-        zpool export "$zfs_pool_name"
-
-        read -p "finished. reboot now? (y or n) " -n 1 -r
-        [[ $REPLY =~ ^[Yy]$ ]] && reboot
-    }
-
-    # pass NOUMOUNT=1 to not unmount /mnt or export the pool after install automatically
-    [[ ! ${NOUMOUNT} ]] && umount_export
-    exit
+    read -p "finished. reboot now? (y or n) " -n 1 -r
+    [[ $REPLY =~ ^[Yy]$ ]] && reboot
 }
 
 # start executing code !
@@ -473,7 +454,6 @@ EOF
 config_dot_sh=$1
 git_remote=$2
 git_branch=$3
-[[ ${STARTOVER} ]] && start_over
 
 initial_warning
 command -v zfs || bootstrap_zfs
