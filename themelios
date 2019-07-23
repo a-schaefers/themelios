@@ -317,22 +317,16 @@ datasets_create() {
 
 bootstrap_nixcfg() {
     echo "moving repo from /tmp to /mnt/$nix_repo_name..."
-    cp -a /tmp/cloned_remote /mnt/"$nix_repo_name"
+    cp -a /tmp/cloned_remote "/mnt/$nix_repo_name"
 
     # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
     echo "executing nixos-generate-config --root /mnt"
     nixos-generate-config --root /mnt || fail_warning
 
-    # give a chance for advanced user who is hacking the script in the case of
-    # installation into an already created pool to pass his already existing hostid to script. :)
-    [[ ! $zfs_host_id ]] && zfs_host_id="random"
-    hostid_generate() {
-        echo "generating random hostid..."
-        zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
-        echo "$zfs_host_id"
-    }
-    [[ $zfs_host_id == "random" ]] && hostid_generate
+    echo "generating random hostid..."
+    zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
+    echo "$zfs_host_id"
 
     # strip potential prefixed './'
     nix_top_level_configuration=$(echo "$nix_top_level_configuration" | sed 's|^./||')
