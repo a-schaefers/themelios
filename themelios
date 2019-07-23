@@ -226,7 +226,7 @@ disk_part() {
     do
         sgdisk -og "$disk_id"
         echo "making bios boot partition..."
-        sgdisk -a1 -n2:48:2047 -t2:ef02 -c2:"bios boot partition" "$disk_id" || fail_warning
+        sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"bios boot partition" "$disk_id" || fail_warning
         echo "making 1G /boot fat32 ESP..."
         sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || fail_warning
         echo "making zpool partition with remainder of space..."
