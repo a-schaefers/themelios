@@ -153,7 +153,6 @@ get_custom_nixcfg() {
     # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
     # third we search again for a unique dirname, but only if the filename search turns up nothing,
     # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
-    # finally, in all cases no matter what we use, we also need to setup optional overlay files which must be beside configuration.sh, wherever that may be.
     find_configuration_sh() {
         # if given a unique filename, use the filename to source the config variables.
         # find via 'cd' and '.' gives relative path to file that is needed.
@@ -170,14 +169,6 @@ get_custom_nixcfg() {
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
 
     source "$config_dot_sh" || die "$config_dot_sh file not found."
-
-    #############
-    # parse the newly received $config_dot_sh variables
-    #############
-
-    # prepare optional overlay locations based on where the users configuration.sh is.
-    zfs_pool_overlay_file=${config_dot_sh%/*}/$zfs_pool_overlay_file
-    zfs_dataset_overlay_file=${config_dot_sh%/*}/$zfs_dataset_overlay_file
 }
 
 disk_prep() {
@@ -546,21 +537,11 @@ disk_prep
 [[ $uefi_install ]] && uefi_disk_part
 [[ ! $uefi_install ]] && legacy_disk_part
 
-# create default zpool or maybe-use optional user overlay instead.
-if [[ -f $zfs_pool_overlay_file ]]
-then
-    source $zfs_pool_overlay_file
-else
-    zpool_create
-fi
+# create zpool
+zpool_create
 
-# create default datasets or maybe-use optional user overlay instead.
-if [[ -f $zfs_dataset_overlay_file ]]
-then
-    source $zfs_dataset_overlay_file
-else
-    datasets_create
-fi
+# create datasets
+datasets_create
 
 # bootstrap the users custom nix configurations.
 bootstrap_nixcfg
