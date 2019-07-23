@@ -524,10 +524,11 @@ git_branch=$3
 initial_warning
 
 # install zfs if needed to the livedisk.
-which zfs > /dev/null 2>&1 || bootstrap_zfs
+command -v zfs || bootstrap_zfs
+
 
 # install git if needed to the livedisk.
-which git > /dev/null 2>&1 || bootstrap_git
+command -v git || bootstrap_git
 
 # reconfigure nix livedisk if needed.
 [[ $needs_switch ]] && switch_if_needed
