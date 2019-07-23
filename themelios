@@ -77,6 +77,7 @@ zfs_pool_disks=("/dev/sda" "/dev/sdb")
 # Datasets to be set with com.sun:auto-snapshot=true.
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT")
 
+# TODO use regular swap zswap sucks
 zfs_make_swap="false"            # creates a swap zvol (Not recommended in zfs-land.)
 zfs_swap_size="4G"
 
@@ -135,7 +136,7 @@ die() {
 start_over() {
     rm -rf /tmp/cloned_remote
     umount -R /mnt
-    swapoff /dev/zvol/"$POOL"/swap/swap0
+    swapoff /dev/zvol/"$POOL"/swap/swap0 # # TODO use regular swap zswap sucks
     zpool destroy "$POOL"
 }
 
@@ -387,27 +388,6 @@ datasets_create() {
     zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name"/TMP/tmp
     mount -t zfs "$zfs_pool_name"/TMP/tmp /mnt/tmp
 
-    # swap option
-    create_zswap() {
-        echo "Creating ZSWAP volume and turning on swap..."
-        zfs create \
-            -o primarycache=metadata \
-            -o secondarycache=metadata \
-            -o compression=zle \
-            -o logbias=throughput \
-            -o com.sun:auto-snapshot=false \
-            "$zfs_pool_name"/SWAP
-
-        zfs create \
-            -V "$zfs_swap_size" \
-            -b "$(getconf PAGESIZE)" \
-            "$zfs_pool_name"/SWAP/swap0
-
-        mkswap -f /dev/zvol/"$zfs_pool_name"/SWAP/swap0
-        swapon /dev/zvol/"$zfs_pool_name"/SWAP/swap0
-    }
-    [[ $zfs_make_swap == "true" ]] && create_zswap
-
     zfs_auto_snapshot() {
         for dataset in "${zfs_auto_snapshot[@]}"
         do
@@ -587,7 +567,8 @@ thank_you() {
 EOF
 
     umount_export() {
-        [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
+        # TODO use regular swap zswap sucks
+        # [[ $zfs_make_swap == "true" ]] && swapoff /dev/zvol/"$zfs_pool_name"/swap/swap0
 
         echo "unmounting /mnt"
         umount -R /mnt
