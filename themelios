@@ -194,7 +194,6 @@ get_custom_nixcfg() {
     # prepare optional overlay locations based on where the users configuration.sh is.
     zfs_pool_overlay_file=${config_dot_sh%/*}/$zfs_pool_overlay_file
     zfs_dataset_overlay_file=${config_dot_sh%/*}/$zfs_dataset_overlay_file
-    postinstall_overlay_file=${config_dot_sh%/*}/$postinstall_overlay_file
 }
 
 disk_prep() {
@@ -487,9 +486,6 @@ EOF
 }
 
 thank_you() {
-    # give the user one last chance to do things
-    [[ -f $postinstall_overlay_file ]] && source $postinstall_overlay_file
-
     cat << EOF
     nnnnnnnn        nnnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
     n:::::::n       n::::::ni::::::::ix:::::x       x:::::x

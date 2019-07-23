@@ -137,12 +137,6 @@ Create the files and place them alongside wherever your configuration.sh is.
 The [vm-example in this repo](https://github.com/a-schaefers/themelios/tree/master/hosts/vm-example)
 uses stock pool and dataset overlays by default. :)
 
-You can also set the postinstall_overlay_file in the same way,
-```bash
-postinstall_overlay_file=""      # run arbritrary code after nixos-install and before umount /mnt.
-```
-The following is an example using [postinstall_overlay_file that mounts a usb stick and copies my Private keys to my dotfiles](https://github.com/a-schaefers/nix-config/blob/master/hosts/latitude/postinstall.sh).
-
 ## zfs-configuration.nix
 If **nix_zfs_configuration_enabled="true"** in a configuration.sh file, Themelios will create /etc/nixos/zfs-configuration.nix with the following zfs-on-root settings:
 ```bash
