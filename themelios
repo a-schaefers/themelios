@@ -464,3 +464,24 @@ installation_complete
 
 # TODO
 # boot.loader.grub.mirroredBoots
+# boot.loader = {
+#     efi = {
+#         canTouchEfiVariables = true;
+#         efiSysMountPoint = "/boot"; # use the same mount point here.
+#     };
+#     # systemd-boot.enable = true; # (for UEFI systems only)
+
+#     grub.copyKernels = true;
+#     grub.efiSupport = true;
+#     grub.enable = true;
+#     grub.version = 2;
+#     grub.devices = [
+#         "/dev/sda"
+#         "/dev/sdb"
+#     ];
+#     grub.mirroredBoots = [
+#         {devices = [ "/dev/sda2" ]; path = "/boot1";}
+#         {devices = [ "/dev/sdb2" ]; path = "/boot";}
+#     ];
+
+# };
