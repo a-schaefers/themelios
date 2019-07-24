@@ -8,7 +8,8 @@ use_wipefs_all="true"   # use wipefs --all
 use_zero_disks="false"  # use dd if=/dev/zero ...
 zfs_pool_name="rpool"
 zfs_pool_disks=("/dev/sda" "/dev/sdb") # Note: using /dev/disk/by-id is also preferable.
-zfs_pool_type="mirror"  # use "" for single, or "mirror", "raidz1", etc.
+zfs_pool_type="mirror"  # use "" for single, or "mirror", "raidz1", etc
+zfs_encrypt_home="true"
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT") # datasets to be set with com.sun:auto-snapshot=true
 nix_top_level_configuration="hosts/Z620" # Your top-level nix file to be bootstrapped
 nix_repo_name="nix-config" # For example, here is mine! https://github.com/a-schaefers/nix-config
