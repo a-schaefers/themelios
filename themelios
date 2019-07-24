@@ -21,6 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# TODO: stop using so much unneeded test [[]] and quote variables
+# TODO: define vars at the top to make my linter shut up
+
 usage() {
     cat << EOF
     usage:
