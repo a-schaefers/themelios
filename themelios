@@ -238,9 +238,8 @@ mount_create_datasets() {
     mount -t zfs "$zfs_pool_name/ROOT/nixos" /mnt
     zpool set bootfs="$zfs_pool_name/ROOT/nixos" "$zfs_pool_name"
 
-    # create/mount /boot
-    [[ $uefi_install ]] && uefi_mkfs
-    [[ ! $uefi_install ]] && legacy_mkfs
+    # 1G fat32 /boot(X) ESP
+    mount_boots
 
     # mount /nix outside of the root dataset
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/NIX"
@@ -487,7 +486,6 @@ get_custom_nixcfg
 uefi_or_legacy
 disk_prep
 disk_part
-mount_boots
 zpool_create
 mount_create_datasets
 bootstrap_nixcfg
