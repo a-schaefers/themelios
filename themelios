@@ -364,7 +364,7 @@ MIRROREDBOOTS
 else
 
 cat <<- SINGLEBOOT
-device = [
+devices = [
 $(for disk_id in "${zfs_pool_disks[@]}"
 do
 echo "\"$disk_id\""
