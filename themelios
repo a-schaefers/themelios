@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# configuration.sh variables
 zfs_pool_disks=""
 use_sgdisk_clear=""
 use_wipefs_all=""
@@ -31,7 +32,6 @@ zfs_auto_snapshot=""
 nix_repo_name=""
 nix_zfs_configuration_extra_enabled=""
 nix_install_opts=""
-
 nix_zfs_configuration_extra_enabled=""
 nix_zfs_extra_auto_scrub=""
 nix_zfs_extra_auto_snapshot_enabled=""
