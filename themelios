@@ -78,20 +78,23 @@ uefi_or_legacy() {
     [[ -d "/sys/firmware/efi/efivars" ]] && uefi_install="1"
 }
 
-switch_if_needed() {
-    nixos-rebuild switch || die "switch_if_needed failed"
-}
-
 bootstrap_zfs() {
     sed -i '/imports/a boot.supportedFilesystems = [ \"zfs\" ];' \
         /etc/nixos/configuration.nix
-    needs_switch="1"
+    nixos-rebuild switch
 }
 
 bootstrap_git() {
     sed -i '/imports/a environment.systemPackages = with pkgs; [ git ];' \
         /etc/nixos/configuration.nix
-    needs_switch="1"
+    nixos-rebuild switch
+}
+
+livedisk_zfs_encryption_support() {
+    # check version todo
+    sed -i '/imports/a boot.zfs.enableUnstable = true;' \
+        /etc/nixos/configuration.nix
+    nixos-rebuild switch
 }
 
 get_custom_nixcfg() {
@@ -275,7 +278,14 @@ mount_create_datasets() {
 
     # /home datasets
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/HOME
-    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/HOME/home
+    if [ "$zfs_encrypt_home" = "true" ]; then
+        crypthome() {
+            zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase rpool/HOME/home || crypthome
+        }
+        crypthome
+    else
+        zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/HOME/home
+    fi
     mount -t zfs "$zfs_pool_name/HOME/home" /mnt/home
 
     # /tmp datasets
@@ -290,7 +300,7 @@ mount_create_datasets() {
             zfs set com.sun:auto-snapshot=true "$dataset"
         done
     }
-    zfs_auto_snapshot
+            zfs_auto_snapshot
 }
 
 bootstrap_nixcfg() {
@@ -389,6 +399,12 @@ boot.kernelParams = [ "elevator=noop" "boot.shell_on_fail" ];
 #boot.zfs.forceImportAll = false;
 #boot.zfs.forceImportRoot = false;
 
+$([[ $zfs_encrypt_home == "true" ]] && cat <<- HOMECRYPT
+boot.zfs.enableUnstable = true;
+boot.zfs.requestEncryptionCredentials = true;
+HOMECRYPT
+)
+
 $([[ $nix_zfs_configuration_extra_enabled == "true" ]] && cat <<- EXTRA
 # Enables periodic scrubbing of ZFS pools.
 services.zfs.autoScrub.enable = $nix_zfs_extra_auto_scrub;
@@ -482,8 +498,8 @@ git_branch=$3
 initial_warning
 command -v zfs || bootstrap_zfs
 command -v git || bootstrap_git
-[[ $needs_switch ]] && switch_if_needed
 get_custom_nixcfg
+[[ $zfs_encrypt_home = "true" ]] && livedisk_zfs_encryption_support
 uefi_or_legacy
 disk_prep
 disk_part
