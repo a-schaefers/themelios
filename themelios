@@ -341,13 +341,6 @@ efiSupport = true;
 enable = true;
 version = 2;
 
-devices = [
-$(for disk_id in "${zfs_pool_disks[@]}"
-do
-echo "\"$disk_id\""
-done)
-];
-
 $(if [ ${#zfs_pool_disks[@]} -gt 1 ]
 then
 cat <<- MIRROREDBOOTS
@@ -355,11 +348,20 @@ mirroredBoots = [
 $(bootnum=""
 for disk_id in "${zfs_pool_disks[@]}"
 do
-echo "{devices = [ \"${disk_id}${boot_part}\" ]; path = \"/boot${bootnum}\";}"
+echo "{devices = [ \"${disk_id}\" ]; path = \"/boot${bootnum}\";}"
 ((bootnum++))
 done)
 ];
 MIRROREDBOOTS
+else
+cat <<- SINGLEBOOT
+device = [
+$(for disk_id in "${zfs_pool_disks[@]}"
+do
+echo "\"$disk_id\""
+done)
+];
+SINGLEBOOT
 fi)
 
 };
@@ -371,13 +373,6 @@ cat <<- LEGACY
 
 boot.loader.grub.enable = true;
 boot.loader.grub.version = 2;
-boot.loader.grub.devices = [
-$(for disk_id in "${zfs_pool_disks[@]}"
-do
-echo "\"$disk_id\""
-done)
-];
-
 $(if [ ${#zfs_pool_disks[@]} -gt 1 ]
 then
 cat <<- MIRROREDBOOTS
@@ -385,11 +380,20 @@ boot.loader.grub.mirroredBoots = [
 $(bootnum=""
 for disk_id in "${zfs_pool_disks[@]}"
 do
-echo "{devices = [ \"${disk_id}${boot_part}\" ]; path = \"/boot${bootnum}\";}"
+echo "{devices = [ \"${disk_id}\" ]; path = \"/boot${bootnum}\";}"
 ((bootnum++))
 done)
 ];
 MIRROREDBOOTS
+else
+cat <<- SINGLEBOOT
+boot.loader.grub.device = [
+$(for disk_id in "${zfs_pool_disks[@]}"
+do
+echo "\"$disk_id\""
+done)
+];
+SINGLEBOOT
 fi)
 
 LEGACY
