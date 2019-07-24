@@ -114,8 +114,8 @@ get_custom_nixcfg() {
 
     github_clone_and_switch() {
         echo "cloning repo via $github_httpsremote"
-        github_httpsremote=https://github.com/$github_user/$github_repo
-        github_sshremote=git@github.com:$github_user/$github_repo
+        github_httpsremote="https://github.com/$github_user/$github_repo"
+        github_sshremote="git@github.com:$github_user/$github_repo"
         git clone "$github_httpsremote" /tmp/cloned_remote || fail_warning
         switch_github_remotes
         [[ $git_branch ]] && checkout_branch
