@@ -75,27 +75,7 @@ contents with a zfs-on-root NixOS installation and bootstrap your configuration.
 }
 
 uefi_or_legacy() {
-    # detect if this is a uefi installation.
     [[ -d "/sys/firmware/efi/efivars" ]] && uefi_install="1"
-
-    uefi_translate() {
-        # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*
-        echo "${zfs_pool_disks[0]}" | grep -q "/dev/sd" && use_uefi_sdX="1"
-        echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_uefi_nvme="1"
-        if [[ $use_uefi_sdX ]]
-        then
-            boot_part="2"
-            zpool_partition="3"
-        elif [[ $use_uefi_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
-        then
-            boot_part="p2"
-            zpool_partition="p3"
-        else
-            boot_part="-part2"
-            zpool_partition="-part3"
-        fi
-    }
-    [[ $uefi_install ]] && uefi_translate
 }
 
 switch_if_needed() {
@@ -179,6 +159,22 @@ get_custom_nixcfg() {
 }
 
 disk_prep() {
+    # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*, etc.
+    echo "${zfs_pool_disks[0]}" | grep -q "/dev/sd" && use_sdX="1"
+    echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_nvme="1"
+    if [[ $use_sdX ]]
+    then
+        boot_part="2"
+        zpool_partition="3"
+    elif [[ $use_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
+    then
+        boot_part="p2"
+        zpool_partition="p3"
+    else
+        boot_part="-part2"
+        zpool_partition="-part3"
+    fi
+
     sgdisk_clear() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
