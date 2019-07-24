@@ -485,6 +485,7 @@ command -v git || bootstrap_git
 get_custom_nixcfg
 uefi_or_legacy
 disk_prep
+disk_part
 mount_boots
 zpool_create
 mount_create_datasets
