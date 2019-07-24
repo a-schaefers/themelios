@@ -229,13 +229,17 @@ disk_part() {
         sgdisk -og "$disk_id"
         echo "making bios boot partition..."
         sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"bios boot partition" "$disk_id" || die "disk_part failed"
+        partx -u "$disk_id"
         echo "making 1G /boot fat32 ESP..."
         sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || die "disk_part failed"
+        partx -u "$disk_id"
         echo "making zpool partition with remainder of space..."
         sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || die "disk_part failed"
         sgdisk -p "$disk_id" || die "disk_part failed"
         partx -u "$disk_id"
+        sleep 5 # workaround weird issue where Linux still needs some time after partx to resolve disk path
     done
+    sleep 10 # workaround weird issue where Linux still needs some time after partx to resolve disk path
 }
 
 mount_boots() {
