@@ -326,20 +326,27 @@ EOF
 { ... }:
 { imports = [];
 boot.supportedFilesystems = [ "zfs" ];
-$(if [[ $uefi_install ]]
-then
-cat <<- UEFI
-
 boot.loader = {
+
+$(if [[ $uefi_install ]]; then # reinstall in legacy mode, it's better. :P
+cat <<- UEFI
 efi = {
 canTouchEfiVariables = true;
 efiSysMountPoint = "/boot"; # use the same mount point here.
 };
+UEFI
+fi)
+
 grub = {
-copyKernels = true;
-efiSupport = true;
 enable = true;
 version = 2;
+copyKernels = true;
+
+$(if [[ $uefi_install ]]; then
+cat <<- UEFI
+efiSupport = true;
+UEFI
+fi)
 
 $(if [ ${#zfs_pool_disks[@]} -gt 1 ]
 then
@@ -353,7 +360,9 @@ echo "{devices = [ \"${disk_id}\" ]; path = \"/boot${bootnum}\";}"
 done)
 ];
 MIRROREDBOOTS
+
 else
+
 cat <<- SINGLEBOOT
 device = [
 $(for disk_id in "${zfs_pool_disks[@]}"
@@ -366,38 +375,6 @@ fi)
 
 };
 };
-
-UEFI
-else
-cat <<- LEGACY
-
-boot.loader.grub.enable = true;
-boot.loader.grub.version = 2;
-$(if [ ${#zfs_pool_disks[@]} -gt 1 ]
-then
-cat <<- MIRROREDBOOTS
-boot.loader.grub.mirroredBoots = [
-$(bootnum=""
-for disk_id in "${zfs_pool_disks[@]}"
-do
-echo "{devices = [ \"${disk_id}\" ]; path = \"/boot${bootnum}\";}"
-((bootnum++))
-done)
-];
-MIRROREDBOOTS
-else
-cat <<- SINGLEBOOT
-boot.loader.grub.device = [
-$(for disk_id in "${zfs_pool_disks[@]}"
-do
-echo "\"$disk_id\""
-done)
-];
-SINGLEBOOT
-fi)
-
-LEGACY
-fi)
 
 # The 32-bit host id of the machine, formatted as 8 hexadecimal characters.
 # You should try to make this id unique among your machines.
