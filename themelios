@@ -358,8 +358,8 @@ do
 echo "{devices = [ \"${disk_id}${boot_part}\" ]; path = \"/boot${bootnum}\";}"
 ((bootnum++))
 done)
-MIRROREDBOOTS
 ];
+MIRROREDBOOTS
 fi)
 
 };
