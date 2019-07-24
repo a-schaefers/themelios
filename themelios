@@ -47,11 +47,6 @@ contents with a zfs-on-root NixOS installation and bootstrap your configuration.
     [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
 }
 
-fail_warning() {
-    read -p "The previous command failed with exit code: $?. Continue running script? (Y or N) " -n 1 -r
-    [[ ! $REPLY =~ ^[Yy]$ ]] && die "Aborted."
-}
-
 uefi_or_legacy() {
     # detect if this is a uefi installation.
     [[ -d "/sys/firmware/efi/efivars" ]] && uefi_install="1"
@@ -77,7 +72,7 @@ uefi_or_legacy() {
 }
 
 switch_if_needed() {
-    nixos-rebuild switch || fail_warning
+    nixos-rebuild switch || die "switch_if_needed failed"
 }
 
 bootstrap_zfs() {
@@ -116,7 +111,7 @@ get_custom_nixcfg() {
         echo "cloning repo via $github_httpsremote"
         github_httpsremote="https://github.com/$github_user/$github_repo"
         github_sshremote="git@github.com:$github_user/$github_repo"
-        git clone "$github_httpsremote" /tmp/cloned_remote || fail_warning
+        git clone "$github_httpsremote" /tmp/cloned_remote || die "1 git_clone_and_switch git clone failed"
         switch_github_remotes
         [[ $git_branch ]] && checkout_branch
     }
@@ -135,7 +130,7 @@ get_custom_nixcfg() {
 
     else
         echo "cloning repo via $git_remote"
-        git clone "$git_remote" /tmp/cloned_remote || fail_warning
+        git clone "$git_remote" /tmp/cloned_remote || die "2 git_clone_and_switch git clone failed"
         [[ $git_branch ]] && checkout_branch
     fi
 
@@ -161,7 +156,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "clearing disk with sgdisk..."
-            sgdisk --zap-all "$disk_id" || fail_warning
+            sgdisk --zap-all "$disk_id" || die "sgdisk_clear failed"
         done
     }
     [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
@@ -170,7 +165,7 @@ disk_prep() {
         for disk_id in "${zfs_pool_disks[@]}"
         do
             echo "wiping disk signatures with wipefs..."
-            wipefs -fa "$disk_id" || fail_warning
+            wipefs -fa "$disk_id" || die "wipefs_all failed"
         done
     }
     [[ $use_wipefs_all == "true" ]] && wipefs_all
@@ -199,7 +194,7 @@ zpool_create() {
           -R /mnt \
           $zfs_pool_name \
           $zfs_pool_type \
-          ${zfs_pool_disks[@]/%/$zpool_partition} || fail_warning
+          ${zfs_pool_disks[@]/%/$zpool_partition} || die "zpool_create failed"
 
     # https://github.com/NixOS/nixpkgs/issues/16954
     zfs set acltype=posixacl "$zfs_pool_name"
@@ -210,12 +205,12 @@ disk_part() {
     do
         sgdisk -og "$disk_id"
         echo "making bios boot partition..."
-        sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"bios boot partition" "$disk_id" || fail_warning
+        sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"bios boot partition" "$disk_id" || die "disk_part failed"
         echo "making 1G /boot fat32 ESP..."
-        sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || fail_warning
+        sgdisk -n 2:4096:2101247 -c 2:"EFI System Partition" -t 2:ef00 "$disk_id" || die "disk_part failed"
         echo "making zpool partition with remainder of space..."
-        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || fail_warning
-        sgdisk -p "$disk_id" || fail_warning
+        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"Linux ZPOOL Partition" -t 3:8300 "$disk_id" || die "disk_part failed"
+        sgdisk -p "$disk_id" || die "disk_part failed"
         partx -u "$disk_id"
     done
 }
@@ -224,7 +219,7 @@ mount_boots() {
     bootnum=""
     for disk_id in "${zfs_pool_disks[@]}"
     do
-        mkfs.vfat -F32 "${disk_id}${boot_part}" || fail_warning
+        mkfs.vfat -F32 "${disk_id}${boot_part}" || die "mount_boots mkfs.vfat failed"
         mkdir -p "/mnt/boot${bootnum}"
         mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
         ((bootnum++))
@@ -278,7 +273,7 @@ bootstrap_nixcfg() {
     # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
     echo "executing nixos-generate-config --root /mnt"
-    nixos-generate-config --root /mnt || fail_warning
+    nixos-generate-config --root /mnt || die "nixos-generate-config --root /mnt failed"
 
     echo "generating random hostid..."
     zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
