@@ -381,7 +381,7 @@ done)
 $(if [ ${#zfs_pool_disks[@]} -gt 1 ]
 then
 cat <<- MIRROREDBOOTS
-mirroredBoots = [
+boot.loader.grub.mirroredBoots = [
 $(bootnum=""
 for disk_id in "${zfs_pool_disks[@]}"
 do
