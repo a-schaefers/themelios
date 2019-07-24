@@ -223,7 +223,6 @@ mount_boots() {
     bootnum=""
     for disk_id in "${zfs_pool_disks[@]}"
     do
-        partx -u "$disk_id"
         mkfs.vfat -F32 "${disk_id}${boot_part}" || die "mount_boots mkfs.vfat failed"
         mkdir -p "/mnt/boot${bootnum}"
         mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
