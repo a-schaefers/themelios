@@ -279,20 +279,20 @@ mount_create_datasets() {
     mkdir -p /mnt/{home,tmp}
 
     # /home datasets
-    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/HOME
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/HOME"
     if [ "$zfs_encrypt_home" = "true" ]; then
         crypthome() {
-            zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase rpool/HOME/home || crypthome
+            zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase "$zfs_pool_name/HOME/home" || crypthome
         }
         crypthome
     else
-        zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name"/HOME/home
+        zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/HOME/home"
     fi
     mount -t zfs "$zfs_pool_name/HOME/home" /mnt/home
 
     # /tmp datasets
-    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name"/TMP
-    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name"/TMP/tmp
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/TMP"
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name/TMP/tmp"
     mount -t zfs "$zfs_pool_name/TMP/tmp" /mnt/tmp
 
     zfs_auto_snapshot() {
