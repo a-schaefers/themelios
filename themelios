@@ -489,4 +489,4 @@ livedisk_zfs_encryption_support
 # mount_create_datasets
 # bootstrap_nixcfg
 # installation_complete
-# 2.0
+# 2.02
