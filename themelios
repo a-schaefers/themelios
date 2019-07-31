@@ -24,16 +24,16 @@
 # configuration.sh file example variables:
 # note: DO NOT EDIT THEMELIOS DIRECTLY... That would be missing the whole point.
 # create a configuration.sh with the following variables, e.g. as follows:
-use_sgdisk_clear="true" # use sgdisk --clear
-use_wipefs_all="true"   # use wipefs --all
-use_zero_disks="false"  # use dd if=/dev/zero ...
-zfs_pool_name="rpool"
-zfs_pool_disks=("/dev/sda" "/dev/sdb") # Note: using /dev/disk/by-id is also preferable.
-zfs_pool_type="mirror"  # use "" for single, or "mirror", "raidz1", etc.
-zfs_encrypt_home="false"
-zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT") # datasets to be set with com.sun:auto-snapshot=true
-nix_top_level_configuration="hosts/Z620" # Your top-level nix file to be bootstrapped
-nix_zfs_configuration_extra_enabled="false" # uncomment below if set to true
+# use_sgdisk_clear="true" # use sgdisk --clear
+# use_wipefs_all="true"   # use wipefs --all
+# use_zero_disks="false"  # use dd if=/dev/zero ...
+# zfs_pool_name="rpool"
+# zfs_pool_disks=("/dev/sda" "/dev/sdb") # Note: using /dev/disk/by-id is also preferable.
+# zfs_pool_type="mirror"  # use "" for single, or "mirror", "raidz1", etc.
+# zfs_encrypt_home="false"
+# zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT") # datasets to be set with com.sun:auto-snapshot=true
+# nix_top_level_configuration="hosts/Z620" # Your top-level nix file to be bootstrapped
+# nix_zfs_configuration_extra_enabled="false" # uncomment below if set to true
 # nix_zfs_extra_auto_scrub="true"
 # nix_zfs_extra_auto_snapshot_enabled="true" # Enable the ZFS auto-snapshotting service
 # nix_zfs_extra_auto_snapshot_frequent="8"
@@ -90,6 +90,7 @@ bootstrap_git() {
 }
 
 livedisk_zfs_encryption_support() {
+    echo livedisk func: zfs_encrypt_home is: $zfs_encrypt_home
     if [ "$zfs_encrypt_home" = "true" ]; then # && ! zfs version | grep -q "0.8" ; then
         sed -i '/imports/a boot.zfs.enableUnstable = true;' \
             /etc/nixos/configuration.nix
@@ -159,6 +160,8 @@ get_custom_nixcfg() {
     echo "$config_dot_sh" | grep "/" || find_configuration_sh
 
     source "$config_dot_sh" || die "$config_dot_sh file not found."
+
+    echo source func: zfs_encrypt_home is: $zfs_encrypt_home
 }
 
 disk_prep() {
@@ -500,10 +503,11 @@ command -v zfs || bootstrap_zfs
 command -v git || bootstrap_git
 get_custom_nixcfg
 livedisk_zfs_encryption_support
-uefi_or_legacy
-disk_prep
-disk_part
-zpool_create
-mount_create_datasets
-bootstrap_nixcfg
-installation_complete
+
+# uefi_or_legacy
+# disk_prep
+# disk_part
+# zpool_create
+# mount_create_datasets
+# bootstrap_nixcfg
+# installation_complete
