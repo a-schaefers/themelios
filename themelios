@@ -90,9 +90,11 @@ bootstrap_git() {
 }
 
 livedisk_zfs_encryption_support() {
-    sed -i '/imports/a boot.zfs.enableUnstable = true;' \
-        /etc/nixos/configuration.nix
-    nixos-rebuild switch
+    if [ "$zfs_encrypt_home" = "true" ]; then # && ! zfs version | grep -q "0.8" ; then
+        sed -i '/imports/a boot.zfs.enableUnstable = true;' \
+            /etc/nixos/configuration.nix
+        nixos-rebuild switch
+    fi
 }
 
 get_custom_nixcfg() {
@@ -497,7 +499,7 @@ initial_warning
 command -v zfs || bootstrap_zfs
 command -v git || bootstrap_git
 get_custom_nixcfg
-if [ "$zfs_encrypt_home" = "true" ] && ! zfs version | grep -q "0.8" ; then livedisk_zfs_encryption_support ; fi
+livedisk_zfs_encryption_support
 uefi_or_legacy
 disk_prep
 disk_part
