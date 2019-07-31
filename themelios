@@ -33,7 +33,6 @@ zfs_pool_type="mirror"  # use "" for single, or "mirror", "raidz1", etc.
 zfs_encrypt_home="false"
 zfs_auto_snapshot=("$zfs_pool_name/HOME" "$zfs_pool_name/ROOT") # datasets to be set with com.sun:auto-snapshot=true
 nix_top_level_configuration="hosts/Z620" # Your top-level nix file to be bootstrapped
-nix_repo_name="nix-config" # For example, here is mine! https://github.com/a-schaefers/nix-config
 nix_zfs_configuration_extra_enabled="false" # uncomment below if set to true
 # nix_zfs_extra_auto_scrub="true"
 # nix_zfs_extra_auto_snapshot_enabled="true" # Enable the ZFS auto-snapshotting service
@@ -306,8 +305,8 @@ mount_create_datasets() {
 }
 
 bootstrap_nixcfg() {
-    echo "moving repo from /tmp to /mnt/$nix_repo_name..."
-    cp -a /tmp/cloned_remote "/mnt/$nix_repo_name"
+    echo "moving repo from /tmp to /mnt/nix-config..."
+    cp -a /tmp/cloned_remote "/mnt/nix-config"
 
     # this is for generating our ./hardware-configuration.nix files.
     # ./configuration.nix will be overwritten shortly hereafter.
@@ -327,7 +326,7 @@ bootstrap_nixcfg() {
     cat << EOF > /mnt/etc/nixos/configuration.nix
 { ... }:
 { imports = [
-../../$nix_repo_name/$nix_top_level_configuration
+../../nix-config/$nix_top_level_configuration
 ./hardware-configuration.nix
 ./zfs-configuration.nix
 ];
@@ -440,7 +439,7 @@ EOF
     }
 
     nixos-install_fail_retry() {
-        echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/$nix_repo_name before trying again."
+        echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/nix-config before trying again."
         echo "themelios hint: make sure you are using relative path imports for all of your .nix files."
         read -p "nixos-install failed, retry? will add --show-trace (y or n) " -n 1 -r
         if [[ $REPLY =~ ^[Yy]$ ]]
