@@ -501,6 +501,19 @@ command -v zfs || bootstrap_zfs
 command -v git || bootstrap_git
 get_custom_nixcfg
 [ "$zfs_encrypt_home" = "true" ] && livedisk_zfs_encryption_support
+cat << EOF
+$use_sgdisk_clear
+$use_wipefs_all
+$use_zero_disks
+$zfs_pool_name
+${zfs_pool_disks[@]}
+$zfs_pool_type
+$zfs_encrypt_home
+${zfs_auto_snapshot[@]}
+$nix_top_level_configuration
+$nix_zfs_configuration_extra_enabled
+EOF
+
 uefi_or_legacy
 disk_prep
 disk_part
