@@ -95,232 +95,232 @@ livedisk_zfs_encryption_support() {
     nixos-rebuild switch
 }
 
- get_custom_nixcfg() {
-     # clone the declared repo from git_remote ($2)
-     # optional git_branch ($3) may be used additionally for all users who need to build from a non-master branch.
-     # github users' https remote will be switched to ssh remote automatically after initial clone.
-     # github users also may use the "shorthand" username/repo-name
-     github_shorthand="$(echo "$git_remote" | grep -v ".git")"
-     github_url="$(echo "$git_remote" | grep "github.com")"
+get_custom_nixcfg() {
+    # clone the declared repo from git_remote ($2)
+    # optional git_branch ($3) may be used additionally for all users who need to build from a non-master branch.
+    # github users' https remote will be switched to ssh remote automatically after initial clone.
+    # github users also may use the "shorthand" username/repo-name
+    github_shorthand="$(echo "$git_remote" | grep -v ".git")"
+    github_url="$(echo "$git_remote" | grep "github.com")"
 
-     checkout_branch() {
-         echo "checking out $github_sshremote"
-         cd /tmp/cloned_remote || die
-         git checkout "$git_branch"
-     }
+    checkout_branch() {
+        echo "checking out $github_sshremote"
+        cd /tmp/cloned_remote || die
+        git checkout "$git_branch"
+    }
 
-     switch_github_remotes() {
-         echo "switching remote from https to $github_sshremote for user convenience..."
-         cd /tmp/cloned_remote || die
-         git remote set-url origin "$github_sshremote"
-     }
+    switch_github_remotes() {
+        echo "switching remote from https to $github_sshremote for user convenience..."
+        cd /tmp/cloned_remote || die
+        git remote set-url origin "$github_sshremote"
+    }
 
-     github_clone_and_switch() {
-         echo "cloning repo via $github_httpsremote"
-         github_httpsremote="https://github.com/$github_user/$github_repo"
-         github_sshremote="git@github.com:$github_user/$github_repo"
-         git clone "$github_httpsremote" /tmp/cloned_remote || die "1 git_clone_and_switch git clone failed"
-         switch_github_remotes
-         [[ $git_branch ]] && checkout_branch
-     }
+    github_clone_and_switch() {
+        echo "cloning repo via $github_httpsremote"
+        github_httpsremote="https://github.com/$github_user/$github_repo"
+        github_sshremote="git@github.com:$github_user/$github_repo"
+        git clone "$github_httpsremote" /tmp/cloned_remote || die "1 git_clone_and_switch git clone failed"
+        switch_github_remotes
+        [[ $git_branch ]] && checkout_branch
+    }
 
-     if [[ $github_url ]]
-     then
-         github_user="$(echo "$git_remote" | grep github | cut -d '/' -f 4)"
-         github_repo="$(echo "$git_remote" | grep github | cut -d '/' -f 5)"
-         github_clone_and_switch
+    if [[ $github_url ]]
+    then
+        github_user="$(echo "$git_remote" | grep github | cut -d '/' -f 4)"
+        github_repo="$(echo "$git_remote" | grep github | cut -d '/' -f 5)"
+        github_clone_and_switch
 
-     elif [[ $github_shorthand ]]
-     then
-         github_user="$(echo "$git_remote" | cut -d '/' -f 1)"
-         github_repo="$(echo "$git_remote" | cut -d '/' -f 2)"
-         github_clone_and_switch
+    elif [[ $github_shorthand ]]
+    then
+        github_user="$(echo "$git_remote" | cut -d '/' -f 1)"
+        github_repo="$(echo "$git_remote" | cut -d '/' -f 2)"
+        github_clone_and_switch
 
-     else
-         echo "cloning repo via $git_remote"
-         git clone "$git_remote" /tmp/cloned_remote || die "2 git_clone_and_switch git clone failed"
-         [[ $git_branch ]] && checkout_branch
-     fi
+    else
+        echo "cloning repo via $git_remote"
+        git clone "$git_remote" /tmp/cloned_remote || die "2 git_clone_and_switch git clone failed"
+        [[ $git_branch ]] && checkout_branch
+    fi
 
-     find_configuration_sh() {
-         # first we simply use "./the/path/to/$1" if the user provides it.
-         # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
-         # third we search again for a unique dirname, but only if the filename search turns up nothing,
-         # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
-         cd /tmp/cloned_remote || die
-         find . -type f -name "$config_dot_sh" | grep "." && \
-             config_dot_sh="$(find . -type f -name "$config_dot_sh")" && \
-             [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use."
-         find . -type d -name "$config_dot_sh" | grep "." && \
-             config_dot_sh="$(find . -type d -name "$config_dot_sh")/configuration.sh"
-     }
-     echo "$config_dot_sh" | grep "/" || find_configuration_sh
+    find_configuration_sh() {
+        # first we simply use "./the/path/to/$1" if the user provides it.
+        # second if $1 has no slashes, then we search for $1 guessing it maybe a unique filename in the project.
+        # third we search again for a unique dirname, but only if the filename search turns up nothing,
+        # then we append the literal "/configuration.sh" convention to the unique dirname, making assumption it must be this.
+        cd /tmp/cloned_remote || die
+        find . -type f -name "$config_dot_sh" | grep "." && \
+            config_dot_sh="$(find . -type f -name "$config_dot_sh")" && \
+            [ ! -e "$config_dot_sh" ] && die "themelios cannot figure out which $config_dot_sh to use."
+        find . -type d -name "$config_dot_sh" | grep "." && \
+            config_dot_sh="$(find . -type d -name "$config_dot_sh")/configuration.sh"
+    }
+    echo "$config_dot_sh" | grep "/" || find_configuration_sh
 
-     source "$config_dot_sh" || die "$config_dot_sh file not found."
- }
+    source "$config_dot_sh" || die "$config_dot_sh file not found."
+}
 
- disk_prep() {
-     # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*, etc.
-     echo "${zfs_pool_disks[0]}" | grep -q "/dev/sd" && use_sdX="1"
-     echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_nvme="1"
-     if [[ $use_sdX ]]
-     then
-         boot_part="2"
-         zpool_partition="3"
-     elif [[ $use_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
-     then
-         boot_part="p2"
-         zpool_partition="p3"
-     else
-         boot_part="-part2"
-         zpool_partition="-part3"
-     fi
+disk_prep() {
+    # some initial translation for whether or not the script was provided disks with sd* or /dev/disk/by-id/*, etc.
+    echo "${zfs_pool_disks[0]}" | grep -q "/dev/sd" && use_sdX="1"
+    echo "${zfs_pool_disks[0]}" | grep -q "/dev/nvme" && use_nvme="1"
+    if [[ $use_sdX ]]
+    then
+        boot_part="2"
+        zpool_partition="3"
+    elif [[ $use_nvme ]] # fixes https://github.com/a-schaefers/themelios/issues/2
+    then
+        boot_part="p2"
+        zpool_partition="p3"
+    else
+        boot_part="-part2"
+        zpool_partition="-part3"
+    fi
 
-     sgdisk_clear() {
-         for disk_id in "${zfs_pool_disks[@]}"
-         do
-             echo "clearing disk with sgdisk..."
-             sgdisk --zap-all "$disk_id" || die "sgdisk_clear failed"
-         done
-     }
-     [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
+    sgdisk_clear() {
+        for disk_id in "${zfs_pool_disks[@]}"
+        do
+            echo "clearing disk with sgdisk..."
+            sgdisk --zap-all "$disk_id" || die "sgdisk_clear failed"
+        done
+    }
+    [[ $use_sgdisk_clear == "true" ]] && sgdisk_clear
 
-     wipefs_all() {
-         for disk_id in "${zfs_pool_disks[@]}"
-         do
-             echo "wiping disk signatures with wipefs..."
-             wipefs -fa "$disk_id" || die "wipefs_all failed"
-         done
-     }
-     [[ $use_wipefs_all == "true" ]] && wipefs_all
+    wipefs_all() {
+        for disk_id in "${zfs_pool_disks[@]}"
+        do
+            echo "wiping disk signatures with wipefs..."
+            wipefs -fa "$disk_id" || die "wipefs_all failed"
+        done
+    }
+    [[ $use_wipefs_all == "true" ]] && wipefs_all
 
-     dd_zero() {
-         for disk_id in "${zfs_pool_disks[@]}"
-         do
-             echo "writing zeros to ${disk_id}..."
-             dd if=/dev/zero of="$disk_id" bs=1M oflag=direct status=progress &
-         done
-         wait
-     }
-     [[ $use_zero_disks == "true" ]] && dd_zero
- }
+    dd_zero() {
+        for disk_id in "${zfs_pool_disks[@]}"
+        do
+            echo "writing zeros to ${disk_id}..."
+            dd if=/dev/zero of="$disk_id" bs=1M oflag=direct status=progress &
+        done
+        wait
+    }
+    [[ $use_zero_disks == "true" ]] && dd_zero
+}
 
- zpool_create() {
-     echo "creating zpool..."
-     zpool create -f \
-           -o ashift=12 \
-           -O compression=lz4 \
-           -O atime=on \
-           -O relatime=on \
-           -O normalization=formD \
-           -O xattr=sa \
-           -m none \
-           -R /mnt \
-           $zfs_pool_name \
-           $zfs_pool_type \
-           ${zfs_pool_disks[@]/%/$zpool_partition} || die "zpool_create failed"
+zpool_create() {
+    echo "creating zpool..."
+    zpool create -f \
+          -o ashift=12 \
+          -O compression=lz4 \
+          -O atime=on \
+          -O relatime=on \
+          -O normalization=formD \
+          -O xattr=sa \
+          -m none \
+          -R /mnt \
+          $zfs_pool_name \
+          $zfs_pool_type \
+          ${zfs_pool_disks[@]/%/$zpool_partition} || die "zpool_create failed"
 
-     # https://github.com/NixOS/nixpkgs/issues/16954
-     zfs set acltype=posixacl "$zfs_pool_name"
- }
+    # https://github.com/NixOS/nixpkgs/issues/16954
+    zfs set acltype=posixacl "$zfs_pool_name"
+}
 
- disk_part() {
-     for disk_id in "${zfs_pool_disks[@]}"
-     do
-         sgdisk -og "$disk_id"
-         echo "making bios boot partition..."
-         sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"BIOS Boot Partition" "$disk_id" || die "disk_part failed"
-         partx -u "$disk_id"
-         echo "making 1G /boot fat32 ESP..."
-         sgdisk -n 2:4096:2101247 -c 2:"Fat32 ESP Partition" -t 2:ef00 "$disk_id" || die "disk_part failed"
-         partx -u "$disk_id"
-         echo "making zpool partition with remainder of space..."
-         sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"ZPOOL Partition" -t 3:8300 "$disk_id" || die "disk_part failed"
-         sgdisk -p "$disk_id" || die "disk_part failed"
-         partx -u "$disk_id"
-         sleep 5 # workaround weird issue where Linux still needs some time after partx to resolve disk path
-     done
-     sleep 10 # workaround weird issue where Linux still needs some time after partx to resolve disk path
- }
+disk_part() {
+    for disk_id in "${zfs_pool_disks[@]}"
+    do
+        sgdisk -og "$disk_id"
+        echo "making bios boot partition..."
+        sgdisk -a 1 -n 1:48:2047 -t 1:ef02 -c 1:"BIOS Boot Partition" "$disk_id" || die "disk_part failed"
+        partx -u "$disk_id"
+        echo "making 1G /boot fat32 ESP..."
+        sgdisk -n 2:4096:2101247 -c 2:"Fat32 ESP Partition" -t 2:ef00 "$disk_id" || die "disk_part failed"
+        partx -u "$disk_id"
+        echo "making zpool partition with remainder of space..."
+        sgdisk -n 3:2101248:"$(sgdisk -E "$disk_id")" -c 3:"ZPOOL Partition" -t 3:8300 "$disk_id" || die "disk_part failed"
+        sgdisk -p "$disk_id" || die "disk_part failed"
+        partx -u "$disk_id"
+        sleep 5 # workaround weird issue where Linux still needs some time after partx to resolve disk path
+    done
+    sleep 10 # workaround weird issue where Linux still needs some time after partx to resolve disk path
+}
 
- mount_boots() {
-     sleep 10 # workaround weird issue where Linux needs some time after partioning and before mkfs.vfat
-     bootnum=""
-     for disk_id in "${zfs_pool_disks[@]}"
-     do
-         mkfs.vfat -F32 "${disk_id}${boot_part}" || die "mount_boots mkfs.vfat failed"
-         mkdir -p "/mnt/boot${bootnum}"
-         mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
-         ((bootnum++))
-     done
- }
+mount_boots() {
+    sleep 10 # workaround weird issue where Linux needs some time after partioning and before mkfs.vfat
+    bootnum=""
+    for disk_id in "${zfs_pool_disks[@]}"
+    do
+        mkfs.vfat -F32 "${disk_id}${boot_part}" || die "mount_boots mkfs.vfat failed"
+        mkdir -p "/mnt/boot${bootnum}"
+        mount "${disk_id}${boot_part}" "/mnt/boot${bootnum}"
+        ((bootnum++))
+    done
+}
 
- mount_create_datasets() {
-     echo "Creating and mounting datasets in /mnt..."
-     # / (root) datasets
-     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/ROOT"
-     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/ROOT/nixos"
-     mount -t zfs "$zfs_pool_name/ROOT/nixos" /mnt
-     zpool set bootfs="$zfs_pool_name/ROOT/nixos" "$zfs_pool_name"
+mount_create_datasets() {
+    echo "Creating and mounting datasets in /mnt..."
+    # / (root) datasets
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/ROOT"
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/ROOT/nixos"
+    mount -t zfs "$zfs_pool_name/ROOT/nixos" /mnt
+    zpool set bootfs="$zfs_pool_name/ROOT/nixos" "$zfs_pool_name"
 
-     # 1G fat32 /boot(X) ESP
-     mount_boots
+    # 1G fat32 /boot(X) ESP
+    mount_boots
 
-     # mount /nix outside of the root dataset
-     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/NIX"
-     zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/NIX/nix"
-     mkdir /mnt/nix
-     mount -t zfs "$zfs_pool_name/NIX/nix" /mnt/nix
+    # mount /nix outside of the root dataset
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/NIX"
+    zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/NIX/nix"
+    mkdir /mnt/nix
+    mount -t zfs "$zfs_pool_name/NIX/nix" /mnt/nix
 
-     mkdir -p /mnt/{home,tmp}
+    mkdir -p /mnt/{home,tmp}
 
-     # /home datasets
-     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/HOME"
-     if [ "$zfs_encrypt_home" = "true" ]; then
-         crypthome() {
-             zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase "$zfs_pool_name/HOME/home" || crypthome
-         }
-         crypthome
-     else
-         zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/HOME/home"
-     fi
-     mount -t zfs "$zfs_pool_name/HOME/home" /mnt/home
+    # /home datasets
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/HOME"
+    if [ "$zfs_encrypt_home" = "true" ]; then
+        crypthome() {
+            zfs create -o mountpoint=legacy -o encryption=on -o keyformat=passphrase "$zfs_pool_name/HOME/home" || crypthome
+        }
+        crypthome
+    else
+        zfs create -o mountpoint=legacy -o canmount=on "$zfs_pool_name/HOME/home"
+    fi
+    mount -t zfs "$zfs_pool_name/HOME/home" /mnt/home
 
-     # /tmp datasets
-     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/TMP"
-     zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name/TMP/tmp"
-     mount -t zfs "$zfs_pool_name/TMP/tmp" /mnt/tmp
+    # /tmp datasets
+    zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/TMP"
+    zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name/TMP/tmp"
+    mount -t zfs "$zfs_pool_name/TMP/tmp" /mnt/tmp
 
-     zfs_auto_snapshot() {
-         for dataset in "${zfs_auto_snapshot[@]}"
-         do
-             echo "Setting property com.sun:auto-snapshot=true to ${dataset}..."
-             zfs set com.sun:auto-snapshot=true "$dataset"
-         done
-     }
-     zfs_auto_snapshot
- }
+    zfs_auto_snapshot() {
+        for dataset in "${zfs_auto_snapshot[@]}"
+        do
+            echo "Setting property com.sun:auto-snapshot=true to ${dataset}..."
+            zfs set com.sun:auto-snapshot=true "$dataset"
+        done
+    }
+    zfs_auto_snapshot
+}
 
- bootstrap_nixcfg() {
-     echo "moving repo from /tmp to /mnt/nix-config..."
-     cp -a /tmp/cloned_remote "/mnt/nix-config"
+bootstrap_nixcfg() {
+    echo "moving repo from /tmp to /mnt/nix-config..."
+    cp -a /tmp/cloned_remote "/mnt/nix-config"
 
-     # this is for generating our ./hardware-configuration.nix files.
-     # ./configuration.nix will be overwritten shortly hereafter.
-     echo "executing nixos-generate-config --root /mnt"
-     nixos-generate-config --root /mnt || die "nixos-generate-config --root /mnt failed"
+    # this is for generating our ./hardware-configuration.nix files.
+    # ./configuration.nix will be overwritten shortly hereafter.
+    echo "executing nixos-generate-config --root /mnt"
+    nixos-generate-config --root /mnt || die "nixos-generate-config --root /mnt failed"
 
-     echo "generating random hostid..."
-     zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
-     echo "$zfs_host_id"
+    echo "generating random hostid..."
+    zfs_host_id="$(head -c4 /dev/urandom | od -A none -t x4 | cut -d ' ' -f 2)"
+    echo "$zfs_host_id"
 
-     # strip potential prefixed './'
-     nix_top_level_configuration="$(echo "$nix_top_level_configuration" | sed 's|^./||')"
-     # strip potential trailing '/'
-     nix_top_level_configuration="${nix_top_level_configuration%/}"
+    # strip potential prefixed './'
+    nix_top_level_configuration="$(echo "$nix_top_level_configuration" | sed 's|^./||')"
+    # strip potential trailing '/'
+    nix_top_level_configuration="${nix_top_level_configuration%/}"
 
-     # create /mnt/etc/nixos/configuration.nix and import user's top_level_nixfile.
-     cat << EOF > /mnt/etc/nixos/configuration.nix
+    # create /mnt/etc/nixos/configuration.nix and import user's top_level_nixfile.
+    cat << EOF > /mnt/etc/nixos/configuration.nix
 { ... }:
 { imports = [
 ../../nix-config/$nix_top_level_configuration
@@ -330,8 +330,8 @@ livedisk_zfs_encryption_support() {
 }
 EOF
 
-     # create /mnt/etc/nixos/zfs-configuration.nix
-     cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
+    # create /mnt/etc/nixos/zfs-configuration.nix
+    cat << EOF > /mnt/etc/nixos/zfs-configuration.nix
 { ... }:
 { imports = [];
 boot.supportedFilesystems = [ "zfs" ];
@@ -430,33 +430,33 @@ EXTRA
 }
 EOF
 
-     # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
-     nixos-install-show-trace() {
-         nixos-install --show-trace || nixos-install_fail_retry
-     }
+    # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
+    nixos-install-show-trace() {
+        nixos-install --show-trace || nixos-install_fail_retry
+    }
 
-     nixos-install_fail_retry() {
-         echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/nix-config before trying again."
-         echo "themelios hint: make sure you are using relative path imports for all of your .nix files."
-         read -p "nixos-install failed, retry? will add --show-trace (y or n) " -n 1 -r
-         if [[ $REPLY =~ ^[Yy]$ ]]
-         then
-             nixos-install-show-trace
-         else
-             die "the only steps remaining after nixos-install should be unmounting /mnt and exporting the pool :) good luck."
-         fi
-     }
+    nixos-install_fail_retry() {
+        echo "themelios hint: check /mnt/etc/nixos/configuration.nix and your other files in /mnt/nix-config before trying again."
+        echo "themelios hint: make sure you are using relative path imports for all of your .nix files."
+        read -p "nixos-install failed, retry? will add --show-trace (y or n) " -n 1 -r
+        if [[ $REPLY =~ ^[Yy]$ ]]
+        then
+            nixos-install-show-trace
+        else
+            die "the only steps remaining after nixos-install should be unmounting /mnt and exporting the pool :) good luck."
+        fi
+    }
 
-     install() {
-         echo "executing nixos-install"
-         nixos-install || nixos-install_fail_retry
-     }
+    install() {
+        echo "executing nixos-install"
+        nixos-install || nixos-install_fail_retry
+    }
 
-     install
- }
+    install
+}
 
- installation_complete() {
-     cat << EOF
+installation_complete() {
+    cat << EOF
     nnnnnnnn        nnnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
     n:::::::n       n::::::ni::::::::ix:::::x       x:::::x
     n::::::::n      n::::::ni::::::::ix:::::x       x:::::x
@@ -475,33 +475,33 @@ EOF
     nnnnnnnn         nnnnnnniiiiiiiiiixxxxxxx       xxxxxxx
 EOF
 
-     echo "unmounting /mnt"
-     umount -lR /mnt
+    echo "unmounting /mnt"
+    umount -lR /mnt
 
-     echo "exporting $zfs_pool_name"
-     zpool export "$zfs_pool_name"
+    echo "exporting $zfs_pool_name"
+    zpool export "$zfs_pool_name"
 
-     read -p "finished. reboot now? (y or n) " -n 1 -r
-     [[ $REPLY =~ ^[Yy]$ ]] && reboot
- }
+    read -p "finished. reboot now? (y or n) " -n 1 -r
+    [[ $REPLY =~ ^[Yy]$ ]] && reboot
+}
 
- # start executing code !
+# start executing code !
 
- [ $# -lt 2 ] && usage
- [ $# -gt 3 ] && usage
- config_dot_sh=$1
- git_remote=$2
- git_branch=$3
+[ $# -lt 2 ] && usage
+[ $# -gt 3 ] && usage
+config_dot_sh=$1
+git_remote=$2
+git_branch=$3
 
- initial_warning
- command -v zfs || bootstrap_zfs
- command -v git || bootstrap_git
- get_custom_nixcfg
- if [ "$zfs_encrypt_home" = "true" ] && ! zfs version | grep -q "0.8" ; then livedisk_zfs_encryption_support ; fi
- uefi_or_legacy
- disk_prep
- disk_part
- zpool_create
- mount_create_datasets
- bootstrap_nixcfg
- installation_complete
+initial_warning
+command -v zfs || bootstrap_zfs
+command -v git || bootstrap_git
+get_custom_nixcfg
+if [ "$zfs_encrypt_home" = "true" ] && ! zfs version | grep -q "0.8" ; then livedisk_zfs_encryption_support ; fi
+uefi_or_legacy
+disk_prep
+disk_part
+zpool_create
+mount_create_datasets
+bootstrap_nixcfg
+installation_complete
