@@ -63,12 +63,6 @@ bootstrap_git() {
     nixos-rebuild switch
 }
 
-livedisk_zfs_encryption_support() {
-        sed -i '/imports/a boot.zfs.enableUnstable = true;' \
-            /etc/nixos/configuration.nix
-        nixos-rebuild switch
-}
-
 get_custom_nixcfg() {
     # clone the declared repo from git_remote ($2)
     # optional git_branch ($3) may be used additionally for all users who need to build from a non-master branch.
@@ -486,7 +480,6 @@ initial_warning
 command -v zfs || bootstrap_zfs
 command -v git || bootstrap_git
 get_custom_nixcfg
-if [ "$zfs_encrypt_home" = "true" ] && ! zfs version | grep -q "0.8" ; then livedisk_zfs_encryption_support ; fi
 uefi_or_legacy
 disk_prep
 disk_part
