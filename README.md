@@ -19,19 +19,16 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 - **ZFS native-encryption is now an option in configuration.sh**
 
 ## NEWS
-### Themelios 2.0
-#### Features:
-- Code cleaned and options simplified...
+### Themelios 2.0 Features:
+- 300 lines of code removed [cleaned / simplified] with fewer configuration variables...
 
-~300 lines of code removed and there are now much fewer configuration variables available...
-
-- Native ZFS encryption is now supported as an official option.
-
-important note:
+- Native ZFS encryption is an official option.
 
 To use zfs encryption, you will need a nixos installation ISO that includes ZFS version 0.8 or higher. There is information how to build such an ISO at the bottom of this README.md page.
-- GRUB is now used by default for both UEFI and LEGACY.
-- for legacy users, /boot is kept in sync across multiple disks, (for this reason, legacy BIOS is still recommended for all computers that support it instead of UEFI: legacy is more robust.)
+
+- Identical GRUB and partioning schemes are now used for both UEFI and LEGACY.
+
+- For legacy users, /boot is kept in sync across multiple disks. For this reason, legacy BIOS is still recommended [for computers that support it] > UEFI. Simply put: legacy is more robust than UEFI.
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
