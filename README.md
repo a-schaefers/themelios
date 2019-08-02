@@ -86,6 +86,10 @@ in {
   };
     boot.supportedFilesystems = [ "zfs" ];
   environment.systemPackages = with pkgs; [ git themelios ];
+
+  # uncomment below if you need 0.8 encryption
+  # boot.zfs.enableUnstable = true;
+  # boot.zfs.requestEncryptionCredentials = true;
 }
 ```
  And build it!
