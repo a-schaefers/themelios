@@ -20,7 +20,13 @@ Bootstrap a zfs-on-root NixOS configuration in one command.
 
 ## NEWS
 ### Themelios 2.0
-Native ZFS encryption is now supported for both legacy and UEFI systems. Script cleaned and options simplified.
+#### Features:
+- Code cleaned and options simplified... (~300 lines of code removed and there are now much fewer configuration variables available...))
+- Native ZFS encryption is now supported as an official option.
+important note:
+To use zfs encryption, you will need a nixos installation ISO that includes ZFS version 0.8 or higher. There is information how to build such an ISO at the bottom of this README.md page.
+- GRUB is now used by default for both UEFI and LEGACY.
+- for legacy users, /boot is kept in sync across multiple disks, (for this reason, legacy BIOS is still recommended for all computers that support it instead of UEFI: legacy is more robust.)
 
 ## Try it in it a VM right now!
 - From a NixOS LiveDisk VM,
@@ -47,6 +53,14 @@ If none of this works for you, just tell themelios where the file is relative to
 _NOTE: The username/repo-name shortcut only works for Github repos. Non-Github repos must provide the full remote._
 
 **TL;DR. Feed Themelios a git repository url that contains a [configuration.sh](https://github.com/a-schaefers/themelios/blob/testing/example_configuration.sh) file:**
+
+## [non-]Issues
+
+### fetchTarball currently does not work ...
+While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
+
+### home-manager: a common source of bootstrap fails
+At present, if the bootstrap fails due to home-manager, I comment out home-manager section of my configuration in /mnt during the initial bootstrap. Once rebooted, (and so out of the chroot), then I uncomment it and nixos-rebuild switch again.
 
 ## Tips & Tricks
 
@@ -76,11 +90,3 @@ in {
 ```bash
 nix-build '<nixpkgs/nixos>' -A config.system.build.isoImage -I nixos-config=iso.nix
 ```
-
-## [non-]Issues
-
-### fetchTarball currently does not work ...
-While Themelios aims to fail gracefully, if the initial bootstrap fails and if there is not an error in your nix files, one commonly known cause of failure is use of fetchTarball. Using fetchTarball does not work during new NixOS installations. This is not Themelios' fault! Here's the NixOS bug that is already reported: https://github.com/NixOS/nix/issues/2405
-
-### home-manager: a common source of bootstrap fails
-At present, if the bootstrap fails due to home-manager, I comment out home-manager section of my configuration in /mnt during the initial bootstrap. Once rebooted, (and so out of the chroot), then I uncomment it and nixos-rebuild switch again.
