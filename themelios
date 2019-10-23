@@ -273,6 +273,7 @@ mount_create_datasets() {
     zfs create -o mountpoint=none -o canmount=off "$zfs_pool_name/TMP"
     zfs create -o mountpoint=legacy -o canmount=on -o sync=disabled "$zfs_pool_name/TMP/tmp"
     mount -t zfs "$zfs_pool_name/TMP/tmp" /mnt/tmp
+    chmod 1777 /mnt/tmp
 
     zfs_auto_snapshot() {
         for dataset in "${zfs_auto_snapshot[@]}"
