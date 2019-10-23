@@ -415,7 +415,7 @@ EOF
 
     # give user a retry option with --show-trace to have a chance to fix imports on another tty. :)
     nixos-install-show-trace() {
-        nixos-install --show-trace || nixos-install_fail_retry
+        nixos-install $install_arguments --show-trace || nixos-install_fail_retry
     }
 
     nixos-install_fail_retry() {
@@ -432,7 +432,7 @@ EOF
 
     install() {
         echo "executing nixos-install"
-        nixos-install || nixos-install_fail_retry
+        nixos-install $install_arguments || nixos-install_fail_retry
     }
 
     install
