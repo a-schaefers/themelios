@@ -3,6 +3,7 @@
 use_sgdisk_clear="true"     # use sgdisk --clear
 use_wipefs_all="true"       # use wipefs --all
 use_zero_disks="false"      # use dd if=/dev/zero ...
+install_arguments=""        # any extra arguments to nixos-install, like --no-root-passwd
 zfs_pool_name="rpool"
 zfs_pool_disks=("/dev/sda") # Note: using /dev/disk/by-id is also preferable.
 zfs_pool_type=""            # use "" for single, or "mirror", "raidz1", etc.
